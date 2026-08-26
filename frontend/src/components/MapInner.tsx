@@ -47,7 +47,7 @@ export const MapInner: React.FC<MapInnerProps> = ({
   const userMarkerLayerRef = useRef<L.LayerGroup | null>(null);
   const radiusCirclesLayerRef = useRef<L.LayerGroup | null>(null);
 
-  // Initialize Dark Map (Fixed focus on Kota Bogor)
+  // Initialize Dark Map (Standard Free Tile Layer without API key requirement)
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
@@ -60,8 +60,8 @@ export const MapInner: React.FC<MapInnerProps> = ({
       attributionControl: true,
     });
 
-    // Dark Matter Cartography
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // Clean Dark Matter Basemap (Standard Non-Retina Endpoint without API Key Watermark)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
       maxZoom: 19,
       subdomains: 'abcd',

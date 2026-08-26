@@ -13,6 +13,22 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->group(function () {
+    // API Root Overview
+    Route::get('/', function () {
+        return response()->json([
+            'status' => 'online',
+            'app' => 'Go Around - WebGIS Tempat Nugas Ramah Mahasiswa Kota Bogor',
+            'version' => '1.0.0',
+            'endpoints' => [
+                'places' => url('/api/v1/places'),
+                'categories' => url('/api/v1/categories'),
+                'amenities' => url('/api/v1/amenities'),
+                'health' => url('/api/v1/health'),
+            ],
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    });
+
     // Health Check
     Route::get('/health', function () {
         return response()->json([
