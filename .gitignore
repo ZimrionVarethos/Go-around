@@ -1,0 +1,66 @@
+# ==============================================================================
+# Go Around WebGIS: Global Project Git Ignore
+# ==============================================================================
+
+# Environment & Sensitive Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+credentials.json
+service-account.json
+
+# Dependencies
+node_modules/
+vendor/
+
+# Next.js Build Outputs & Cache
+frontend/.next/
+frontend/out/
+frontend/build/
+.next/
+out/
+build/
+dist/
+
+# Laravel Storage & Framework Cache
+backend/go-around/storage/*.key
+backend/go-around/storage/framework/cache/*
+backend/go-around/storage/framework/sessions/*
+backend/go-around/storage/framework/views/*
+backend/go-around/storage/logs/*
+backend/go-around/bootstrap/cache/*
+!backend/go-around/storage/framework/cache/.gitignore
+!backend/go-around/storage/framework/sessions/.gitignore
+!backend/go-around/storage/framework/views/.gitignore
+!backend/go-around/storage/logs/.gitignore
+!backend/go-around/bootstrap/cache/.gitignore
+
+# Testing & Logs
+.phpunit.result.cache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# IDE, OS, & System Artifacts
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
+
+# Explicitly Track Markdown Documentation
+!*.md
+!backend/**/*.md
+!frontend/**/*.md
