@@ -47,7 +47,7 @@ export const MapInner: React.FC<MapInnerProps> = ({
   const userMarkerLayerRef = useRef<L.LayerGroup | null>(null);
   const radiusCirclesLayerRef = useRef<L.LayerGroup | null>(null);
 
-  // Initialize Dark Map (Standard Free Tile Layer without API key requirement)
+  // Initialize Dark Map (100% Free Public GIS Layer - Zero API Key, Zero Watermark on Vercel/Production)
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
@@ -60,12 +60,24 @@ export const MapInner: React.FC<MapInnerProps> = ({
       attributionControl: true,
     });
 
-    // Clean Dark Matter Basemap (Standard Non-Retina Endpoint without API Key Watermark)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
-      maxZoom: 19,
-      subdomains: 'abcd',
-    }).addTo(map);
+    // 1. ESRI World Dark Gray Canvas Base (Open GIS Standard, No Watermark)
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+      {
+        attribution: '&copy; Esri, DeLorme, NAVTEQ, OpenStreetMap',
+        maxZoom: 18,
+        className: 'esri-dark-tiles',
+      }
+    ).addTo(map);
+
+    // 2. ESRI World Dark Gray Reference Layer (Crisp Streets & Labels)
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 18,
+        opacity: 0.9,
+      }
+    ).addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -162,8 +174,8 @@ export const MapInner: React.FC<MapInnerProps> = ({
         const circle = L.circle([userLocation.lat, userLocation.lng], {
           radius: radiusMeters,
           color: isHighlight ? '#38bdf8' : '#0284c7',
-          weight: isHighlight ? 1.5 : 0.8,
-          opacity: isHighlight ? 0.8 : 0.3,
+          weight: 1.5,
+          opacity: isHighlight ? 0.8 : 0.35,
           dashArray: '4, 6',
           fillColor: '#0284c7',
           fillOpacity: isHighlight ? 0.05 : 0.015,
@@ -357,7 +369,7 @@ export const MapInner: React.FC<MapInnerProps> = ({
         </button>
       </div>
 
-      {/* Map Floating HUD Bottom: Subdistrict Filter Pills (With right margin so it never overlaps zoom controls) */}
+      {/* Map Floating HUD Bottom: Subdistrict Filter Pills */}
       <div className="absolute bottom-3 left-3 right-14 sm:left-4 sm:right-auto z-[400] flex items-center gap-1.5 overflow-x-auto pb-1 max-w-[calc(100vw-5rem)] sm:max-w-2xl scrollbar-none">
         {SUBDISTRICTS.map((sub) => {
           const isSelected =

@@ -20,22 +20,26 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-850 text-zinc-100">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Brand Logo & Title */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-zinc-900 border border-zinc-700/80 p-0.5 flex items-center justify-center shadow-md">
-            <div className="w-full h-full rounded-lg bg-zinc-950 flex items-center justify-center text-emerald-400">
-              <Coffee className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4 relative">
+        {/* Protruding / Hanging Logo Pod (Menonjol ke Bawah Melewati Garis Navbar) */}
+        <div className="flex items-center self-start shrink-0">
+          <div className="relative -mt-0.5 pt-1.5 sm:pt-2 pb-2.5 sm:pb-3 px-3 sm:px-4 bg-zinc-900 border-x border-b border-zinc-700/90 rounded-b-2xl shadow-2xl flex items-center gap-2 sm:gap-2.5 transition-transform hover:translate-y-0.5 z-50">
+            {/* Metallic Circle Emblem */}
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-zinc-700 via-zinc-900 to-black p-0.5 border border-zinc-600 shadow-inner flex items-center justify-center shrink-0">
+              <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center text-emerald-400 border border-emerald-500/30">
+                <Coffee className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="font-syne font-bold text-sm sm:text-base tracking-tight text-white uppercase">
-              GO AROUND
-            </span>
-            <span className="text-[9px] sm:text-[10px] font-syne font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30">
-              BOGOR
-            </span>
+            {/* Brand Title in Syne Font */}
+            <div className="flex items-center gap-1.5">
+              <span className="font-syne font-extrabold text-xs sm:text-base tracking-tight text-white uppercase">
+                GO AROUND
+              </span>
+              <span className="text-[8px] sm:text-[10px] font-syne font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/40">
+                BOGOR
+              </span>
+            </div>
           </div>
         </div>
 

@@ -34,12 +34,17 @@ body {
   background: #3f3f46;
 }
 
-/* Leaflet Mapcn Dark Mode Styles */
+/* Leaflet Dark Mode Resets */
 .leaflet-container {
-  background: #09090b !important;
+  background: #000000 !important;
   width: 100% !important;
   height: 100% !important;
   font-family: inherit !important;
+}
+
+/* OLED Black Map Styling */
+.esri-dark-tiles {
+  filter: brightness(0.85) contrast(1.2) grayscale(0.1);
 }
 
 .leaflet-popup-content-wrapper {
