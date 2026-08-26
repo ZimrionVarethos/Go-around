@@ -47,13 +47,15 @@ export const MapInner: React.FC<MapInnerProps> = ({
   const userMarkerLayerRef = useRef<L.LayerGroup | null>(null);
   const radiusCirclesLayerRef = useRef<L.LayerGroup | null>(null);
 
-  // Initialize Dark Map
+  // Initialize Dark Map (Fixed focus on Kota Bogor)
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
     const map = L.map(mapContainerRef.current, {
       center: [-6.595038, 106.790082],
       zoom: 13,
+      minZoom: 11,
+      maxZoom: 18,
       zoomControl: false,
       attributionControl: true,
     });
@@ -197,7 +199,7 @@ export const MapInner: React.FC<MapInnerProps> = ({
       const customCoffeeIcon = L.divIcon({
         className: 'pure-coffee-marker',
         html: `
-          <div style="position: relative; width: 34px; height: 34px; transform: translate(-50%, -50%); cursor: pointer;">
+          <div style="position: relative; width: 32px; height: 32px; transform: translate(-50%, -50%); cursor: pointer;">
             ${
               isSelected
                 ? `<div class="coffee-pin-pulse" style="
@@ -210,8 +212,8 @@ export const MapInner: React.FC<MapInnerProps> = ({
                 : ''
             }
             <div style="
-              width: 34px;
-              height: 34px;
+              width: 32px;
+              height: 32px;
               border-radius: 9999px;
               background: #09090b;
               border: 2px solid ${isSelected ? '#ffffff' : accentColor};
@@ -221,7 +223,7 @@ export const MapInner: React.FC<MapInnerProps> = ({
               justify-content: center;
               transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             " onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${isSelected ? '#ffffff' : accentColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${isSelected ? '#ffffff' : accentColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h12Z"/><path d="M6 2v2"/><path d="M17 10h1a3 3 0 0 1 3 3v1a3 3 0 0 1-3 3h-1"/>
               </svg>
             </div>
@@ -233,20 +235,20 @@ export const MapInner: React.FC<MapInnerProps> = ({
 
       const marker = L.marker([lat, lng], { icon: customCoffeeIcon });
 
-      // Clean tooltip on hover (shows name only on hover)
+      // Clean tooltip on hover
       marker.bindTooltip(`
         <div style="font-family: var(--font-syne), sans-serif; font-size: 11px; font-weight: 700; color: #ffffff; padding: 2px 4px;">
           ${p.name} <span style="color: ${accentColor}; font-weight: 700;">★ ${p.nugas_score}</span>
         </div>
       `, {
         direction: 'top',
-        offset: [0, -20],
+        offset: [0, -18],
         className: 'leaflet-popup-content-wrapper',
       });
 
       // Rich Mapcn dark glass popup when clicked
       const popupContent = document.createElement('div');
-      popupContent.style.minWidth = '220px';
+      popupContent.style.minWidth = '210px';
       popupContent.innerHTML = `
         <div>
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
@@ -258,12 +260,9 @@ export const MapInner: React.FC<MapInnerProps> = ({
             </span>
           </div>
 
-          <h4 style="font-family: var(--font-syne), sans-serif; font-size: 14px; font-weight: 700; color: #ffffff; margin: 0 0 4px 0; line-height: 1.3;">
+          <h4 style="font-family: var(--font-syne), sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; margin: 0 0 4px 0; line-height: 1.3;">
             ${p.name}
           </h4>
-          <p style="font-size: 11px; color: #a1a1aa; margin: 0 0 8px 0; line-height: 1.3;">
-            ${p.address}
-          </p>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px; background: #121215; padding: 6px 8px; border-radius: 6px; border: 1px solid #27272a; margin-bottom: 8px;">
             <span style="color: #a1a1aa;">Wi-Fi: <b style="color: #38bdf8;">${p.wifi_speed_mbps} Mbps</b></span>
@@ -291,7 +290,7 @@ export const MapInner: React.FC<MapInnerProps> = ({
             cursor: pointer;
             transition: background 0.15s;
           ">
-            Buka Detail & Rute Navigasi &rarr;
+            Buka Detail & Rute &rarr;
           </button>
         </div>
       `;
@@ -328,17 +327,17 @@ export const MapInner: React.FC<MapInnerProps> = ({
   };
 
   return (
-    <div className="relative w-full h-full min-h-[380px] sm:min-h-[500px] bg-black">
+    <div className="relative w-full h-full min-h-[360px] sm:min-h-[480px] bg-black">
       {/* Real Map Canvas */}
-      <div ref={mapContainerRef} className="w-full h-full min-h-[380px] sm:min-h-[500px]" />
+      <div ref={mapContainerRef} className="w-full h-full min-h-[360px] sm:min-h-[480px]" />
 
-      {/* Mapcn Floating HUD Top-Right: Cari Terdekat & Recenter */}
+      {/* Map Floating HUD Top-Right: Cari Terdekat & Recenter */}
       <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-[400] flex items-center gap-1.5 sm:gap-2">
         <button
           onClick={onTriggerNearby}
           disabled={isLocating}
           title="Cari spot nugas terdekat dari posisi saya"
-          className="bg-black/90 hover:bg-zinc-900 border border-sky-500/60 hover:border-sky-400 text-sky-400 hover:text-sky-300 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-syne font-bold flex items-center gap-1.5 backdrop-blur-md transition-all shadow-xl cursor-pointer disabled:opacity-50"
+          className="bg-black/90 hover:bg-zinc-900 border border-sky-500/60 hover:border-sky-400 text-sky-400 hover:text-sky-300 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-syne font-bold flex items-center gap-1.5 backdrop-blur-md transition-all shadow-xl cursor-pointer disabled:opacity-50"
         >
           {isLocating ? (
             <Radio className="w-3.5 h-3.5 animate-spin text-sky-400" />
@@ -351,15 +350,15 @@ export const MapInner: React.FC<MapInnerProps> = ({
         <button
           onClick={handleRecenter}
           title="Pusatkan Peta Kota Bogor"
-          className="bg-black/85 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-syne font-bold flex items-center gap-1.5 backdrop-blur-md transition-all shadow-xl cursor-pointer"
+          className="bg-black/85 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-syne font-bold flex items-center gap-1 backdrop-blur-md transition-all shadow-xl cursor-pointer"
         >
           <Crosshair className="w-3.5 h-3.5 text-emerald-400" />
           <span className="hidden sm:inline">Pusatkan</span>
         </button>
       </div>
 
-      {/* Mapcn Floating HUD Bottom: Subdistrict Filter Pills */}
-      <div className="absolute bottom-3 left-3 right-3 sm:left-4 sm:right-auto z-[400] flex items-center gap-1.5 overflow-x-auto pb-1 max-w-[calc(100vw-2rem)] sm:max-w-2xl scrollbar-none">
+      {/* Map Floating HUD Bottom: Subdistrict Filter Pills (With right margin so it never overlaps zoom controls) */}
+      <div className="absolute bottom-3 left-3 right-14 sm:left-4 sm:right-auto z-[400] flex items-center gap-1.5 overflow-x-auto pb-1 max-w-[calc(100vw-5rem)] sm:max-w-2xl scrollbar-none">
         {SUBDISTRICTS.map((sub) => {
           const isSelected =
             (sub === 'Semua' && !activeSubdistrict) || activeSubdistrict === sub;
@@ -367,7 +366,7 @@ export const MapInner: React.FC<MapInnerProps> = ({
             <button
               key={sub}
               onClick={() => onSelectSubdistrict(sub === 'Semua' ? '' : sub)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-syne font-bold whitespace-nowrap transition-all backdrop-blur-md border cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-syne font-bold whitespace-nowrap transition-all backdrop-blur-md border cursor-pointer ${
                 isSelected
                   ? 'bg-zinc-100 text-zinc-950 border-white shadow-lg shadow-white/10'
                   : 'bg-black/85 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-200 border-zinc-800'

@@ -157,19 +157,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-zinc-100 font-sans selection:bg-emerald-500 selection:text-black">
-      {/* Top Navbar with Protruding Logo Pod */}
+      {/* Top Navbar */}
       <Navbar
         searchQuery={filters.search}
         onSearchChange={(val) => setFilters((prev) => ({ ...prev, search: val }))}
         onOpenRecommend={() => setIsRecommendOpen(true)}
         onOpenContribute={() => setIsContributeOpen(true)}
-        placesCount={places.length}
       />
 
       <main className="flex-1 flex flex-col gap-4 sm:gap-6 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:px-8">
         {/* Location Error Notification Toast */}
         {locationError && (
-          <div className="w-full bg-red-950/90 border border-red-800 text-red-200 px-4 py-3 rounded-2xl flex items-center justify-between gap-3 text-xs font-sans animate-fade-in shadow-xl">
+          <div className="w-full bg-red-950/90 border border-red-800 text-red-200 px-4 py-2.5 rounded-xl flex items-center justify-between gap-3 text-xs animate-fade-in shadow-xl">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
               <span>{locationError}</span>
@@ -185,7 +184,7 @@ export default function Home() {
 
         {/* Nearby Active Mode Banner */}
         {isNearbyActive && userLocation && (
-          <div className="w-full bg-sky-950/80 border border-sky-800 text-sky-200 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-sans animate-fade-in shadow-xl">
+          <div className="w-full bg-sky-950/80 border border-sky-800 text-sky-200 px-3.5 sm:px-4 py-2.5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs animate-fade-in shadow-xl">
             <div className="flex items-center gap-2">
               <Radio className="w-4 h-4 text-sky-400 shrink-0 animate-pulse" />
               <span className="font-medium">
@@ -194,7 +193,7 @@ export default function Home() {
             </div>
             <button
               onClick={handleResetNearby}
-              className="px-3 py-1 bg-sky-900 hover:bg-sky-850 text-sky-200 border border-sky-700 rounded-xl text-xs font-syne font-bold self-end sm:self-auto cursor-pointer"
+              className="px-3 py-1 bg-sky-900 hover:bg-sky-850 text-sky-200 border border-sky-700 rounded-lg text-xs font-syne font-bold self-end sm:self-auto cursor-pointer"
             >
               Reset Jarak
             </button>
@@ -204,7 +203,7 @@ export default function Home() {
         {/* ========================================================================= */}
         {/* SECTION 1 (TOP): FULL-WIDTH MAPCN DARK WEBGIS CANVAS                     */}
         {/* ========================================================================= */}
-        <section className="w-full h-[380px] sm:h-[500px] lg:h-[540px] rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950 shadow-2xl relative">
+        <section className="w-full h-[360px] sm:h-[480px] lg:h-[520px] rounded-2xl overflow-hidden border border-zinc-850 bg-zinc-950 shadow-2xl relative">
           <MapComponent
             places={places}
             selectedPlaceId={selectedPlaceId}
@@ -220,46 +219,46 @@ export default function Home() {
         </section>
 
         {/* ========================================================================= */}
-        {/* SECTION 2 (STATS BANNER): QUICK SPATIAL METRICS                           */}
+        {/* SECTION 2 (STATS STRIP): REFINED SLEEK HORIZONTAL METRICS                 */}
         {/* ========================================================================= */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
-          <div className="bg-zinc-950 border border-zinc-850 p-3 sm:p-4 rounded-2xl flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
+        <section className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+          <div className="bg-zinc-950 border border-zinc-850 p-3 sm:p-3.5 rounded-xl flex items-center gap-3 shadow-md">
+            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
               <MapPin className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] text-zinc-500 uppercase block font-syne font-bold tracking-wider">Spot Terdata</span>
-              <span className="text-sm sm:text-base font-syne font-extrabold text-white">{stats.count} Lokasi</span>
+              <span className="text-[10px] text-zinc-500 uppercase font-medium tracking-wide block">Spot Terdata</span>
+              <span className="text-sm sm:text-base font-syne font-bold text-white">{stats.count} Lokasi</span>
             </div>
           </div>
 
-          <div className="bg-zinc-950 border border-zinc-850 p-3 sm:p-4 rounded-2xl flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 shrink-0">
+          <div className="bg-zinc-950 border border-zinc-850 p-3 sm:p-3.5 rounded-xl flex items-center gap-3 shadow-md">
+            <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20 shrink-0">
               <Wifi className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] text-zinc-500 uppercase block font-syne font-bold tracking-wider">Rata-rata Wi-Fi</span>
-              <span className="text-sm sm:text-base font-syne font-extrabold text-sky-400">{stats.avgWifi} Mbps</span>
+              <span className="text-[10px] text-zinc-500 uppercase font-medium tracking-wide block">Rata-rata Wi-Fi</span>
+              <span className="text-sm sm:text-base font-syne font-bold text-sky-400">{stats.avgWifi} Mbps</span>
             </div>
           </div>
 
-          <div className="bg-zinc-950 border border-zinc-850 p-3 sm:p-4 rounded-2xl flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 shrink-0">
+          <div className="bg-zinc-950 border border-zinc-850 p-3 sm:p-3.5 rounded-xl flex items-center gap-3 shadow-md">
+            <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 shrink-0">
               <Clock className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] text-zinc-500 uppercase block font-syne font-bold tracking-wider">Buka 24 Jam</span>
-              <span className="text-sm sm:text-base font-syne font-extrabold text-purple-400">{stats.count24h} Tempat</span>
+              <span className="text-[10px] text-zinc-500 uppercase font-medium tracking-wide block">Buka 24 Jam</span>
+              <span className="text-sm sm:text-base font-syne font-bold text-purple-400">{stats.count24h} Tempat</span>
             </div>
           </div>
 
-          <div className="bg-zinc-950 border border-zinc-850 p-3 sm:p-4 rounded-2xl flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
+          <div className="bg-zinc-950 border border-zinc-850 p-3 sm:p-3.5 rounded-xl flex items-center gap-3 shadow-md">
+            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
               <DollarSign className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] text-zinc-500 uppercase block font-syne font-bold tracking-wider">Kopi Termurah</span>
-              <span className="text-sm sm:text-base font-syne font-extrabold text-emerald-400">
+              <span className="text-[10px] text-zinc-500 uppercase font-medium tracking-wide block">Kopi Termurah</span>
+              <span className="text-sm sm:text-base font-syne font-bold text-emerald-400">
                 Rp {(stats.minPrice / 1000).toFixed(0)}k
               </span>
             </div>
@@ -285,28 +284,28 @@ export default function Home() {
         {/* SECTION 4 (BOTTOM): RESULTS GRID (RESPONSIVE 1-3 COLUMNS)                 */}
         {/* ========================================================================= */}
         <section className="w-full pb-16">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3 px-0.5">
             <div className="flex items-center gap-2">
-              <h2 className="font-syne font-extrabold text-white uppercase tracking-wider text-sm sm:text-base">
+              <h2 className="font-syne font-bold text-white text-sm sm:text-base tracking-tight">
                 {isNearbyActive ? 'Spot Terdekat Dari Posisi Anda' : 'Daftar Tempat Nugas Terpilih'}
               </h2>
               <span className="text-zinc-600">•</span>
               <span className="text-emerald-400 font-syne font-bold text-xs">{places.length} Hasil</span>
             </div>
             {filters.subdistrict && (
-              <span className="text-zinc-400 font-sans text-xs hidden sm:inline">Kecamatan: {filters.subdistrict}</span>
+              <span className="text-zinc-400 text-xs hidden sm:inline">Kecamatan: {filters.subdistrict}</span>
             )}
           </div>
 
           {loading ? (
-            <div className="py-20 text-center text-zinc-500 font-sans text-xs bg-zinc-950 rounded-2xl border border-zinc-850">
+            <div className="py-20 text-center text-zinc-500 text-xs bg-zinc-950 rounded-2xl border border-zinc-850">
               Memperbarui data spasial...
             </div>
           ) : places.length === 0 ? (
             <div className="py-16 px-4 text-center bg-zinc-950 rounded-2xl border border-zinc-850 flex flex-col items-center gap-3">
               <AlertCircle className="w-8 h-8 text-amber-400" />
-              <h4 className="font-syne font-bold text-sm text-white uppercase">Tidak Ada Tempat Ditemukan</h4>
-              <p className="text-xs text-zinc-400 max-w-sm font-sans">
+              <h4 className="font-syne font-bold text-sm text-white">Tidak Ada Tempat Ditemukan</h4>
+              <p className="text-xs text-zinc-400 max-w-sm">
                 Tidak ada coffee shop atau warkop yang cocok dengan kombinasi filter saat ini.
               </p>
               <button

@@ -29,6 +29,13 @@ export const metadata: Metadata = {
     'Nugas Ramah Kantong',
   ],
   authors: [{ name: 'Go Around Team' }],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [{ url: '/favicon.svg' }],
+  },
 };
 
 export const viewport = {
@@ -43,6 +50,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`dark ${syne.variable} ${dmSans.variable}`}>
+      <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+      </head>
       <body className="bg-black text-zinc-100 min-h-screen antialiased selection:bg-emerald-500 selection:text-black font-sans">
         {children}
       </body>

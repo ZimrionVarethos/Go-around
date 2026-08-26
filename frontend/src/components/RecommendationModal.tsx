@@ -42,59 +42,63 @@ export const RecommendationModal: React.FC<RecommendationModalProps> = ({
   const ranked = apiService.calculateRecommendations(places, weights).slice(0, 5);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in font-mono">
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden text-zinc-100 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in font-sans">
+      <div className="bg-zinc-950 border border-zinc-850 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden text-zinc-100 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 shrink-0">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-zinc-850 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-              <Sparkles className="w-5 h-5" />
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-white uppercase tracking-wider">AI Nugas Scorer</h3>
-              <p className="text-[11px] text-zinc-500">Kalkulasi terbobot preferensi belajar mahasiswa</p>
+              <h3 className="font-syne font-bold text-sm sm:text-base text-white uppercase tracking-wider">
+                AI Nugas Scorer
+              </h3>
+              <p className="text-xs text-zinc-400 font-sans">Kalkulasi preferensi belajar mahasiswa</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-900 transition-colors"
+            className="p-1.5 text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-900 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto p-6 space-y-5 flex-1 text-xs">
+        <div className="overflow-y-auto p-5 sm:p-6 space-y-5 flex-1 text-xs font-sans">
           {/* Presets */}
           <div className="flex flex-col gap-2">
-            <span className="font-bold text-zinc-400 text-[11px] uppercase tracking-wider">Skenario Rekomendasi Cepat:</span>
+            <span className="font-syne font-bold text-zinc-300 text-xs uppercase tracking-wider">
+              Skenario Rekomendasi Cepat
+            </span>
             <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => applyPreset('skripsi')}
-                className="px-3 py-2 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 rounded-lg text-left transition-colors cursor-pointer"
+                className="p-2.5 bg-zinc-900/80 hover:bg-zinc-850 border border-zinc-800 rounded-xl text-left transition-colors cursor-pointer"
               >
-                <span className="font-bold text-zinc-200 block text-xs">Fokus Skripsi</span>
-                <span className="text-[10px] text-zinc-500">Wi-Fi + Hening</span>
+                <span className="font-syne font-bold text-zinc-200 block text-xs">Fokus Skripsi</span>
+                <span className="text-[10px] text-zinc-400">Wi-Fi + Hening</span>
               </button>
               <button
                 onClick={() => applyPreset('hemat')}
-                className="px-3 py-2 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 rounded-lg text-left transition-colors cursor-pointer"
+                className="p-2.5 bg-zinc-900/80 hover:bg-zinc-850 border border-zinc-800 rounded-xl text-left transition-colors cursor-pointer"
               >
-                <span className="font-bold text-zinc-200 block text-xs">Budget Hemat</span>
-                <span className="text-[10px] text-zinc-500">Akhir Bulan</span>
+                <span className="font-syne font-bold text-zinc-200 block text-xs">Budget Hemat</span>
+                <span className="text-[10px] text-zinc-400">Akhir Bulan</span>
               </button>
               <button
                 onClick={() => applyPreset('kelompok')}
-                className="px-3 py-2 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 rounded-lg text-left transition-colors cursor-pointer"
+                className="p-2.5 bg-zinc-900/80 hover:bg-zinc-850 border border-zinc-800 rounded-xl text-left transition-colors cursor-pointer"
               >
-                <span className="font-bold text-zinc-200 block text-xs">Nugas Bareng</span>
-                <span className="text-[10px] text-zinc-500">Colokan + Meja</span>
+                <span className="font-syne font-bold text-zinc-200 block text-xs">Nugas Bareng</span>
+                <span className="text-[10px] text-zinc-400">Colokan + Meja</span>
               </button>
             </div>
           </div>
 
           {/* Sliders */}
-          <div className="space-y-4 bg-zinc-900/60 p-4 rounded-xl border border-zinc-850">
+          <div className="space-y-3.5 bg-zinc-900/50 p-4 rounded-xl border border-zinc-850">
             {/* 1. Budget */}
             <div className="space-y-1">
               <div className="flex justify-between items-center text-xs">
@@ -102,7 +106,7 @@ export const RecommendationModal: React.FC<RecommendationModalProps> = ({
                   <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
                   Prioritas Harga Murah
                 </span>
-                <span className="font-bold text-emerald-400">{Math.round(weights.w_budget * 100)}%</span>
+                <span className="font-syne font-bold text-emerald-400">{Math.round(weights.w_budget * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -122,7 +126,7 @@ export const RecommendationModal: React.FC<RecommendationModalProps> = ({
                   <Wifi className="w-3.5 h-3.5 text-sky-400" />
                   Prioritas Kecepatan Wi-Fi
                 </span>
-                <span className="font-bold text-sky-400">{Math.round(weights.w_wifi * 100)}%</span>
+                <span className="font-syne font-bold text-sky-400">{Math.round(weights.w_wifi * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -142,7 +146,7 @@ export const RecommendationModal: React.FC<RecommendationModalProps> = ({
                   <Zap className="w-3.5 h-3.5 text-amber-400" />
                   Prioritas Ketersediaan Colokan
                 </span>
-                <span className="font-bold text-amber-400">{Math.round(weights.w_plug * 100)}%</span>
+                <span className="font-syne font-bold text-amber-400">{Math.round(weights.w_plug * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -162,7 +166,7 @@ export const RecommendationModal: React.FC<RecommendationModalProps> = ({
                   <Volume2 className="w-3.5 h-3.5 text-purple-400" />
                   Prioritas Keheningan Suasana
                 </span>
-                <span className="font-bold text-purple-400">{Math.round(weights.w_quiet * 100)}%</span>
+                <span className="font-syne font-bold text-purple-400">{Math.round(weights.w_quiet * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -178,7 +182,9 @@ export const RecommendationModal: React.FC<RecommendationModalProps> = ({
 
           {/* Ranked List */}
           <div className="space-y-2">
-            <h4 className="font-bold text-zinc-300 text-xs uppercase tracking-wider">Peringkat Spot Paling Sesuai:</h4>
+            <h4 className="font-syne font-bold text-zinc-300 text-xs uppercase tracking-wider">
+              Peringkat Spot Paling Sesuai:
+            </h4>
             <div className="space-y-2">
               {ranked.map((feature, idx) => {
                 const p = feature.properties;
@@ -192,12 +198,12 @@ export const RecommendationModal: React.FC<RecommendationModalProps> = ({
                     }}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-6 h-6 rounded-md bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-xs text-zinc-300">
+                      <span className="w-6 h-6 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center font-syne font-bold text-xs text-zinc-300">
                         {idx + 1}
                       </span>
                       <div>
-                        <h5 className="font-bold text-white text-xs">{p.name}</h5>
-                        <p className="text-[10px] text-zinc-500">
+                        <h5 className="font-syne font-bold text-white text-xs">{p.name}</h5>
+                        <p className="text-[11px] text-zinc-400">
                           {p.subdistrict} • Wi-Fi {p.wifi_speed_mbps} Mbps • Mulai Rp{(p.price_min_drink / 1000).toFixed(0)}k
                         </p>
                       </div>
@@ -205,8 +211,8 @@ export const RecommendationModal: React.FC<RecommendationModalProps> = ({
 
                     <div className="flex items-center gap-2">
                       <div className="text-right">
-                        <span className="text-[9px] text-zinc-500 block uppercase">Kecocokan</span>
-                        <span className="text-xs font-bold text-emerald-400">
+                        <span className="text-[10px] text-zinc-500 block uppercase font-medium">Kecocokan</span>
+                        <span className="text-xs font-syne font-bold text-emerald-400">
                           {p.custom_recommendation_score}
                         </span>
                       </div>

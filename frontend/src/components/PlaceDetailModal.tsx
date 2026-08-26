@@ -5,16 +5,15 @@ import { PlaceDetailData } from '@/types/place';
 import { apiService } from '@/services/api';
 import {
   X,
-  Navigation,
-  ExternalLink,
   Wifi,
   Zap,
-  Volume2,
   Clock,
-  MapPin,
-  CheckCircle2,
-  Star,
   DollarSign,
+  MapPin,
+  Star,
+  Navigation,
+  CheckCircle2,
+  Share2,
 } from 'lucide-react';
 
 interface PlaceDetailModalProps {
@@ -23,218 +22,229 @@ interface PlaceDetailModalProps {
 }
 
 export const PlaceDetailModal: React.FC<PlaceDetailModalProps> = ({ slug, onClose }) => {
-  const [data, setData] = useState<PlaceDetailData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [place, setPlace] = useState<PlaceDetailData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug) {
+      setPlace(null);
+      return;
+    }
+
     setLoading(true);
     apiService.getPlaceDetail(slug).then((res) => {
-      setData(res);
+      setPlace(res);
       setLoading(false);
     });
   }, [slug]);
 
   if (!slug) return null;
 
+  const handleShare = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden text-zinc-100 shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-950/90 shrink-0">
-          <div className="flex items-center gap-2 font-mono">
-            <span className="text-[11px] uppercase font-bold tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
-              {data?.location.subdistrict || 'Kota Bogor'}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in font-sans">
+      <div
+        className="bg-zinc-950 border border-zinc-850 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl text-zinc-100 relative flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header Bar */}
+        <div className="sticky top-0 z-10 bg-zinc-950/95 backdrop-blur-md px-5 py-4 border-b border-zinc-850 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-syne font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-lg">
+              {place?.location?.subdistrict || 'Kota Bogor'}
             </span>
             <span className="text-zinc-600">•</span>
-            <span className="text-xs text-zinc-400">{data?.category?.name || 'Workspace'}</span>
+            <span className="text-xs text-zinc-400 truncate">{place?.category?.name || 'Tempat Nugas'}</span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-900 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleShare}
+              title="Salin tautan"
+              className="p-1.5 text-zinc-400 hover:text-white bg-zinc-900 rounded-xl border border-zinc-800 transition-colors cursor-pointer"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1.5 text-zinc-400 hover:text-white bg-zinc-900 rounded-xl border border-zinc-800 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Content */}
-        <div className="overflow-y-auto p-6 space-y-6 flex-1 font-sans">
-          {loading ? (
-            <div className="py-20 text-center text-zinc-500 font-mono text-xs">
-              Memuat detail lengkap data spasial...
+        {/* Modal Body */}
+        <div className="p-5 sm:p-6 flex-1 flex flex-col gap-5">
+          {loading || !place ? (
+            <div className="py-20 text-center text-zinc-500 font-sans text-xs">
+              Memuat detail tempat...
             </div>
-          ) : data ? (
+          ) : (
             <>
-              {/* Title & Description */}
-              <div>
-                <h2 className="text-2xl font-bold text-white tracking-tight">{data.name}</h2>
-                <div className="flex items-center gap-2 text-xs text-zinc-400 mt-1 font-mono">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>{data.location.address}</span>
-                </div>
-                {data.description && (
-                  <p className="text-xs text-zinc-300 mt-3 leading-relaxed bg-zinc-900/60 p-3 rounded-lg border border-zinc-850">
-                    {data.description}
-                  </p>
-                )}
-              </div>
-
-              {/* Score HUD Cards */}
-              <div className="grid grid-cols-3 gap-3 font-mono">
-                <div className="bg-zinc-900 border border-emerald-500/40 rounded-xl p-3 text-center">
-                  <span className="text-[10px] text-zinc-400 font-semibold block uppercase tracking-wider">Skor Nugas</span>
-                  <span className="text-2xl font-bold text-emerald-400">
-                    {data.nugas_metrics.nugas_score.toFixed(1)}
-                  </span>
-                  <span className="text-[9px] text-zinc-500 block mt-0.5">Agregat Kelayakan</span>
+              {/* Title & Score Banner */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-syne font-extrabold text-xl sm:text-2xl text-white">
+                    {place.name}
+                  </h2>
+                  <div className="flex items-center gap-1.5 text-xs text-zinc-400 mt-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>{place.location?.address}</span>
+                  </div>
                 </div>
 
-                <div className="bg-zinc-900 border border-cyan-500/40 rounded-xl p-3 text-center">
-                  <span className="text-[10px] text-zinc-400 font-semibold block uppercase tracking-wider">Skor Fasilitas</span>
-                  <span className="text-2xl font-bold text-cyan-400">
-                    {data.nugas_metrics.facility_score.toFixed(1)}
-                  </span>
-                  <span className="text-[9px] text-zinc-500 block mt-0.5">Wi-Fi & Colokan</span>
-                </div>
-
-                <div className="bg-zinc-900 border border-amber-500/40 rounded-xl p-3 text-center">
-                  <span className="text-[10px] text-zinc-400 font-semibold block uppercase tracking-wider">Skor Budget</span>
-                  <span className="text-2xl font-bold text-amber-400">
-                    {data.nugas_metrics.budget_score.toFixed(1)}
-                  </span>
-                  <span className="text-[9px] text-zinc-500 block mt-0.5">Ramah Kantong</span>
+                <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 bg-zinc-900 px-3.5 py-2 rounded-xl border border-zinc-800">
+                  <div className="flex items-center gap-1 text-emerald-400">
+                    <Star className="w-4 h-4 fill-emerald-400 text-emerald-400" />
+                    <span className="font-syne font-extrabold text-base">
+                      {place.nugas_metrics?.nugas_score.toFixed(1)}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-zinc-500 uppercase font-syne font-bold">Skor Nugas</span>
                 </div>
               </div>
 
-              {/* Key Specifications Grid */}
-              <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-                <div className="flex items-center gap-3 bg-zinc-900/80 p-3 rounded-xl border border-zinc-800">
-                  <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
-                    <Wifi className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-zinc-500 block text-[10px] uppercase">Koneksi Internet</span>
-                    <span className="font-bold text-white text-xs">
-                      {data.nugas_metrics.wifi_speed_mbps} Mbps ({data.nugas_metrics.wifi_quality})
-                    </span>
-                  </div>
+              {/* Description */}
+              {place.description && (
+                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed bg-zinc-900/50 p-4 rounded-xl border border-zinc-850">
+                  {place.description}
+                </p>
+              )}
+
+              {/* Key Specs Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="bg-zinc-900/60 p-3 rounded-xl border border-zinc-850 flex flex-col gap-1">
+                  <span className="text-[10px] text-zinc-500 uppercase font-syne font-bold flex items-center gap-1">
+                    <Wifi className="w-3 h-3 text-sky-400" />
+                    <span>Wi-Fi</span>
+                  </span>
+                  <span className="text-sm font-bold text-white">
+                    {place.nugas_metrics?.wifi_speed_mbps} Mbps
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-3 bg-zinc-900/80 p-3 rounded-xl border border-zinc-800">
-                  <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                    <Zap className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-zinc-500 block text-[10px] uppercase">Colokan Listrik</span>
-                    <span className="font-bold text-white text-xs">
-                      {data.nugas_metrics.plug_label}
-                    </span>
-                  </div>
+                <div className="bg-zinc-900/60 p-3 rounded-xl border border-zinc-850 flex flex-col gap-1">
+                  <span className="text-[10px] text-zinc-500 uppercase font-syne font-bold flex items-center gap-1">
+                    <Zap className="w-3 h-3 text-amber-400" />
+                    <span>Colokan</span>
+                  </span>
+                  <span className="text-sm font-bold text-white truncate">
+                    {place.nugas_metrics?.plug_label || 'Tersedia'}
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-3 bg-zinc-900/80 p-3 rounded-xl border border-zinc-800">
-                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <DollarSign className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-zinc-500 block text-[10px] uppercase">Harga Minuman</span>
-                    <span className="font-bold text-white text-xs">
-                      Rp {data.economics.price_min_drink.toLocaleString('id-ID')} - {data.economics.price_max_drink.toLocaleString('id-ID')}
-                    </span>
-                  </div>
+                <div className="bg-zinc-900/60 p-3 rounded-xl border border-zinc-850 flex flex-col gap-1">
+                  <span className="text-[10px] text-zinc-500 uppercase font-syne font-bold flex items-center gap-1">
+                    <DollarSign className="w-3 h-3 text-emerald-400" />
+                    <span>Harga Kopi</span>
+                  </span>
+                  <span className="text-sm font-bold text-emerald-400">
+                    Rp {((place.economics?.price_min_drink || 0) / 1000).toFixed(0)}k
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-3 bg-zinc-900/80 p-3 rounded-xl border border-zinc-800">
-                  <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                    <Clock className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-zinc-500 block text-[10px] uppercase">Jam Operasional</span>
-                    <span className="font-bold text-white text-xs">
-                      {data.operational.formatted_hours}
-                    </span>
-                  </div>
+                <div className="bg-zinc-900/60 p-3 rounded-xl border border-zinc-850 flex flex-col gap-1">
+                  <span className="text-[10px] text-zinc-500 uppercase font-syne font-bold flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-purple-400" />
+                    <span>Operasional</span>
+                  </span>
+                  <span className="text-sm font-bold text-white truncate">
+                    {place.operational?.is_24_hours
+                      ? '24 Jam Nonstop'
+                      : place.operational?.formatted_hours || 'Reguler'}
+                  </span>
                 </div>
               </div>
 
               {/* Amenities Tags */}
-              <div>
-                <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 mb-2">
-                  Fasilitas Terverifikasi
-                </h4>
-                <div className="flex flex-wrap gap-2 font-mono">
-                  {data.amenities.map((a) => (
-                    <span
-                      key={a.id}
-                      className="flex items-center gap-1.5 text-xs bg-zinc-900 text-zinc-300 px-2.5 py-1 rounded-lg border border-zinc-800"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>{a.name}</span>
-                    </span>
-                  ))}
+              {place.amenities && place.amenities.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <span className="text-[11px] font-syne font-bold uppercase tracking-wider text-zinc-400">
+                    Fasilitas Terverifikasi
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {place.amenities.map((amenity) => (
+                      <span
+                        key={amenity.id}
+                        className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium flex items-center gap-1.5"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>{amenity.name}</span>
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Reviews Summary */}
-              {data.reviews_summary.length > 0 && (
-                <div>
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 mb-2">
-                    Ulasan & Kata Kunci Mahasiswa
-                  </h4>
-                  <div className="space-y-2">
-                    {data.reviews_summary.map((rev) => (
-                      <div key={rev.id} className="bg-zinc-900/60 p-3 rounded-xl border border-zinc-850 text-xs">
-                        <div className="flex items-center justify-between text-zinc-400 mb-1 font-mono">
+              {/* Reviews Section */}
+              {place.reviews_summary && place.reviews_summary.length > 0 && (
+                <div className="flex flex-col gap-2.5 pt-2 border-t border-zinc-900">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-syne font-bold uppercase tracking-wider text-zinc-400">
+                      Ulasan Mahasiswa
+                    </span>
+                    <span className="text-xs text-zinc-500">
+                      Google Rating {place.ratings?.google_rating} ({place.ratings?.total_google_reviews || 500}+ review)
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    {place.reviews_summary.slice(0, 2).map((rev) => (
+                      <div key={rev.id} className="bg-zinc-900/40 p-3 rounded-xl border border-zinc-850 text-xs">
+                        <div className="flex items-center justify-between mb-1">
                           <span className="font-semibold text-zinc-200">{rev.reviewer_name}</span>
-                          <div className="flex items-center gap-1 text-amber-400">
+                          <div className="flex items-center gap-1 text-amber-400 text-[11px]">
                             <Star className="w-3 h-3 fill-amber-400" />
                             <span>{rev.rating}</span>
                           </div>
                         </div>
-                        <p className="text-zinc-300 leading-relaxed font-sans">{rev.comment}</p>
-                        {rev.keywords.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2 font-mono">
-                            {rev.keywords.map((kw) => (
-                              <span
-                                key={kw}
-                                className="text-[10px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded border border-zinc-750"
-                              >
-                                #{kw}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                        <p className="text-zinc-400 leading-relaxed italic">"{rev.comment}"</p>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
             </>
-          ) : null}
+          )}
         </div>
 
-        {/* Footer Actions */}
-        {data && (
-          <div className="p-4 border-t border-zinc-800 bg-zinc-950 flex items-center justify-between gap-3 shrink-0 font-mono">
-            <a
-              href={data.location.google_maps_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-xs font-medium text-zinc-400 hover:text-white px-3 py-2 rounded-lg hover:bg-zinc-900 border border-zinc-800 transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              <span>Buka Google Maps</span>
-            </a>
+        {/* Sticky Action Footer */}
+        {place && (
+          <div className="sticky bottom-0 bg-zinc-950/95 backdrop-blur-md px-5 py-3.5 border-t border-zinc-850 flex items-center justify-between gap-3">
+            {copied ? (
+              <span className="text-xs text-emerald-400 font-medium">Tautan tersalin ke clipboard!</span>
+            ) : (
+              <span className="text-xs text-zinc-500 font-sans">
+                {place.location?.subdistrict}, Kota Bogor
+              </span>
+            )}
 
-            <a
-              href={data.location.navigation_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-lg transition-colors shadow-lg shadow-emerald-950/30"
-            >
-              <Navigation className="w-4 h-4" />
-              <span>Buka Rute Navigasi</span>
-            </a>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onClose}
+                className="px-3.5 py-2 text-xs font-syne font-semibold bg-zinc-900 hover:bg-zinc-850 text-zinc-300 rounded-xl border border-zinc-800 transition-colors cursor-pointer"
+              >
+                Tutup
+              </button>
+              <a
+                href={place.location?.navigation_url || place.location?.google_maps_url || '#'}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-syne font-bold uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl transition-all shadow-md shadow-emerald-950/20"
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                <span>Rute Navigasi</span>
+              </a>
+            </div>
           </div>
         )}
       </div>
