@@ -1,0 +1,238 @@
+'use client';
+
+import dynamic from 'next/dynamic';
+import { useState, useMemo } from 'react';
+import { FilterBar } from './FilterBar';
+import { PlaceDetailDrawer } from './PlaceDetailDrawer';
+import { MapControls, MapLegend } from './MapControls';
+import { RecommendationPanel } from './RecommendationPanel';
+import { usePlaces, useBboxPlaces } from '@/hooks/usePlacesQuery';
+import type { PlaceFilters, BboxParams, PlaceGeoJsonFeature } from '@/lib/types';
+import { FIGMA_PLACES } from '@/lib/figma-places';
+import { cn } from '@/lib/cn';
+
+// Dynamic import for Leaflet MapView (client-only, SSR false)
+const MapView = dynamic(() => import('./MapView'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full bg-[#F6F4ED] flex flex-col items-center justify-center gap-3">
+      <div className="w-10 h-10 rounded-full border-3 border-[#005B54] border-t-transparent animate-spin" />
+      <span className="text-xs font-semibold text-slate-700">Memuat Peta Spasial Bogor...</span>
+    </div>
+  ),
+});
+
+export function MapPage() {
+  // Default selected place is Anthology Coffee & Tea to match exact Figma design
+  const [selectedSlug, setSelectedSlug] = useState<string | null>('anthology-coffee-tea');
+  const [sortTab, setSortTab] = useState<'score' | 'nearby' | 'budget'>('score');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const [filters, setFilters] = useState<PlaceFilters>({
+    plug_availability: 'abundant', // Active by default in Figma design
+    sort_by: 'nugas_score',
+    order: 'desc',
+  });
+
+  // Default Bogor viewport bounding box
+  const [bbox, setBbox] = useState<BboxParams>({
+    north: -6.58,
+    south: -6.63,
+    east: 106.83,
+    west: 106.78,
+  });
+
+  // Query places list based on active filters
+  const queryFilters = useMemo<PlaceFilters>(() => {
+    let sort_by: PlaceFilters['sort_by'] = 'nugas_score';
+    let order: 'asc' | 'desc' = 'desc';
+
+    if (sortTab === 'score') {
+      sort_by = 'nugas_score';
+      order = 'desc';
+    } else if (sortTab === 'budget') {
+      sort_by = 'price_min_drink';
+      order = 'asc';
+    } else if (sortTab === 'nearby') {
+      sort_by = 'facility_score';
+      order = 'desc';
+    }
+
+    return {
+      ...filters,
+      sort_by,
+      order,
+    };
+  }, [filters, sortTab]);
+
+  const { data: placesResponse } = usePlaces(queryFilters);
+  // Merge Figma showcase places with API places so Figma design is 100% represented
+  const places = useMemo(() => {
+    const apiPlaces = placesResponse?.data ?? [];
+    const existingSlugs = new Set(FIGMA_PLACES.map((p) => p.slug));
+    const nonDuplicateApiPlaces = apiPlaces.filter((p) => !existingSlugs.has(p.slug));
+    return [...FIGMA_PLACES, ...nonDuplicateApiPlaces];
+  }, [placesResponse?.data]);
+
+  // Query geojson markers in current map viewport
+  const { data: bboxResponse } = useBboxPlaces({
+    ...bbox,
+    ...filters,
+  });
+
+  // Map features with fallback to Figma places
+  const mapFeatures = useMemo<PlaceGeoJsonFeature[]>(() => {
+    const apiMapFeatures = bboxResponse?.features ?? [];
+    const defaultFeatures: PlaceGeoJsonFeature[] = FIGMA_PLACES.map((p) => ({
+      type: 'Feature',
+      id: p.id,
+      geometry: {
+        type: 'Point',
+        coordinates: [p.longitude, p.latitude],
+      },
+      properties: {
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        address: p.address,
+        subdistrict: p.subdistrict,
+        price_min_drink: p.price_min_drink,
+        price_max_drink: p.price_max_drink,
+        price_avg_food: p.price_avg_food,
+        price_tier: p.price_tier,
+        wifi_speed_mbps: p.wifi_speed_mbps,
+        wifi_quality: p.wifi_quality,
+        plug_availability: p.plug_availability,
+        noise_level: p.noise_level,
+        is_24_hours: p.is_24_hours,
+        open_time: p.open_time,
+        close_time: p.close_time,
+        google_rating: p.google_rating,
+        nugas_score: p.nugas_score,
+        budget_score: p.budget_score,
+        facility_score: p.facility_score,
+        image_url: p.image_url,
+        vibe_tags: ['Colokan Melimpah', 'WiFi Kencang', 'Kondusif'],
+        google_maps_url: p.google_maps_url,
+        instagram_handle: p.instagram_handle,
+        distance_km: 0.85,
+        category: p.category ?? undefined,
+        amenities: [],
+      },
+    }));
+
+    const existingSlugs = new Set(defaultFeatures.map((f) => f.properties.slug));
+    const extraFeatures = apiMapFeatures.filter((f) => !existingSlugs.has(f.properties.slug));
+    return [...defaultFeatures, ...extraFeatures];
+  }, [bboxResponse?.features]);
+
+  // Geolocation trigger
+  const handleLocate = () => {
+    if (typeof window !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => {
+          setSortTab('nearby');
+        },
+        () => {
+          alert('Izin lokasi tidak diberikan atau perangkat tidak mendukung GPS.');
+        }
+      );
+    }
+  };
+
+  const handleDownloadGeoJson = () => {
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: mapFeatures,
+    };
+    const blob = new Blob([JSON.stringify(geoJsonData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'go-around-bogor-places.geojson';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <>
+      {/* Full-Canvas Map in background */}
+      <MapView
+        features={mapFeatures}
+        selectedSlug={selectedSlug}
+        onMarkerClick={(slug) => setSelectedSlug(slug)}
+        onBoundsChange={(b) => setBbox(b)}
+      />
+
+      {/* Floating Filter Bar (Below topbar) */}
+      <div className="absolute top-[76px] sm:top-[88px] left-0 right-0 sm:left-6 sm:right-auto z-[400] pointer-events-auto px-3 sm:px-0">
+        <FilterBar
+          filters={filters}
+          onFilterChange={setFilters}
+          className="max-w-full"
+        />
+      </div>
+
+      {/* Floating Left Sidebar Panel ("Rekomendasi Nugas Bogor")
+          - Mobile: bottom sheet (bottom-0, left-0, right-0, max-h-[55vh])
+          - Desktop: left sidebar as usual */}
+      <RecommendationPanel
+        isCollapsed={isCollapsed}
+        onToggleCollapse={setIsCollapsed}
+        sortTab={sortTab}
+        onSortChange={setSortTab}
+        places={places}
+        selectedSlug={selectedSlug}
+        onSelectPlace={(slug) => {
+          setSelectedSlug(slug);
+          // On mobile, auto-collapse panel when selecting a place
+          if (typeof window !== 'undefined' && window.innerWidth < 768) {
+            setIsCollapsed(true);
+          }
+        }}
+        onDownloadGeoJson={handleDownloadGeoJson}
+      />
+
+      {/* Floating Right Selected Place Detail Drawer
+          - Mobile: bottom sheet full-width above footer
+          - Desktop: right side panel */}
+      {selectedSlug && (
+        <>
+          {/* Desktop drawer (md+) */}
+          <div className="hidden md:block absolute top-[88px] right-6 z-[400] pointer-events-auto">
+            <PlaceDetailDrawer
+              slug={selectedSlug}
+              onClose={() => setSelectedSlug(null)}
+            />
+          </div>
+          {/* Mobile bottom sheet */}
+          <div className="md:hidden absolute bottom-0 left-0 right-0 z-[450] pointer-events-auto">
+            <PlaceDetailDrawer
+              slug={selectedSlug}
+              onClose={() => setSelectedSlug(null)}
+              isMobileSheet
+            />
+          </div>
+        </>
+      )}
+
+      {/* Floating Bottom-Right Map Controls & Suitability Legend
+          - Hide legend on mobile; shift left on md when drawer open */}
+      <div
+        className={cn(
+          'absolute bottom-3.5 z-[350] flex items-end gap-3 pointer-events-auto transition-all duration-300',
+          // Desktop: shift left when detail drawer is open
+          selectedSlug ? 'right-6 md:right-[456px]' : 'right-6'
+        )}
+      >
+        {/* Suitability Legend - desktop only */}
+        <div className="hidden sm:block">
+          <MapLegend />
+        </div>
+
+        {/* 5-Button Map Controls Stack */}
+        <MapControls onLocate={handleLocate} />
+      </div>
+    </>
+  );
+}
