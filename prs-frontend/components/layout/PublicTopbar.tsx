@@ -117,7 +117,7 @@ export function PublicTopbar() {
 
         {/* Lapor Fasilitas CTA */}
         <Link
-          href="/lapor"
+          href="/lapor-fasilitas"
           className="hidden xl:flex h-[40px] items-center gap-1.5 px-3.5 text-xs font-semibold rounded-[12px] bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] hover:bg-[#fee2e2] transition-all cursor-pointer shrink-0"
         >
           <AlertTriangle className="w-4 h-4 text-[#DC2626] stroke-[2.2]" />
@@ -172,7 +172,7 @@ export function PublicTopbar() {
               <span>Tambah Tempat</span>
             </Link>
             <Link
-              href="/lapor"
+              href="/lapor-fasilitas"
               onClick={() => setMobileMenuOpen(false)}
               className="h-[40px] flex items-center justify-center gap-2 text-xs font-semibold rounded-[10px] bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] hover:bg-[#fee2e2] transition-all"
             >
