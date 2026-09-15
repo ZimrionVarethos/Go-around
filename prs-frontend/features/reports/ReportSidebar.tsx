@@ -48,45 +48,57 @@ export function ReportSidebar() {
           <h2 className="text-[15px] font-bold text-gray-900">Alur Penanganan Laporan</h2>
         </div>
 
-        <div className="relative pl-7">
-          {/* Vertical divider */}
-          <div className="absolute left-[13px] top-3 bottom-3 w-0.5 bg-gray-100 rounded-full" />
+        <div className="relative flex flex-col gap-6">
+          {/* Continuous vertical line connecting all 3 step centers */}
+          <div className="absolute left-[13px] top-3.5 bottom-3.5 w-0.5 bg-gray-200 rounded-full" />
 
           {/* Step 1 */}
-          <div className="relative mb-7 last:mb-0">
-            <div className="absolute -left-7 top-0 w-7 h-7 rounded-full bg-[#005B54] text-white text-xs font-bold flex items-center justify-center shadow-sm">
+          <div className="flex items-start gap-3.5 relative">
+            <div className="w-7 h-7 rounded-full bg-[#005B54] text-white text-xs font-bold flex items-center justify-center shadow-xs shrink-0 z-10">
               1
             </div>
-            <h4 className="text-[13px] font-semibold text-gray-900 mb-1">Generate Tiket Publik Otomatis</h4>
-            <p className="text-[11.5px] text-gray-500 leading-relaxed">
-              Laporan tercatat dengan kode unik publik seperti{' '}
-              <span className="font-mono bg-gray-100 text-gray-700 px-1 py-0.5 rounded text-[10px]">
-                #TK-2026-xxx
-              </span>{' '}
-              tanpa identitas pelapor.
-            </p>
+            <div className="flex-1 min-w-0 pt-0.5">
+              <h4 className="text-[13px] font-semibold text-gray-900 mb-1">
+                Generate Tiket Publik Otomatis
+              </h4>
+              <p className="text-[11.5px] text-gray-500 leading-relaxed">
+                Laporan tercatat dengan kode unik publik seperti{' '}
+                <span className="font-mono bg-gray-100 text-gray-700 px-1 py-0.5 rounded text-[10px]">
+                  #TK-2026-xxx
+                </span>{' '}
+                tanpa identitas pelapor.
+              </p>
+            </div>
           </div>
 
           {/* Step 2 */}
-          <div className="relative mb-7 last:mb-0">
-            <div className="absolute -left-7 top-0 w-7 h-7 rounded-full bg-[#005B54] text-white text-xs font-bold flex items-center justify-center shadow-sm">
+          <div className="flex items-start gap-3.5 relative">
+            <div className="w-7 h-7 rounded-full bg-[#005B54] text-white text-xs font-bold flex items-center justify-center shadow-xs shrink-0 z-10">
               2
             </div>
-            <h4 className="text-[13px] font-semibold text-gray-900 mb-1">Verifikasi Lapangan Mahasiswa SV IPB</h4>
-            <p className="text-[11.5px] text-gray-500 leading-relaxed">
-              Tim surveyor &amp; kurator memeriksa ke lokasi atau konfirmasi silang dengan barista cafe dalam &lt; 24 jam.
-            </p>
+            <div className="flex-1 min-w-0 pt-0.5">
+              <h4 className="text-[13px] font-semibold text-gray-900 mb-1">
+                Verifikasi Lapangan Mahasiswa SV IPB
+              </h4>
+              <p className="text-[11.5px] text-gray-500 leading-relaxed">
+                Tim surveyor &amp; kurator memeriksa ke lokasi atau konfirmasi silang dengan barista cafe dalam &lt; 24 jam.
+              </p>
+            </div>
           </div>
 
           {/* Step 3 */}
-          <div className="relative">
-            <div className="absolute -left-7 top-0 w-7 h-7 rounded-full bg-[#005B54] text-white text-xs font-bold flex items-center justify-center shadow-sm">
+          <div className="flex items-start gap-3.5 relative">
+            <div className="w-7 h-7 rounded-full bg-[#005B54] text-white text-xs font-bold flex items-center justify-center shadow-xs shrink-0 z-10">
               3
             </div>
-            <h4 className="text-[13px] font-semibold text-gray-900 mb-1">Update Spasial &amp; Tagging WebGIS</h4>
-            <p className="text-[11.5px] text-gray-500 leading-relaxed">
-              Metadata cafe otomatis diperbarui di peta interaktif agar mahasiswa Bogor lainnya tahu dari zona colokan/WiFi.
-            </p>
+            <div className="flex-1 min-w-0 pt-0.5">
+              <h4 className="text-[13px] font-semibold text-gray-900 mb-1">
+                Update Spasial &amp; Tagging WebGIS
+              </h4>
+              <p className="text-[11.5px] text-gray-500 leading-relaxed">
+                Metadata cafe otomatis diperbarui di peta interaktif agar mahasiswa Bogor lainnya tahu dari zona colokan/WiFi.
+              </p>
+            </div>
           </div>
         </div>
       </div>
