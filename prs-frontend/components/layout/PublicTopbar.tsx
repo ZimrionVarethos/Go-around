@@ -162,8 +162,16 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
     <>
       <header className="h-[64px] bg-white/95 backdrop-blur-md border border-gray-200/90 rounded-[12px] flex items-center justify-between px-4 sm:px-5 gap-3 sm:gap-4 select-none shadow-sm relative z-50">
         {/* Left: Brand Wordmark */}
-        <Link href="/" className="shrink-0 flex items-center">
-          <span className="font-brand text-[20px] sm:text-[22px] font-extrabold text-[#111827] tracking-tight leading-none">
+        <Link
+          href="/"
+          className="shrink-0 flex flex-col justify-center w-[191.525px] h-[45.273px] select-none"
+        >
+          <span
+            className="font-brand text-[24px] font-medium text-[#0F172A] leading-normal tracking-[-0.724px]"
+            style={{
+              fontFamily: "var(--font-onest), 'Onest', sans-serif",
+            }}
+          >
             Go Around
           </span>
         </Link>
