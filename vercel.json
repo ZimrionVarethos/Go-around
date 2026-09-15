@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd prs-frontend && npm install && npm run build",
+  "outputDirectory": "prs-frontend/.next",
+  "installCommand": "cd prs-frontend && npm install",
+  "framework": "nextjs",
+  "devCommand": "cd prs-frontend && npm run dev"
+}
