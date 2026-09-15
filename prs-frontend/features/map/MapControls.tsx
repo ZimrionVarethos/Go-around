@@ -2,13 +2,15 @@
 
 import { Locate, Plus, Minus, Layers, Compass, Info } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import type { ToastType } from '@/hooks/useToast';
 
 export interface MapControlsProps {
   onLocate?: () => void;
+  onToast?: (msg: string, type?: ToastType) => void;
   className?: string;
 }
 
-export function MapControls({ onLocate, className }: MapControlsProps) {
+export function MapControls({ onLocate, onToast, className }: MapControlsProps) {
   const handleZoomIn = () => {
     const el = document.querySelector('.leaflet-container');
     if (el) {
@@ -30,6 +32,7 @@ export function MapControls({ onLocate, className }: MapControlsProps) {
       {/* 1. Layers */}
       <button
         title="Lapisan GIS"
+        onClick={() => onToast?.('Lapisan GIS: Fitur tile layer switcher akan tersedia segera! 🗺️', 'info')}
         className="w-10 h-10 bg-white border border-gray-200/80 rounded-xl shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-all cursor-pointer"
       >
         <Layers className="w-4 h-4" />
@@ -64,7 +67,8 @@ export function MapControls({ onLocate, className }: MapControlsProps) {
 
       {/* 5. Compass */}
       <button
-        title="Arah Kompas"
+        title="Reset Orientasi Peta"
+        onClick={() => onToast?.('Peta sudah menghadap ke Utara ↑', 'info')}
         className="w-10 h-10 bg-white border border-gray-200/80 rounded-xl shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-all cursor-pointer"
       >
         <Compass className="w-4 h-4" />

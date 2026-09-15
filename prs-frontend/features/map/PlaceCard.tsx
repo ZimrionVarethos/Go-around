@@ -1,8 +1,10 @@
 'use client';
 
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, Bookmark, Share2 } from 'lucide-react';
 import type { PlaceListItem } from '@/lib/types';
 import { formatNugasScore, formatRupiah } from '@/lib/utils';
+import { cn } from '@/lib/cn';
+import { useBookmarks } from '@/hooks/useBookmarks';
 
 export interface PlaceCardProps {
   place: PlaceListItem;
@@ -10,6 +12,7 @@ export interface PlaceCardProps {
   isSelected?: boolean;
   onSelect: (slug: string) => void;
   onRoute?: (place: PlaceListItem) => void;
+  onToast?: (msg: string, type?: 'success' | 'info' | 'error' | 'warning') => void;
 }
 
 export function PlaceCard({
@@ -18,10 +21,63 @@ export function PlaceCard({
   isSelected = false,
   onSelect,
   onRoute,
+  onToast,
 }: PlaceCardProps) {
   const displayScore = formatNugasScore(place.nugas_score);
+  const { toggleBookmark, isBookmarked } = useBookmarks();
+  const bookmarked = isBookmarked(place.slug);
 
-  // If selected, render the expanded Figma Card 1 style
+  // ── Handlers ─────────────────────────────────────────────────────────────
+
+  const handleToggleBookmark = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const added = toggleBookmark(place.slug);
+    // TODO [BACKEND]: Connect to API endpoint:
+    //   added ? POST /api/v1/users/me/bookmarks { place_slug }
+    //         : DELETE /api/v1/users/me/bookmarks/:slug
+    onToast?.(
+      added ? `"${place.name}" disimpan ke favorit ♥` : `"${place.name}" dihapus dari favorit`,
+      added ? 'success' : 'info'
+    );
+  };
+
+  const handleRoute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRoute) {
+      onRoute(place);
+    } else if (place.google_maps_url) {
+      window.open(place.google_maps_url, '_blank');
+    } else if (place.latitude && place.longitude) {
+      window.open(
+        `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`,
+        '_blank'
+      );
+    }
+    // TODO [BACKEND]: Log route click:
+    //   POST /api/v1/places/:slug/events { event: 'route_click' }
+    onToast?.(`Membuka navigasi ke ${place.name}…`, 'info');
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}/peta?place=${place.slug}`
+      : `https://go-around.vercel.app/peta?place=${place.slug}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      onToast?.('Tautan lokasi disalin ke clipboard! 📎', 'success');
+      // TODO [BACKEND]: Log share click:
+      //   POST /api/v1/places/:slug/events { event: 'share_click' }
+    }).catch(() => {
+      onToast?.('Gagal menyalin tautan', 'error');
+    });
+  };
+
+  const handleDetail = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onSelect(place.slug);
+  };
+
+  // ── Selected / Expanded Card ──────────────────────────────────────────────
   if (isSelected) {
     return (
       <div
@@ -32,6 +88,7 @@ export function PlaceCard({
         <div className="flex gap-3 items-start">
           {/* Thumbnail with #1 TOP overlay */}
           <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-gray-100 border border-gray-100 shadow-2xs">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={place.image_url || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&auto=format&fit=crop&q=80'}
               alt={place.name}
@@ -48,10 +105,26 @@ export function PlaceCard({
               <h3 className="text-[15px] font-bold text-gray-900 leading-snug truncate">
                 {place.name}
               </h3>
-              {/* Green Score Badge */}
-              <div className="bg-[#005B54] text-white text-xs font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shrink-0">
-                <span className="text-amber-300">★</span>
-                <span>{displayScore}</span>
+              <div className="flex items-center gap-1 shrink-0">
+                {/* Bookmark button */}
+                <button
+                  type="button"
+                  onClick={handleToggleBookmark}
+                  title={bookmarked ? 'Hapus dari favorit' : 'Simpan ke favorit'}
+                  className={cn(
+                    'w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer',
+                    bookmarked
+                      ? 'bg-[#005B54] text-white'
+                      : 'bg-gray-100 text-gray-400 hover:text-[#005B54] hover:bg-[#E8F8F5]'
+                  )}
+                >
+                  <Bookmark className={cn('w-3.5 h-3.5', bookmarked && 'fill-white')} />
+                </button>
+                {/* Green Score Badge */}
+                <div className="bg-[#005B54] text-white text-xs font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
+                  <span className="text-amber-300">★</span>
+                  <span>{displayScore}</span>
+                </div>
               </div>
             </div>
 
@@ -91,28 +164,34 @@ export function PlaceCard({
         {/* Action Buttons */}
         <div className="flex items-center gap-2 pt-0.5">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onRoute) onRoute(place);
-              else if (place.google_maps_url) window.open(place.google_maps_url, '_blank');
-            }}
-            className="flex-1 bg-[#005B54] hover:bg-[#004741] text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+            type="button"
+            onClick={handleRoute}
+            className="flex-1 bg-[#005B54] hover:bg-[#004741] active:scale-95 text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
           >
             <Navigation className="w-3.5 h-3.5 fill-white" />
             <span>Buka Rute Maps</span>
           </button>
           <button
-            onClick={() => onSelect(place.slug)}
-            className="border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold py-2 px-3.5 rounded-xl transition-colors cursor-pointer"
+            type="button"
+            onClick={handleDetail}
+            className="border border-gray-200 hover:bg-gray-50 active:bg-gray-100 text-gray-700 text-xs font-semibold py-2 px-3.5 rounded-xl transition-colors cursor-pointer"
           >
             Detail Fasilitas
+          </button>
+          <button
+            type="button"
+            onClick={handleShare}
+            title="Bagikan Lokasi"
+            className="w-8 h-8 border border-gray-200 hover:bg-gray-50 active:bg-gray-100 rounded-xl flex items-center justify-center text-gray-500 hover:text-[#005B54] transition-colors cursor-pointer"
+          >
+            <Share2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
     );
   }
 
-  // Standard / Unselected Card (Figma Card 2 Style)
+  // ── Standard / Unselected Card ────────────────────────────────────────────
   return (
     <div
       onClick={() => onSelect(place.slug)}
@@ -121,6 +200,7 @@ export function PlaceCard({
       <div className="flex gap-3 items-start">
         {/* Thumbnail */}
         <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-gray-100 border border-gray-100 shadow-2xs">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={place.image_url || 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&auto=format&fit=crop&q=80'}
             alt={place.name}
@@ -137,10 +217,26 @@ export function PlaceCard({
             <h4 className="text-sm font-bold text-gray-900 truncate">
               {place.name}
             </h4>
-            {/* Amber/Yellow Score Badge */}
-            <div className="border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shrink-0">
-              <span className="text-amber-500">★</span>
-              <span>{displayScore}</span>
+            <div className="flex items-center gap-1 shrink-0">
+              {/* Bookmark button */}
+              <button
+                type="button"
+                onClick={handleToggleBookmark}
+                title={bookmarked ? 'Hapus dari favorit' : 'Simpan ke favorit'}
+                className={cn(
+                  'w-6 h-6 rounded-md flex items-center justify-center transition-all cursor-pointer',
+                  bookmarked
+                    ? 'bg-[#005B54] text-white'
+                    : 'text-gray-300 hover:text-[#005B54] hover:bg-[#E8F8F5]'
+                )}
+              >
+                <Bookmark className={cn('w-3 h-3', bookmarked && 'fill-white')} />
+              </button>
+              {/* Amber/Yellow Score Badge */}
+              <div className="border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
+                <span className="text-amber-500">★</span>
+                <span>{displayScore}</span>
+              </div>
             </div>
           </div>
 

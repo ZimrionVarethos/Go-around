@@ -136,7 +136,11 @@ function UploadSlot({ label, hint, icon, preview, onChange }: UploadSlotProps) {
 }
 
 // ─── Main Form ──────────────────────────────────────────────────────────────
-export function LaporFasilitasForm() {
+export interface LaporFasilitasFormProps {
+  onToast?: (msg: string, type?: 'success' | 'info' | 'error' | 'warning', durationMs?: number) => void;
+}
+
+export function LaporFasilitasForm({ onToast }: LaporFasilitasFormProps = {}) {
   const [selectedCafe, setSelectedCafe] = useState('Anthology Coffee & Tea – Baranangsiang Indah');
   const [selectedIssues, setSelectedIssues] = useState<IssueType[]>(['colokan_rusak']);
   const [detail, setDetail] = useState('');
@@ -157,11 +161,24 @@ export function LaporFasilitasForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedIssues.length === 0) return;
+    if (selectedIssues.length === 0) {
+      onToast?.('Pilih minimal 1 jenis masalah terlebih dahulu', 'warning');
+      return;
+    }
     setIsSubmitting(true);
+
+    // TODO [BACKEND]: Replace with real API call:
+    //   const payload: ReportPayload = {
+    //     cafe: selectedCafe, issues: selectedIssues, detail, time,
+    //     photos: [photoColokan, photoSpeedtest, photoMenu].filter(Boolean),
+    //     is_anonymous: isAnonymous, contact: contactInfo,
+    //   };
+    //   await fetch('/api/v1/reports', { method: 'POST', body: JSON.stringify(payload) })
     await new Promise((r) => setTimeout(r, 1200));
+
     setIsSubmitting(false);
     setIsSuccess(true);
+    onToast?.('Laporan berhasil dikirim! Tim akan menindaklanjuti dalam < 24 jam.', 'success', 4000);
   };
 
   if (isSuccess) {

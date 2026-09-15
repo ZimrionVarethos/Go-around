@@ -15,6 +15,7 @@ import { cn } from '@/lib/cn';
 import type { PlaceListItem } from '@/lib/types';
 import { AISpatialMatchBanner } from './AISpatialMatchBanner';
 import { PlaceCard } from './PlaceCard';
+import type { ToastType } from '@/hooks/useToast';
 
 export interface RecommendationPanelProps {
   isCollapsed: boolean;
@@ -25,6 +26,7 @@ export interface RecommendationPanelProps {
   selectedSlug: string | null;
   onSelectPlace: (slug: string) => void;
   onDownloadGeoJson: () => void;
+  onToast?: (msg: string, type?: ToastType, durationMs?: number) => void;
   className?: string;
 }
 
@@ -37,6 +39,7 @@ export function RecommendationPanel({
   selectedSlug,
   onSelectPlace,
   onDownloadGeoJson,
+  onToast,
   className,
 }: RecommendationPanelProps) {
   const [isMobile, setIsMobile] = useState(false);
@@ -126,7 +129,9 @@ export function RecommendationPanel({
 
         {/* Scrollable List */}
         <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3 no-scrollbar">
-          <AISpatialMatchBanner />
+        <AISpatialMatchBanner
+          onChangeFilter={() => onToast?.('Filter AI: Fitur kustomisasi filter spatial akan tersedia segera! Gunakan filter chip di atas peta untuk sementara.', 'info', 4000)}
+        />
           <div className="space-y-3 pb-2">
             {places.map((place: PlaceListItem, idx: number) => (
               <PlaceCard
@@ -142,7 +147,10 @@ export function RecommendationPanel({
 
         {/* Bottom Toolbar */}
         <div className="border-t border-gray-100 px-4 py-2.5 bg-white shrink-0 flex items-center justify-between text-xs text-gray-600">
-          <button className="flex items-center gap-1.5 hover:text-gray-900 font-medium transition-colors cursor-pointer">
+          <button
+            onClick={() => onToast?.('Legenda peta: Hijau Tua = 0.9–1.0, Hijau = 0.8–0.89, Kuning = 0.6–0.79, Merah < 0.6', 'info')}
+            className="flex items-center gap-1.5 hover:text-gray-900 font-medium transition-colors cursor-pointer"
+          >
             <MapIcon className="w-3.5 h-3.5 text-gray-500" />
             <span>Legenda</span>
           </button>
@@ -216,7 +224,7 @@ export function RecommendationPanel({
           </button>
         </div>
         <p className="text-[11.5px] text-gray-500 mt-0.5">
-          120+ Titik Terverifikasi Lapangan oleh Mahasiswa IPB University
+          Terverifikasi Lapangan oleh Mahasiswa IPB University
         </p>
       </div>
 
@@ -261,7 +269,9 @@ export function RecommendationPanel({
 
       {/* Scrollable List Body */}
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3 no-scrollbar">
-        <AISpatialMatchBanner />
+        <AISpatialMatchBanner
+          onChangeFilter={() => onToast?.('Filter AI: Fitur kustomisasi filter spatial akan tersedia segera! Gunakan filter chip di atas peta untuk sementara.', 'info', 4000)}
+        />
         <div className="space-y-3 pb-2">
           {places.map((place: PlaceListItem, idx: number) => (
             <PlaceCard
@@ -270,6 +280,7 @@ export function RecommendationPanel({
               rank={idx + 1}
               isSelected={place.slug === selectedSlug}
               onSelect={onSelectPlace}
+              onToast={onToast}
             />
           ))}
         </div>
@@ -278,11 +289,17 @@ export function RecommendationPanel({
       {/* Bottom GIS Toolbar */}
       <div className="border-t border-gray-100 px-4 py-2.5 bg-white shrink-0 flex items-center justify-between text-xs text-gray-600">
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-1.5 hover:text-gray-900 font-medium transition-colors cursor-pointer">
+          <button
+            onClick={() => onToast?.('Legenda: Hijau Tua = Sangat Ideal (0.9–1.0), Hijau = Bagus (0.8+), Kuning = Cukup (0.6+), Merah = Kurang', 'info', 4000)}
+            className="flex items-center gap-1.5 hover:text-gray-900 font-medium transition-colors cursor-pointer"
+          >
             <MapIcon className="w-3.5 h-3.5 text-gray-500" />
             <span>Legenda Peta</span>
           </button>
-          <button className="flex items-center gap-1.5 hover:text-gray-900 font-medium transition-colors cursor-pointer">
+          <button
+            onClick={() => onToast?.('Pengaturan GIS: Fitur ini akan tersedia segera. Stay tuned! 🗺️', 'info')}
+            className="flex items-center gap-1.5 hover:text-gray-900 font-medium transition-colors cursor-pointer"
+          >
             <SlidersHorizontal className="w-3.5 h-3.5 text-gray-500" />
             <span>Pengaturan GIS</span>
           </button>

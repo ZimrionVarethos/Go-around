@@ -7,6 +7,8 @@ import { PlaceDetailDrawer } from './PlaceDetailDrawer';
 import { MapControls, MapLegend } from './MapControls';
 import { RecommendationPanel } from './RecommendationPanel';
 import { usePlaces, useBboxPlaces } from '@/hooks/usePlacesQuery';
+import { useToast } from '@/hooks/useToast';
+import { ToastContainer } from '@/components/ui/ToastContainer';
 import type { PlaceFilters, BboxParams, PlaceGeoJsonFeature } from '@/lib/types';
 import { FIGMA_PLACES } from '@/lib/figma-places';
 import { cn } from '@/lib/cn';
@@ -27,6 +29,7 @@ export function MapPage() {
   const [selectedSlug, setSelectedSlug] = useState<string | null>('anthology-coffee-tea');
   const [sortTab, setSortTab] = useState<'score' | 'nearby' | 'budget'>('score');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { toasts, showToast, dismissToast } = useToast();
 
   const [filters, setFilters] = useState<PlaceFilters>({
     plug_availability: 'abundant', // Active by default in Figma design
@@ -191,6 +194,7 @@ export function MapPage() {
           }
         }}
         onDownloadGeoJson={handleDownloadGeoJson}
+        onToast={showToast}
       />
 
       {/* Floating Right Selected Place Detail Drawer
@@ -203,6 +207,7 @@ export function MapPage() {
             <PlaceDetailDrawer
               slug={selectedSlug}
               onClose={() => setSelectedSlug(null)}
+              onToast={showToast}
             />
           </div>
           {/* Mobile bottom sheet */}
@@ -211,6 +216,7 @@ export function MapPage() {
               slug={selectedSlug}
               onClose={() => setSelectedSlug(null)}
               isMobileSheet
+              onToast={showToast}
             />
           </div>
         </>
@@ -231,8 +237,11 @@ export function MapPage() {
         </div>
 
         {/* 5-Button Map Controls Stack */}
-        <MapControls onLocate={handleLocate} />
+        <MapControls onLocate={handleLocate} onToast={showToast} />
       </div>
+
+      {/* Global Toast Notifications */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </>
   );
 }

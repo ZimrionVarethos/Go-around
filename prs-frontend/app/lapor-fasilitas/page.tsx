@@ -5,8 +5,11 @@ import { AlertTriangle, ArrowLeft } from 'lucide-react';
 import { PublicFooter } from '@/components/layout/PublicFooter';
 import { LaporFasilitasForm } from '@/features/reports/LaporFasilitasForm';
 import { ReportSidebar } from '@/features/reports/ReportSidebar';
+import { useToast } from '@/hooks/useToast';
+import { ToastContainer } from '@/components/ui/ToastContainer';
 
 export default function LaporFasilitasPage() {
+  const { toasts, showToast, dismissToast } = useToast();
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col select-none">
 
@@ -58,12 +61,13 @@ export default function LaporFasilitasPage() {
 
         {/* ── 2-Column Grid ── */}
         <div className="flex flex-col lg:flex-row gap-6 items-start">
-          <LaporFasilitasForm />
+          <LaporFasilitasForm onToast={showToast} />
           <ReportSidebar />
         </div>
       </main>
 
       <PublicFooter />
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 }

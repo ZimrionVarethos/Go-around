@@ -12,7 +12,7 @@ export function PublicFooter() {
         <div className="flex items-center justify-between px-3 h-9 gap-2">
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#D1FAE5] text-[#005B54] font-semibold text-[10px] shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-[#005B54]" />
-            <span>120+ Terverifikasi</span>
+            {/* <span>120+ Terverifikasi</span> */}
           </span>
           <span className="text-gray-400 font-medium text-[10px] truncate">
             Go Around Bogor © 2026 · SV IPB
@@ -44,7 +44,7 @@ export function PublicFooter() {
         <div className="flex items-center gap-3 min-w-0">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#D1FAE5] text-[#005B54] font-semibold text-[11px] shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-[#005B54]" />
-            <span>120+ Lokasi Terverifikasi</span>
+            {/* <span>120+ Lokasi Terverifikasi</span> */}
           </span>
           <span className="text-gray-500 font-medium truncate">
             Go Around Bogor © 2026 · Sekolah Vokasi IPB

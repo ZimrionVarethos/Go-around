@@ -2,7 +2,11 @@
 
 import { Sparkles, Check, Wifi, Coffee, Zap, ChevronRight } from 'lucide-react';
 
-export function AISpatialMatchBanner() {
+interface AISpatialMatchBannerProps {
+  onChangeFilter?: () => void;
+}
+
+export function AISpatialMatchBanner({ onChangeFilter }: AISpatialMatchBannerProps = {}) {
   return (
     <div className="rounded-2xl bg-[#F4FAF8] border border-[#BDE8DE] p-3.5 shadow-xs select-none flex flex-col gap-2.5">
       {/* Top Header Row */}
@@ -55,7 +59,12 @@ export function AISpatialMatchBanner() {
         <span className="text-gray-500">
           Rekomendasi Utama: <strong className="font-semibold text-gray-700">Anthology Coffee</strong>
         </span>
-        <button className="font-semibold text-[#005B54] hover:underline flex items-center gap-0.5 cursor-pointer">
+        <button
+          type="button"
+          onClick={onChangeFilter}
+          className="font-semibold text-[#005B54] hover:underline flex items-center gap-0.5 cursor-pointer active:opacity-70 transition-opacity"
+          // TODO [BACKEND]: Open AI filter modal / connect to filter state
+        >
           <span>Ubah Filter AI</span>
           <ChevronRight className="w-3 h-3" />
         </button>

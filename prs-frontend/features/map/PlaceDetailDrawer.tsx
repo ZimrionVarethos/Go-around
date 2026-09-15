@@ -13,15 +13,17 @@ import {
 import { formatNugasScore, formatRupiah } from '@/lib/utils';
 import Link from 'next/link';
 import { useState } from 'react';
+import type { ToastType } from '@/hooks/useToast';
 
 export interface PlaceDetailDrawerProps {
   slug: string | null;
   onClose: () => void;
   /** When true, renders as a bottom sheet (full-width, rounded top) for mobile */
   isMobileSheet?: boolean;
+  onToast?: (msg: string, type?: ToastType) => void;
 }
 
-export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false }: PlaceDetailDrawerProps) {
+export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false, onToast }: PlaceDetailDrawerProps) {
   const { data: response } = usePlaceDetail(slug);
   const [copied, setCopied] = useState(false);
 
@@ -46,9 +48,16 @@ export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false }: Plac
 
   const handleShare = () => {
     if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      const shareUrl = `${window.location.origin}/peta?place=${slug}`;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        onToast?.('Tautan lokasi disalin ke clipboard! 📎', 'success');
+        // TODO [BACKEND]: Log share click:
+        //   POST /api/v1/places/:slug/events { event: 'share_click' }
+      }).catch(() => {
+        onToast?.('Gagal menyalin tautan', 'error');
+      });
     }
   };
 
@@ -226,7 +235,7 @@ export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false }: Plac
 
         {/* Report Link */}
         <Link
-          href={`/lapor?place=${slug}`}
+          href={`/lapor-fasilitas?place=${slug}`}
           className="w-10 h-10 border border-red-200 bg-red-50 hover:bg-red-100 rounded-xl flex items-center justify-center text-red-600 transition-colors cursor-pointer"
           title="Lapor Perubahan Fasilitas"
         >
