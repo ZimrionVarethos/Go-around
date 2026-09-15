@@ -146,7 +146,7 @@ export default function TambahTempatPage() {
             <FileText className="w-3.5 h-3.5" />
             <span>Formulir Kurasi Spasial Publik</span>
           </div>
-          <h1 className="text-2xl sm:text-[28px] font-extrabold text-gray-900 tracking-tight mt-2.5">
+          <h1 className="text-[26px] sm:text-[32px] font-extrabold text-[#005C55] leading-[34px] sm:leading-[40px] tracking-[-0.8px] mt-2.5">
             Tambah &amp; Rekomendasikan Tempat Nugas Baru
           </h1>
           <p className="text-gray-500 text-xs sm:text-sm mt-1 max-w-3xl leading-relaxed">
