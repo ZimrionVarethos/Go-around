@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
-import { Inter, Onest, JetBrains_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans, Onest, JetBrains_Mono } from 'next/font/google';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import './globals.css';
 
-const inter = Inter({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-inter',
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-plus-jakarta-sans',
   display: 'swap',
 });
 
@@ -37,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${inter.variable} ${onest.variable} ${mono.variable}`}
+      className={`${plusJakartaSans.variable} ${onest.variable} ${mono.variable}`}
     >
       <body className="min-h-full flex flex-col font-sans antialiased bg-surface-white text-text-900">
         <QueryProvider>{children}</QueryProvider>
