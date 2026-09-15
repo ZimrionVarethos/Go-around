@@ -160,14 +160,14 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
 
   return (
     <>
-      <header className="h-[64px] bg-white/95 backdrop-blur-md border border-gray-200/90 rounded-[12px] flex items-center justify-between px-4 sm:px-5 gap-3 sm:gap-4 select-none shadow-sm relative z-50">
+      <header className="h-[64px] bg-white/95 backdrop-blur-md border border-gray-200/90 rounded-[12px] flex items-center justify-between px-3 sm:px-5 gap-2 sm:gap-4 select-none shadow-sm relative z-50">
         {/* Left: Brand Wordmark */}
         <Link
           href="/"
-          className="shrink-0 flex flex-col justify-center w-[191.525px] h-[45.273px] select-none"
+          className="shrink-0 flex flex-col justify-center w-auto md:w-[191.525px] h-[45.273px] select-none"
         >
           <span
-            className="font-brand text-[24px] font-medium text-[#0F172A] leading-normal tracking-[-0.724px]"
+            className="font-brand text-[21px] sm:text-[24px] font-medium text-[#0F172A] leading-normal tracking-[-0.724px]"
             style={{
               fontFamily: "var(--font-onest), 'Onest', sans-serif",
             }}
@@ -283,15 +283,38 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
         )}
 
         {/* Right: Search + AI + Filters Control Group aligned next to Action Buttons */}
-        <div className="flex items-center gap-2 shrink-0 ml-auto">
-          {/* Mobile Search Icon Button */}
-          <button
-            onClick={() => setMobileSearchOpen(true)}
-            title="Cari"
-            className="md:hidden w-9 h-9 flex items-center justify-center rounded-[10px] bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 transition-colors cursor-pointer shrink-0"
-          >
-            <Search className="w-4 h-4" />
-          </button>
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
+          {/* Mobile Search Controls (< md) */}
+          <div className="flex md:hidden items-center gap-1.5 shrink-0">
+            {/* AI Search Trigger Pill */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileSearchMode('ai');
+                setMobileSearchOpen(true);
+              }}
+              className="h-9 px-2.5 flex items-center gap-1.5 rounded-[10px] bg-gradient-to-r from-[#EAFBF7] to-[#E2F7F2] border border-[#A7F3D0] text-[#005B54] text-xs font-semibold hover:bg-[#d8f4e6] active:scale-95 transition-all cursor-pointer shrink-0"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#005B54] shrink-0" />
+              <span className="text-[11px] font-bold">Cari AI</span>
+              <span className="text-[9px] font-extrabold bg-[#005B54] text-white px-1 py-0.5 rounded-[4px] leading-none">
+                AI
+              </span>
+            </button>
+
+            {/* Regular Search Icon Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileSearchMode('normal');
+                setMobileSearchOpen(true);
+              }}
+              title="Cari Cafe / Lokasi"
+              className="w-9 h-9 flex items-center justify-center rounded-[10px] bg-gray-50 hover:bg-gray-100 active:bg-gray-200 text-gray-700 border border-gray-200 transition-colors cursor-pointer shrink-0"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+          </div>
 
           {/* Search Input (Tablet & Desktop) */}
           <form
@@ -317,8 +340,8 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
             )}
           </form>
 
-          {/* Interactive AI Search Input Bar */}
-          <div className="relative shrink-0" ref={aiSearchRef}>
+          {/* Interactive AI Search Input Bar (Tablet & Desktop) */}
+          <div className="hidden md:block relative shrink-0" ref={aiSearchRef}>
             <div
               className={cn(
                 'h-[40px] flex items-center gap-1.5 px-2.5 md:px-3 rounded-[12px] transition-all bg-gradient-to-r from-[#EAFBF7] to-[#F0FAF7] border',
@@ -434,7 +457,7 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
 
               {/* Layers Popover */}
               {layersOpen && (
-                <div className="absolute top-[48px] right-0 w-[290px] sm:w-[320px] bg-white rounded-2xl border border-gray-200 shadow-2xl p-4 flex flex-col gap-3.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="fixed sm:absolute inset-x-3 sm:inset-x-auto top-20 sm:top-[48px] sm:right-0 w-auto sm:w-[320px] max-w-[calc(100vw-24px)] bg-white rounded-2xl border border-gray-200 shadow-2xl p-4 flex flex-col gap-3.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                   <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                     <div>
                       <h4 className="text-xs font-bold text-gray-900">Lapisan Peta WebGIS</h4>
@@ -628,7 +651,7 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
 
               {/* Filter Popover */}
               {filterOpen && (
-                <div className="absolute top-[48px] right-0 w-[320px] sm:w-[360px] bg-white rounded-2xl border border-gray-200 shadow-2xl p-4 flex flex-col gap-3.5 z-50 max-h-[82vh] overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="fixed sm:absolute inset-x-3 sm:inset-x-auto top-20 sm:top-[48px] sm:right-0 w-auto sm:w-[360px] max-w-[calc(100vw-24px)] bg-white rounded-2xl border border-gray-200 shadow-2xl p-4 flex flex-col gap-3.5 z-50 max-h-[82vh] overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-150">
                   <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                     <div>
                       <h4 className="text-xs font-bold text-gray-900">Pengaturan GIS & Filter</h4>
