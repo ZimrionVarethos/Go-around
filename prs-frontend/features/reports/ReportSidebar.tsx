@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Wifi, Volume2, Tag, MessageSquare, AlertTriangle } from 'lucide-react';
+import { FileText, Wifi, Volume2, Tag, MessageSquare } from 'lucide-react';
 
 const VERIFIED_TICKETS = [
   {
@@ -137,29 +137,6 @@ export function ReportSidebar() {
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Card 3: Callout Cafe Tutup */}
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-        <div className="flex gap-3.5 items-start">
-          <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
-            <AlertTriangle className="w-4.5 h-4.5 text-amber-600" />
-          </div>
-          <div>
-            <h4 className="text-[13px] font-bold text-amber-900 mb-1.5">
-              Cafe Tutup Permanen / Ganti Nama?
-            </h4>
-            <p className="text-[11.5px] text-amber-800/80 leading-relaxed mb-3">
-              Bantu rekan mahasiswa lain hemat ongkos bensin. Tandai langsung di peta atau mention bot Telegram komunitas WebGIS Bogor.
-            </p>
-            <button
-              type="button"
-              className="text-[12px] font-semibold text-amber-700 hover:text-amber-900 flex items-center gap-1 transition-colors cursor-pointer"
-            >
-              Lapor Penutupan Cepat →
-            </button>
-          </div>
         </div>
       </div>
     </aside>
