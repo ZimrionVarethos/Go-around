@@ -47,7 +47,7 @@ export function PublicFooter() {
             {/* <span>120+ Lokasi Terverifikasi</span> */}
           </span>
           <span className="text-gray-500 font-medium truncate">
-            Go Around Bogor © 2026 · Sekolah Vokasi IPB
+            Go Around Bogor © 2026 
           </span>
         </div>
 
