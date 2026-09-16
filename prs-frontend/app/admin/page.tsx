@@ -35,7 +35,7 @@ export default function AdminDashboardPage() {
     <div className="flex flex-col min-h-full pb-12">
       {/* Admin Header */}
       <AdminTopbar
-        title="Dashboard Eksekutif"
+        title="Dashboard Overview"
         subtitle="Pemantauan master data spasial, tiket laporan, dan aktivitas nugas mahasiswa"
         onOpenMobileMenu={openMobileMenu}
       />
