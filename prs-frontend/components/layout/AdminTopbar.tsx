@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, ReactNode } from 'react';
 import { Bell, Download, Search, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import React, { ReactNode } from 'react';
 import { useAdminAuth } from '@/lib/admin-auth';
+import { useAdminStore } from '@/lib/admin-store';
 import { AdminProfileDropdown } from '@/components/admin/AdminProfileDropdown';
+import { AdminNotificationDropdown } from '@/components/admin/AdminNotificationDropdown';
+import { cn } from '@/lib/cn';
 
 export interface AdminTopbarProps {
   title?: string;
@@ -15,7 +17,9 @@ export interface AdminTopbarProps {
   searchPlaceholder?: string;
   searchValue?: string;
   onSearchChange?: (val: string) => void;
+  onExport?: () => void;
   hideDefaultExport?: boolean;
+  hideNotification?: boolean;
   onOpenMobileMenu?: () => void;
 }
 
@@ -27,12 +31,33 @@ export function AdminTopbar({
   searchPlaceholder = 'Cari kafe, jalan, ID spasial...',
   searchValue,
   onSearchChange,
+  onExport,
   hideDefaultExport = false,
+  hideNotification = false,
   onOpenMobileMenu,
 }: AdminTopbarProps) {
   const { profile } = useAdminAuth();
+  const { unreadTicketsCount, newPlacesCount } = useAdminStore();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Shortcut global Cmd+K / Ctrl+K untuk fokus pencarian
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        if (showSearch && searchInputRef.current) {
+          e.preventDefault();
+          searchInputRef.current.focus();
+          searchInputRef.current.select();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showSearch]);
+
+  const totalUnread = unreadTicketsCount + newPlacesCount;
   return (
     <header className="h-[68px] bg-white border-b border-border-subtle px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-4 shrink-0 select-none">
       {/* Left: Mobile Menu Trigger + Page Title & Breadcrumb OR Search Bar if no title */}
@@ -62,6 +87,7 @@ export function AdminTopbar({
             <div className="flex-1 max-w-2xl relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-400" />
               <input
+                ref={searchInputRef}
                 type="text"
                 value={searchValue}
                 onChange={(e) => onSearchChange?.(e.target.value)}
@@ -81,6 +107,7 @@ export function AdminTopbar({
         <div className="flex-1 max-w-sm relative hidden md:block">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-400" />
           <input
+            ref={searchInputRef}
             type="text"
             value={searchValue}
             onChange={(e) => onSearchChange?.(e.target.value)}
@@ -98,32 +125,68 @@ export function AdminTopbar({
         {actions}
 
         {/* Export action */}
-        {!hideDefaultExport && (
-          <Button variant="outline" size="sm" className="hidden sm:inline-flex rounded-md text-xs">
+        {!hideDefaultExport && onExport && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onExport}
+            className="hidden sm:inline-flex rounded-md text-xs cursor-pointer"
+          >
             <Download className="w-3.5 h-3.5" />
             <span>Ekspor Data</span>
           </Button>
         )}
 
-        {/* Notification Bell */}
-        <button
-          title="Notifikasi"
-          className="w-9 h-9 flex items-center justify-center rounded-xl border border-border-subtle hover:bg-surface-header text-text-500 hover:text-text-900 transition-colors cursor-pointer relative shadow-xs"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-danger-base ring-2 ring-white" />
-        </button>
+        {/* Interactive Notification Bell & Dropdown */}
+        {!hideNotification && (
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setIsNotificationOpen((prev) => !prev);
+                setIsProfileDropdownOpen(false);
+              }}
+              title="Notifikasi Laporan & Kafe Baru"
+              aria-expanded={isNotificationOpen}
+              aria-haspopup="true"
+              className={cn(
+                'w-9 h-9 flex items-center justify-center rounded-xl border transition-colors cursor-pointer relative shadow-xs',
+                isNotificationOpen
+                  ? 'bg-primary-50 border-primary-300 text-primary-950 ring-2 ring-primary-500/20'
+                  : 'border-border-subtle hover:bg-surface-header text-text-500 hover:text-text-900'
+              )}
+            >
+              <Bell className="w-4 h-4" />
+              {totalUnread > 0 && (
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-danger-base ring-2 ring-white animate-pulse" />
+              )}
+            </button>
+
+            <AdminNotificationDropdown
+              isOpen={isNotificationOpen}
+              onClose={() => setIsNotificationOpen(false)}
+            />
+          </div>
+        )}
 
         {/* Subtle Divider */}
-        <div className="h-6 w-px bg-border-subtle mx-0.5 hidden sm:block" />
+        <div className="h-6 w-px bg-border-subtle mx-0.5" />
 
         {/* Profile Avatar Button & Dropdown */}
         <div className="relative">
           <button
             type="button"
-            onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2 p-1 sm:px-2 sm:py-1 rounded-xl hover:bg-surface-subtle border border-border-subtle hover:border-border-strong transition-all cursor-pointer group"
-            title="Menu Profil & Pengaturan"
+            onClick={() => {
+              setIsProfileDropdownOpen((prev) => !prev);
+              setIsNotificationOpen(false);
+            }}
+            className={cn(
+              'flex items-center gap-2 p-1 sm:px-2 sm:py-1 rounded-xl border transition-all cursor-pointer group',
+              isProfileDropdownOpen
+                ? 'bg-primary-50 border-primary-300 ring-2 ring-primary-500/20'
+                : 'hover:bg-surface-subtle border-border-subtle hover:border-border-strong'
+            )}
+            title="Menu Profil & Akun"
             aria-expanded={isProfileDropdownOpen}
             aria-haspopup="true"
           >

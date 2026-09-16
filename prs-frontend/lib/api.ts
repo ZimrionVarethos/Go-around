@@ -96,3 +96,7 @@ export const contributionsApi = {
       body: JSON.stringify(payload),
     }),
 };
+
+// ─── Admin API Service Layer ───────────────────────────────────────────────────
+export * from './api-admin';
+

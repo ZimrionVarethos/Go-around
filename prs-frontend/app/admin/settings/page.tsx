@@ -508,6 +508,8 @@ function SettingsContent() {
         title="Pengaturan Akun & WebGIS"
         subtitle="Kelola identitas administrator, keamanan sandi, dan preferensi spasial Kota Bogor"
         onOpenMobileMenu={openMobileMenu}
+        showSearch={false}
+        hideNotification
         hideDefaultExport
       />
 

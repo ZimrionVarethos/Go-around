@@ -92,6 +92,8 @@ export default function AdminReportsPage() {
         title="Report & Tiket Validasi"
         subtitle="Kelola laporan fasilitas mahasiswa dan usulan spot nugas baru"
         onOpenMobileMenu={openMobileMenu}
+        showSearch={false}
+        hideDefaultExport={true}
         actions={
           <div className="flex items-center gap-2">
             {unreadTicketsCount > 0 && (

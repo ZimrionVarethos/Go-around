@@ -32,6 +32,7 @@ export default function AdminAnalyticsPage() {
         title="Analisis Pengguna & Spasial"
         subtitle="Wawasan preferensi mahasiswa, jam sibuk nugas, dan distribusi spasial Kota Bogor"
         onOpenMobileMenu={openMobileMenu}
+        showSearch={false}
         actions={
           <button
             type="button"

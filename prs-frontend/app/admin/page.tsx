@@ -38,6 +38,8 @@ export default function AdminDashboardPage() {
         title="Dashboard Overview"
         subtitle="Pemantauan master data spasial, tiket laporan, dan aktivitas nugas mahasiswa"
         onOpenMobileMenu={openMobileMenu}
+        showSearch={false}
+        hideDefaultExport={true}
       />
 
       {/* Main Container */}
