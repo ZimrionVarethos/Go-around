@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, useSyncExternalStore, createContext, useContext } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { useAdminAuth } from '@/lib/admin-auth';
@@ -19,6 +19,8 @@ export function useAdminLayout() {
   return useContext(AdminLayoutContext);
 }
 
+const emptySubscribe = () => () => {};
+
 export default function AdminLayout({
   children,
 }: {
@@ -28,13 +30,15 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated } = useAdminAuth();
-  const [hasMounted, setHasMounted] = useState(false);
+
+  // Deteksi client-mount tanpa cascading renders via useSyncExternalStore
+  const hasMounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   const [prevPathname, setPrevPathname] = useState(pathname);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
 
   const isLoginPage = pathname === '/admin/login';
 

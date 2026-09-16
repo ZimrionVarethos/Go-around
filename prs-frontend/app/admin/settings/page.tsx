@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   User,
@@ -21,17 +21,406 @@ import {
   Building2,
   Phone,
   Mail,
-  Compass,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { AdminTopbar } from '@/components/layout/AdminTopbar';
 import { useAdminLayout } from '../layout';
-import { useAdminAuth, DEFAULT_ADMIN_PROFILE, DEFAULT_ADMIN_PREFERENCES } from '@/lib/admin-auth';
+import { useAdminAuth, DEFAULT_ADMIN_PROFILE, AdminProfile, AdminPreferences } from '@/lib/admin-auth';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
 
 type TabKey = 'profile' | 'security' | 'preferences';
+
+interface ProfileFormSectionProps {
+  profile: AdminProfile;
+  onSave: (data: Partial<AdminProfile>) => void;
+  onReset: () => void;
+}
+
+function ProfileFormSection({ profile, onSave, onReset }: ProfileFormSectionProps) {
+  const [name, setName] = useState(profile.name);
+  const [email, setEmail] = useState(profile.email);
+  const [role, setRole] = useState(profile.role);
+  const [agency, setAgency] = useState(profile.agency);
+  const [phone, setPhone] = useState(profile.phone || '');
+  const [bio, setBio] = useState(profile.bio);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave({
+      name: name.trim(),
+      email: email.trim(),
+      role: role.trim(),
+      agency: agency.trim(),
+      phone: phone.trim(),
+      bio: bio.trim(),
+    });
+  };
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200">
+      {/* Identity Card Overview */}
+      <div className="bg-white rounded-2xl border border-border-subtle p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-800 to-primary-950 text-white font-bold text-2xl flex items-center justify-center shadow-md">
+              {profile.avatarInitials}
+            </div>
+            <span
+              className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white"
+              title="Status: Aktif"
+            />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-lg font-bold text-text-950">{profile.name}</h2>
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-primary-100 text-primary-900 px-2.5 py-0.5 rounded-full border border-primary-200">
+                <Sparkles className="w-3 h-3 text-primary-700" />
+                {profile.role}
+              </span>
+            </div>
+            <p className="text-xs text-text-500 mt-1 flex items-center gap-1.5">
+              <Mail className="w-3.5 h-3.5 text-text-400" />
+              {profile.email}
+            </p>
+            <p className="text-[11px] text-text-400 mt-0.5">
+              Terakhir masuk: <span className="text-text-700 font-medium">{profile.lastLogin}</span>
+            </p>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onReset}
+          className="rounded-xl text-xs gap-1.5 self-end sm:self-center"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>Reset ke Default</span>
+        </Button>
+      </div>
+
+      {/* Profile Edit Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-2xl border border-border-subtle p-5 sm:p-7 shadow-xs space-y-5"
+      >
+        <div>
+          <h3 className="text-sm font-bold text-text-950">Informasi Pribadi & Kontak</h3>
+          <p className="text-xs text-text-500 mt-0.5">
+            Informasi ini ditampilkan pada navigasi dashboard, tiket laporan, dan verifikasi kafe spasial.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-text-700 mb-1.5">
+              Nama Lengkap <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full px-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs"
+              placeholder="Contoh: Azqilla Simbolon"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-text-700 mb-1.5">
+              Email Resmi <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs"
+              placeholder="admin@goaround.id"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-text-700 mb-1.5">
+              Jabatan / Peran Admin
+            </label>
+            <input
+              type="text"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full px-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs"
+              placeholder="Super Admin SIG Kota Bogor"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-text-700 mb-1.5">
+              Instansi / Departemen
+            </label>
+            <div className="relative">
+              <Building2 className="w-4 h-4 text-text-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={agency}
+                onChange={(e) => setAgency(e.target.value)}
+                className="w-full pl-9 pr-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs"
+                placeholder="Bappeda & Tim WebGIS IPB"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-text-700 mb-1.5">
+              Nomor Kontak / WhatsApp
+            </label>
+            <div className="relative">
+              <Phone className="w-4 h-4 text-text-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full pl-9 pr-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs"
+                placeholder="+62 812-3456-7890"
+              />
+            </div>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-text-700 mb-1.5">
+              Bio / Catatan Tugas
+            </label>
+            <textarea
+              rows={3}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              className="w-full px-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs resize-none"
+              placeholder="Tulis deskripsi tanggung jawab administrator..."
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-border-subtle">
+          <Button type="submit" variant="primary" size="md" className="rounded-xl gap-2 text-xs font-semibold">
+            <Save className="w-4 h-4" />
+            <span>Simpan Perubahan</span>
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+interface PreferencesFormSectionProps {
+  preferences: AdminPreferences;
+  onSave: (prefs: Partial<AdminPreferences>) => void;
+}
+
+function PreferencesFormSection({ preferences, onSave }: PreferencesFormSectionProps) {
+  const [basemap, setBasemap] = useState(preferences.defaultBasemap);
+  const [bufferRadius, setBufferRadius] = useState(preferences.defaultBufferRadius);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(preferences.notificationsEnabled);
+  const [soundAlerts, setSoundAlerts] = useState(preferences.soundAlerts);
+  const [coordinateFormat, setCoordinateFormat] = useState(preferences.coordinateFormat);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave({
+      defaultBasemap: basemap,
+      defaultBufferRadius: bufferRadius,
+      notificationsEnabled,
+      soundAlerts,
+      coordinateFormat,
+    });
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-2xl border border-border-subtle p-5 sm:p-7 shadow-xs space-y-6 animate-in fade-in duration-200"
+    >
+      <div>
+        <h3 className="text-sm font-bold text-text-950 flex items-center gap-2">
+          <Layers className="w-4 h-4 text-primary-800" />
+          <span>Preferensi Tampilan Peta & Pengolahan Spasial</span>
+        </h3>
+        <p className="text-xs text-text-500 mt-0.5">
+          Konfigurasi layer peta dasar dan parameter analisis spasial untuk pengelolaan kafe seputar Kota Bogor.
+        </p>
+      </div>
+
+      {/* Basemap Selection */}
+      <div>
+        <label className="block text-xs font-semibold text-text-700 mb-2">
+          Basemap Peta Utama (Default)
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[
+            {
+              id: 'carto' as const,
+              name: 'CartoDB Positron (Clean Light)',
+              desc: 'Desain minimalis monokrom abu-abu, optimal membaca titik kafe',
+            },
+            {
+              id: 'osm' as const,
+              name: 'OpenStreetMap Standard',
+              desc: 'Peta jalan lengkap dengan detail bangunan lokal Kota Bogor',
+            },
+            {
+              id: 'topo' as const,
+              name: 'OpenTopo Topografi',
+              desc: 'Layer kontur elevasi, cocok mengamati kontur Bogor Selatan',
+            },
+          ].map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setBasemap(item.id)}
+              className={cn(
+                'p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between',
+                basemap === item.id
+                  ? 'bg-primary-50/70 border-primary-800 ring-2 ring-primary-500/20 shadow-xs'
+                  : 'bg-surface-subtle border-border-subtle hover:bg-surface-header'
+              )}
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-text-950">{item.name}</span>
+                  {basemap === item.id && (
+                    <CheckCircle2 className="w-4 h-4 text-primary-800 shrink-0" />
+                  )}
+                </div>
+                <p className="text-[11px] text-text-500 mt-1 leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Default Buffer Radius */}
+      <div>
+        <label className="block text-xs font-semibold text-text-700 mb-2">
+          Radius Buffer default Seputar Kampus IPB & Pusat Nugas
+        </label>
+        <div className="grid grid-cols-3 gap-3 max-w-md">
+          {[
+            { val: 500, label: '500 Meter', tag: 'Jalan Kaki (~6 menit)' },
+            { val: 1000, label: '1.000 Meter', tag: 'Standar Kampus (~12 menit)' },
+            { val: 2000, label: '2.000 Meter', tag: 'Radius Motor / Angkot' },
+          ].map((rad) => (
+            <button
+              key={rad.val}
+              type="button"
+              onClick={() => setBufferRadius(rad.val)}
+              className={cn(
+                'p-3 rounded-xl border text-center transition-all cursor-pointer',
+                bufferRadius === rad.val
+                  ? 'bg-primary-900 text-white border-primary-950 shadow-xs'
+                  : 'bg-surface-subtle border-border-subtle text-text-800 hover:bg-surface-header'
+              )}
+            >
+              <div className="text-xs font-bold">{rad.label}</div>
+              <div
+                className={cn(
+                  'text-[10px] mt-0.5',
+                  bufferRadius === rad.val ? 'text-primary-100' : 'text-text-400'
+                )}
+              >
+                {rad.tag}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Coordinate Format */}
+      <div>
+        <label className="block text-xs font-semibold text-text-700 mb-2">
+          Format Koordinat Spasial
+        </label>
+        <div className="grid grid-cols-2 gap-3 max-w-md">
+          {[
+            { id: 'decimal' as const, label: 'Derajat Desimal (Lat, Lng)', example: '-6.5976, 106.8053' },
+            { id: 'dms' as const, label: 'DMS (Derajat Menit Detik)', example: '6°35\'51"S 106°48\'19"E' },
+          ].map((fmt) => (
+            <button
+              key={fmt.id}
+              type="button"
+              onClick={() => setCoordinateFormat(fmt.id)}
+              className={cn(
+                'p-3 rounded-xl border text-left transition-all cursor-pointer',
+                coordinateFormat === fmt.id
+                  ? 'bg-primary-50 border-primary-800 ring-2 ring-primary-500/20 shadow-xs'
+                  : 'bg-surface-subtle border-border-subtle hover:bg-surface-header'
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-text-900">{fmt.label}</span>
+                {coordinateFormat === fmt.id && <CheckCircle2 className="w-3.5 h-3.5 text-primary-800" />}
+              </div>
+              <p className="text-[10px] text-text-400 font-mono mt-1">{fmt.example}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Notification & Format Toggles */}
+      <div className="pt-4 border-t border-border-subtle space-y-4">
+        <h4 className="text-xs font-bold text-text-900 flex items-center gap-1.5">
+          <Bell className="w-4 h-4 text-text-600" />
+          <span>Notifikasi & Peringatan Masuk</span>
+        </h4>
+
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 p-3 rounded-xl border border-border-subtle bg-surface-subtle cursor-pointer hover:bg-surface-header transition-colors">
+            <input
+              type="checkbox"
+              checked={notificationsEnabled}
+              onChange={(e) => setNotificationsEnabled(e.target.checked)}
+              className="w-4 h-4 accent-primary-900 rounded cursor-pointer"
+            />
+            <div className="flex-1 text-xs">
+              <span className="font-semibold text-text-900 block">
+                Notifikasi Tiket Laporan Masuk
+              </span>
+              <span className="text-[11px] text-text-500">
+                Tampilkan badge merah dan toast saat mahasiswa melaporkan colokan/wifi kafe bermasalah
+              </span>
+            </div>
+          </label>
+
+          <label className="flex items-center gap-3 p-3 rounded-xl border border-border-subtle bg-surface-subtle cursor-pointer hover:bg-surface-header transition-colors">
+            <input
+              type="checkbox"
+              checked={soundAlerts}
+              onChange={(e) => setSoundAlerts(e.target.checked)}
+              className="w-4 h-4 accent-primary-900 rounded cursor-pointer"
+            />
+            <div className="flex-1 text-xs">
+              <span className="font-semibold text-text-900 block">
+                Bunyi Alert Audio untuk Tiket Prioritas Tinggi
+              </span>
+              <span className="text-[11px] text-text-500">
+                Memberikan peringatan suara halus untuk tiket laporan mendesak
+              </span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border-subtle">
+        <Button type="submit" variant="primary" size="md" className="rounded-xl gap-2 text-xs font-semibold">
+          <Save className="w-4 h-4" />
+          <span>Simpan Preferensi WebGIS</span>
+        </Button>
+      </div>
+    </form>
+  );
+}
 
 function SettingsContent() {
   const searchParams = useSearchParams();
@@ -40,35 +429,14 @@ function SettingsContent() {
   const { profile, preferences, updateProfile, updatePreferences, updatePassword, logout } = useAdminAuth();
   const { toasts, showToast, dismissToast } = useToast();
 
+  // URL-driven active tab
   const tabParam = searchParams.get('tab') as TabKey | null;
-  const [activeTab, setActiveTab] = useState<TabKey>(
-    tabParam === 'security' || tabParam === 'preferences' ? tabParam : 'profile'
-  );
+  const activeTab: TabKey =
+    tabParam === 'security' || tabParam === 'preferences' ? tabParam : 'profile';
 
-  // Sync tab with URL parameter if it changes
-  useEffect(() => {
-    if (tabParam && (tabParam === 'profile' || tabParam === 'security' || tabParam === 'preferences')) {
-      setActiveTab(tabParam);
-    }
-  }, [tabParam]);
-
-  // Tab 1: Profile Form State
-  const [name, setName] = useState(profile.name);
-  const [email, setEmail] = useState(profile.email);
-  const [role, setRole] = useState(profile.role);
-  const [agency, setAgency] = useState(profile.agency);
-  const [phone, setPhone] = useState(profile.phone || '');
-  const [bio, setBio] = useState(profile.bio);
-
-  // Sync local inputs if external profile changes
-  useEffect(() => {
-    setName(profile.name);
-    setEmail(profile.email);
-    setRole(profile.role);
-    setAgency(profile.agency);
-    setPhone(profile.phone || '');
-    setBio(profile.bio);
-  }, [profile]);
+  const handleTabChange = (tab: TabKey) => {
+    router.replace(`/admin/settings?tab=${tab}`);
+  };
 
   // Tab 2: Security Form State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -78,50 +446,22 @@ function SettingsContent() {
   const [showNewPw, setShowNewPw] = useState(false);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
 
-  // Tab 3: Preferences Form State
-  const [basemap, setBasemap] = useState(preferences.defaultBasemap);
-  const [bufferRadius, setBufferRadius] = useState(preferences.defaultBufferRadius);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(preferences.notificationsEnabled);
-  const [soundAlerts, setSoundAlerts] = useState(preferences.soundAlerts);
-  const [coordinateFormat, setCoordinateFormat] = useState(preferences.coordinateFormat);
-
-  const handleTabChange = (tab: TabKey) => {
-    setActiveTab(tab);
-    router.replace(`/admin/settings?tab=${tab}`);
-  };
-
-  // Handlers
-  const handleSaveProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) {
+  const handleSaveProfile = (data: Partial<AdminProfile>) => {
+    if (!data.name?.trim()) {
       showToast('Nama lengkap tidak boleh kosong!', 'error', 3000);
       return;
     }
-    if (!email.trim() || !email.includes('@')) {
+    if (!data.email?.trim() || !data.email.includes('@')) {
       showToast('Format email tidak valid!', 'error', 3000);
       return;
     }
 
-    updateProfile({
-      name: name.trim(),
-      email: email.trim(),
-      role: role.trim(),
-      agency: agency.trim(),
-      phone: phone.trim(),
-      bio: bio.trim(),
-    });
-
+    updateProfile(data);
     showToast('Profil administrator berhasil diperbarui! 🎉', 'success', 3500);
   };
 
   const handleResetProfile = () => {
     updateProfile(DEFAULT_ADMIN_PROFILE);
-    setName(DEFAULT_ADMIN_PROFILE.name);
-    setEmail(DEFAULT_ADMIN_PROFILE.email);
-    setRole(DEFAULT_ADMIN_PROFILE.role);
-    setAgency(DEFAULT_ADMIN_PROFILE.agency);
-    setPhone(DEFAULT_ADMIN_PROFILE.phone || '');
-    setBio(DEFAULT_ADMIN_PROFILE.bio);
     showToast('Profil dikembalikan ke pengaturan default', 'info', 2500);
   };
 
@@ -151,15 +491,8 @@ function SettingsContent() {
     }
   };
 
-  const handleSavePreferences = (e: React.FormEvent) => {
-    e.preventDefault();
-    updatePreferences({
-      defaultBasemap: basemap,
-      defaultBufferRadius: bufferRadius,
-      notificationsEnabled,
-      soundAlerts,
-      coordinateFormat,
-    });
+  const handleSavePreferences = (prefs: Partial<AdminPreferences>) => {
+    updatePreferences(prefs);
     showToast('Preferensi WebGIS & notifikasi berhasil disimpan! ✅', 'success', 3000);
   };
 
@@ -226,157 +559,12 @@ function SettingsContent() {
 
         {/* TAB 1: PROFIL ADMIN */}
         {activeTab === 'profile' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            {/* Identity Card Overview */}
-            <div className="bg-white rounded-2xl border border-border-subtle p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-800 to-primary-950 text-white font-bold text-2xl flex items-center justify-center shadow-md">
-                    {profile.avatarInitials}
-                  </div>
-                  <span
-                    className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white"
-                    title="Status: Aktif"
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-lg font-bold text-text-950">{profile.name}</h2>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-primary-100 text-primary-900 px-2.5 py-0.5 rounded-full border border-primary-200">
-                      <Sparkles className="w-3 h-3 text-primary-700" />
-                      {profile.role}
-                    </span>
-                  </div>
-                  <p className="text-xs text-text-500 mt-1 flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-text-400" />
-                    {profile.email}
-                  </p>
-                  <p className="text-[11px] text-text-400 mt-0.5">
-                    Terakhir masuk: <span className="text-text-700 font-medium">{profile.lastLogin}</span>
-                  </p>
-                </div>
-              </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleResetProfile}
-                className="rounded-xl text-xs gap-1.5 self-end sm:self-center"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset ke Default</span>
-              </Button>
-            </div>
-
-            {/* Profile Edit Form */}
-            <form
-              onSubmit={handleSaveProfile}
-              className="bg-white rounded-2xl border border-border-subtle p-5 sm:p-7 shadow-xs space-y-5"
-            >
-              <div>
-                <h3 className="text-sm font-bold text-text-950">Informasi Pribadi & Kontak</h3>
-                <p className="text-xs text-text-500 mt-0.5">
-                  Informasi ini ditampilkan pada navigasi dashboard, tiket laporan, dan verifikasi kafe spasial.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-text-700 mb-1.5">
-                    Nama Lengkap <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs"
-                    placeholder="Contoh: Azqilla Simbolon"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-text-700 mb-1.5">
-                    Email Resmi <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs"
-                    placeholder="admin@goaround.id"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-text-700 mb-1.5">
-                    Jabatan / Peran Admin
-                  </label>
-                  <input
-                    type="text"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs"
-                    placeholder="Super Admin SIG Kota Bogor"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-text-700 mb-1.5">
-                    Instansi / Departemen
-                  </label>
-                  <div className="relative">
-                    <Building2 className="w-4 h-4 text-text-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={agency}
-                      onChange={(e) => setAgency(e.target.value)}
-                      className="w-full pl-9 pr-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs"
-                      placeholder="Bappeda & Tim WebGIS IPB"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-text-700 mb-1.5">
-                    Nomor Kontak / WhatsApp
-                  </label>
-                  <div className="relative">
-                    <Phone className="w-4 h-4 text-text-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full pl-9 pr-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs"
-                      placeholder="+62 812-3456-7890"
-                    />
-                  </div>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-text-700 mb-1.5">
-                    Bio / Catatan Tugas
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 transition-all shadow-2xs resize-none"
-                    placeholder="Tulis deskripsi tanggung jawab administrator..."
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-border-subtle">
-                <Button type="submit" variant="primary" size="md" className="rounded-xl gap-2 text-xs font-semibold">
-                  <Save className="w-4 h-4" />
-                  <span>Simpan Perubahan</span>
-                </Button>
-              </div>
-            </form>
-          </div>
+          <ProfileFormSection
+            key={`${profile.name}-${profile.email}-${profile.lastLogin}`}
+            profile={profile}
+            onSave={handleSaveProfile}
+            onReset={handleResetProfile}
+          />
         )}
 
         {/* TAB 2: KEAMANAN & SANDI */}
@@ -542,157 +730,10 @@ function SettingsContent() {
 
         {/* TAB 3: PREFERENSI WEBGIS & NOTIFIKASI */}
         {activeTab === 'preferences' && (
-          <form
-            onSubmit={handleSavePreferences}
-            className="bg-white rounded-2xl border border-border-subtle p-5 sm:p-7 shadow-xs space-y-6 animate-in fade-in duration-200"
-          >
-            <div>
-              <h3 className="text-sm font-bold text-text-950 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-primary-800" />
-                <span>Preferensi Tampilan Peta & Pengolahan Spasial</span>
-              </h3>
-              <p className="text-xs text-text-500 mt-0.5">
-                Konfigurasi layer peta dasar dan parameter analisis spasial untuk pengelolaan kafe seputar Kota Bogor.
-              </p>
-            </div>
-
-            {/* Basemap Selection */}
-            <div>
-              <label className="block text-xs font-semibold text-text-700 mb-2">
-                Basemap Peta Utama (Default)
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  {
-                    id: 'carto',
-                    name: 'CartoDB Positron (Clean Light)',
-                    desc: 'Desain minimalis monokrom abu-abu, optimal membaca titik kafe',
-                  },
-                  {
-                    id: 'osm',
-                    name: 'OpenStreetMap Standard',
-                    desc: 'Peta jalan lengkap dengan detail bangunan lokal Kota Bogor',
-                  },
-                  {
-                    id: 'topo',
-                    name: 'OpenTopo Topografi',
-                    desc: 'Layer kontur elevasi, cocok mengamati kontur Bogor Selatan',
-                  },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setBasemap(item.id as any)}
-                    className={cn(
-                      'p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between',
-                      basemap === item.id
-                        ? 'bg-primary-50/70 border-primary-800 ring-2 ring-primary-500/20 shadow-xs'
-                        : 'bg-surface-subtle border-border-subtle hover:bg-surface-header'
-                    )}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-text-950">{item.name}</span>
-                        {basemap === item.id && (
-                          <CheckCircle2 className="w-4 h-4 text-primary-800 shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-[11px] text-text-500 mt-1 leading-relaxed">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Default Buffer Radius */}
-            <div>
-              <label className="block text-xs font-semibold text-text-700 mb-2">
-                Radius Buffer default Seputar Kampus IPB & Pusat Nugas
-              </label>
-              <div className="grid grid-cols-3 gap-3 max-w-md">
-                {[
-                  { val: 500, label: '500 Meter', tag: 'Jalan Kaki (~6 menit)' },
-                  { val: 1000, label: '1.000 Meter', tag: 'Standar Kampus (~12 menit)' },
-                  { val: 2000, label: '2.000 Meter', tag: 'Radius Motor / Angkot' },
-                ].map((rad) => (
-                  <button
-                    key={rad.val}
-                    type="button"
-                    onClick={() => setBufferRadius(rad.val)}
-                    className={cn(
-                      'p-3 rounded-xl border text-center transition-all cursor-pointer',
-                      bufferRadius === rad.val
-                        ? 'bg-primary-900 text-white border-primary-950 shadow-xs'
-                        : 'bg-surface-subtle border-border-subtle text-text-800 hover:bg-surface-header'
-                    )}
-                  >
-                    <div className="text-xs font-bold">{rad.label}</div>
-                    <div
-                      className={cn(
-                        'text-[10px] mt-0.5',
-                        bufferRadius === rad.val ? 'text-primary-100' : 'text-text-400'
-                      )}
-                    >
-                      {rad.tag}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Notification & Format Toggles */}
-            <div className="pt-4 border-t border-border-subtle space-y-4">
-              <h4 className="text-xs font-bold text-text-900 flex items-center gap-1.5">
-                <Bell className="w-4 h-4 text-text-600" />
-                <span>Notifikasi & Format Koordinat</span>
-              </h4>
-
-              <div className="space-y-3">
-                <label className="flex items-center gap-3 p-3 rounded-xl border border-border-subtle bg-surface-subtle cursor-pointer hover:bg-surface-header transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={notificationsEnabled}
-                    onChange={(e) => setNotificationsEnabled(e.target.checked)}
-                    className="w-4 h-4 accent-primary-900 rounded cursor-pointer"
-                  />
-                  <div className="flex-1 text-xs">
-                    <span className="font-semibold text-text-900 block">
-                      Notifikasi Tiket Laporan Masuk
-                    </span>
-                    <span className="text-[11px] text-text-500">
-                      Tampilkan badge merah dan toast saat mahasiswa melaporkan colokan/wifi kafe bermasalah
-                    </span>
-                  </div>
-                </label>
-
-                <label className="flex items-center gap-3 p-3 rounded-xl border border-border-subtle bg-surface-subtle cursor-pointer hover:bg-surface-header transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={soundAlerts}
-                    onChange={(e) => setSoundAlerts(e.target.checked)}
-                    className="w-4 h-4 accent-primary-900 rounded cursor-pointer"
-                  />
-                  <div className="flex-1 text-xs">
-                    <span className="font-semibold text-text-900 block">
-                      Bunyi Alert Audio untuk Tiket Prioritas Tinggi
-                    </span>
-                    <span className="text-[11px] text-text-500">
-                      Memberikan peringatan suara halus untuk tiket laporan mendesak
-                    </span>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border-subtle">
-              <Button type="submit" variant="primary" size="md" className="rounded-xl gap-2 text-xs font-semibold">
-                <Save className="w-4 h-4" />
-                <span>Simpan Preferensi WebGIS</span>
-              </Button>
-            </div>
-          </form>
+          <PreferencesFormSection
+            preferences={preferences}
+            onSave={handleSavePreferences}
+          />
         )}
       </div>
 
