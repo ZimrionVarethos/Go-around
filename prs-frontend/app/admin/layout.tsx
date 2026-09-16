@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, createContext, useContext } from 'react';
-import { usePathname } from 'next/navigation';
+import { useState, useEffect, createContext, useContext } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
+import { useAdminAuth } from '@/lib/admin-auth';
 
 interface AdminLayoutContextType {
   openMobileMenu: () => void;
@@ -25,13 +26,44 @@ export default function AdminLayout({
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { isAuthenticated } = useAdminAuth();
+  const [hasMounted, setHasMounted] = useState(false);
 
   const [prevPathname, setPrevPathname] = useState(pathname);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  const isLoginPage = pathname === '/admin/login';
+
+  // Auth guard: if not authenticated and trying to access admin pages, redirect to login
+  useEffect(() => {
+    if (hasMounted && !isAuthenticated && !isLoginPage) {
+      router.push('/admin/login');
+    }
+  }, [hasMounted, isAuthenticated, isLoginPage, router]);
 
   // Close mobile drawer whenever route changes
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
     setMobileMenuOpen(false);
+  }
+
+  // If on login page, render children directly without admin layout (no sidebar/topbar)
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
+
+  // Optional: show loading screen if mounted and unauthenticated before redirect finishes
+  if (hasMounted && !isAuthenticated) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-surface-subtle text-text-500 text-xs gap-2">
+        <span className="w-4 h-4 border-2 border-primary-800/30 border-t-primary-800 rounded-full animate-spin" />
+        <span>Mengalihkan ke halaman login admin...</span>
+      </div>
+    );
   }
 
   return (

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -7,12 +8,16 @@ import {
   FileText,
   Coffee,
   BarChart2,
+  Settings,
   ExternalLink,
+  ChevronUp,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 import { useAdminStore } from '@/lib/admin-store';
+import { useAdminAuth } from '@/lib/admin-auth';
+import { AdminProfileDropdown } from '@/components/admin/AdminProfileDropdown';
 
 export interface AdminSidebarProps {
   onCloseMobile?: () => void;
@@ -39,6 +44,8 @@ function NavBadge({ label, variant }: { label: string; variant?: BadgeVariant })
 export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {}) {
   const pathname = usePathname();
   const { unreadTicketsCount, newPlacesCount } = useAdminStore();
+  const { profile } = useAdminAuth();
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -57,6 +64,7 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
       badgeVariant: 'danger' as const,
     },
     { href: '/admin/analytics', label: 'Analisis Pengguna', icon: BarChart2 },
+    { href: '/admin/settings', label: 'Pengaturan', icon: Settings },
   ];
 
   function isActive(href: string, exact?: boolean) {
@@ -147,14 +155,51 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
           <ExternalLink className="w-3.5 h-3.5" />
           <span>Lihat WebGIS Publik</span>
         </Link>
-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-surface-subtle border border-border-subtle">
-          <div className="w-8 h-8 rounded-full bg-primary-900 flex items-center justify-center text-white text-xs font-bold shrink-0">
-            AS
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-text-900 truncate">Azqilla Simbolon</p>
-            <p className="text-[11px] text-text-500">Admin</p>
-          </div>
+        {/* Interactive Profile Button & Dropup Menu */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
+            className={cn(
+              'w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border transition-all text-left cursor-pointer group',
+              isProfileDropdownOpen
+                ? 'bg-primary-50 border-primary-300 ring-2 ring-primary-500/20 shadow-xs'
+                : 'bg-surface-subtle border-border-subtle hover:bg-surface-header hover:border-border-strong'
+            )}
+            title="Buka Menu Profil & Pengaturan"
+            aria-expanded={isProfileDropdownOpen}
+            aria-haspopup="true"
+          >
+            <div className="relative shrink-0">
+              <div className="w-8 h-8 rounded-full bg-primary-900 flex items-center justify-center text-white text-xs font-bold shadow-xs group-hover:scale-105 transition-transform">
+                {profile.avatarInitials}
+              </div>
+              <span
+                className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"
+                title="Status: Online"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-text-900 truncate group-hover:text-primary-950">
+                {profile.name}
+              </p>
+              <p className="text-[11px] text-text-500 truncate">{profile.role}</p>
+            </div>
+            <ChevronUp
+              className={cn(
+                'w-4 h-4 text-text-400 shrink-0 transition-transform duration-200',
+                isProfileDropdownOpen ? 'rotate-180 text-primary-900' : 'group-hover:text-text-700'
+              )}
+            />
+          </button>
+
+          {/* Profile Dropup */}
+          <AdminProfileDropdown
+            isOpen={isProfileDropdownOpen}
+            onClose={() => setIsProfileDropdownOpen(false)}
+            placement="top-left"
+            className="w-[230px] bottom-full left-0 mb-2"
+          />
         </div>
       </div>
     </aside>

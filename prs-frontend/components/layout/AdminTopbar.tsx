@@ -1,8 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { Bell, Download, Search, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import React, { ReactNode } from 'react';
+import { useAdminAuth } from '@/lib/admin-auth';
+import { AdminProfileDropdown } from '@/components/admin/AdminProfileDropdown';
 
 export interface AdminTopbarProps {
   title?: string;
@@ -27,6 +30,9 @@ export function AdminTopbar({
   hideDefaultExport = false,
   onOpenMobileMenu,
 }: AdminTopbarProps) {
+  const { profile } = useAdminAuth();
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+
   return (
     <header className="h-[68px] bg-white border-b border-border-subtle px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-4 shrink-0 select-none">
       {/* Left: Mobile Menu Trigger + Page Title & Breadcrumb OR Search Bar if no title */}
@@ -107,6 +113,45 @@ export function AdminTopbar({
           <Bell className="w-4 h-4" />
           <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-danger-base ring-2 ring-white" />
         </button>
+
+        {/* Subtle Divider */}
+        <div className="h-6 w-px bg-border-subtle mx-0.5 hidden sm:block" />
+
+        {/* Profile Avatar Button & Dropdown */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
+            className="flex items-center gap-2 p-1 sm:px-2 sm:py-1 rounded-xl hover:bg-surface-subtle border border-border-subtle hover:border-border-strong transition-all cursor-pointer group"
+            title="Menu Profil & Pengaturan"
+            aria-expanded={isProfileDropdownOpen}
+            aria-haspopup="true"
+          >
+            <div className="relative shrink-0">
+              <div className="w-8 h-8 rounded-full bg-primary-900 flex items-center justify-center text-white text-xs font-bold shadow-xs group-hover:scale-105 transition-transform">
+                {profile.avatarInitials}
+              </div>
+              <span
+                className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"
+                title="Status: Online"
+              />
+            </div>
+            <div className="hidden lg:flex flex-col text-left pr-1 min-w-0">
+              <span className="text-xs font-semibold text-text-900 truncate max-w-[120px] group-hover:text-primary-950">
+                {profile.name}
+              </span>
+              <span className="text-[10px] text-text-500 truncate max-w-[120px]">
+                {profile.role.split(' ')[0]}
+              </span>
+            </div>
+          </button>
+
+          <AdminProfileDropdown
+            isOpen={isProfileDropdownOpen}
+            onClose={() => setIsProfileDropdownOpen(false)}
+            placement="bottom-right"
+          />
+        </div>
       </div>
     </header>
   );
