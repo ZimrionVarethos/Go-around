@@ -122,8 +122,8 @@ export default function AdminReportsPage() {
               className="bg-[#005B54] hover:bg-[#004741] active:bg-[#003d38] text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">+ Simulasi Laporan</span>
-              <span className="sm:hidden">+ Laporan</span>
+              <span className="hidden sm:inline">Simulasi Laporan</span>
+              <span className="sm:hidden">Laporan</span>
             </button>
           </div>
         }

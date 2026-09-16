@@ -31,6 +31,11 @@ export interface PlaceItem {
   status: 'verified' | 'review' | 'rejected';
   isUnread?: boolean;
   imageUrl?: string | null;
+  plugLabel?: string;
+  priceCategory?: string;
+  acoustic?: string;
+  district?: string;
+  is24Hours?: boolean;
 }
 
 interface AdminState {
@@ -38,7 +43,7 @@ interface AdminState {
   places: PlaceItem[];
 }
 
-const STORAGE_KEY = 'goaround_admin_store_v1';
+const STORAGE_KEY = 'goaround_admin_store_v2';
 const EVENT_KEY = 'goaround:admin-store-updated';
 
 // Default initial state:
