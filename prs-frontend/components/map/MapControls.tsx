@@ -1,11 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { Locate, Plus, Minus, Layers, Compass, Info, X, Map as MapIcon, Globe, Sun, Check } from 'lucide-react';
+import { Locate, Plus, Minus, Layers, Compass, Info, X, Map as MapIcon, Globe, Sun } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import type { ToastType } from '@/hooks/useToast';
 
 export type TileLayerType = 'osm' | 'satellite' | 'carto';
+
+export interface SpatialOverlays {
+  buffer: boolean;
+  isochrone: boolean;
+  heatmap: boolean;
+  transit: boolean;
+}
+
+export const DEFAULT_SPATIAL_OVERLAYS: SpatialOverlays = {
+  buffer: false,
+  isochrone: false,
+  heatmap: false,
+  transit: false,
+};
 
 export interface MapControlsProps {
   onZoomIn?: () => void;
@@ -14,6 +28,8 @@ export interface MapControlsProps {
   onResetCompass?: () => void;
   currentLayer?: TileLayerType;
   onChangeLayer?: (layer: TileLayerType) => void;
+  overlays?: SpatialOverlays;
+  onToggleOverlay?: (overlayKey: keyof SpatialOverlays, label: string) => void;
   onToast?: (msg: string, type?: ToastType, durationMs?: number) => void;
   className?: string;
 }
@@ -25,6 +41,8 @@ export function MapControls({
   onResetCompass,
   currentLayer = 'osm',
   onChangeLayer,
+  overlays = DEFAULT_SPATIAL_OVERLAYS,
+  onToggleOverlay,
   onToast,
   className,
 }: MapControlsProps) {
@@ -38,7 +56,6 @@ export function MapControls({
 
   const handleSelectLayer = (id: TileLayerType, name: string) => {
     onChangeLayer?.(id);
-    setShowLayerMenu(false);
     onToast?.(`Lapisan peta aktif: ${name} 🗺️`, 'info', 2000);
   };
 
@@ -72,49 +89,158 @@ export function MapControls({
               className="fixed inset-0 z-40 cursor-default"
               onClick={() => setShowLayerMenu(false)}
             />
-            <div className="absolute right-12 bottom-0 z-50 w-60 bg-white rounded-2xl border border-gray-200/90 shadow-2xl p-2.5 animate-in fade-in zoom-in-95 duration-150 select-none">
-              <div className="flex items-center justify-between pb-2 mb-1.5 border-b border-gray-100">
-                <span className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-[#005B54]" />
-                  Pilih Lapisan Peta
-                </span>
+            <div className="absolute right-12 bottom-0 z-50 w-72 sm:w-80 bg-white rounded-2xl border border-gray-200/90 shadow-2xl p-3.5 animate-in fade-in zoom-in-95 duration-150 select-none max-h-[85vh] overflow-y-auto">
+              {/* Popover Header */}
+              <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-[#EAFBF7] flex items-center justify-center text-[#005B54]">
+                    <Layers className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-900 leading-tight">Lapisan & Analisis SIG</h4>
+                    <p className="text-[10px] text-gray-400">Pilih gaya basemap & layer overlay</p>
+                  </div>
+                </div>
                 <button
                   type="button"
                   onClick={() => setShowLayerMenu(false)}
                   title="Tutup Menu"
-                  className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+                  className="w-5 h-5 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
 
-              <div className="space-y-1">
-                {layerOptions.map((opt) => {
-                  const Icon = opt.icon;
-                  const isActive = currentLayer === opt.id;
-                  return (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => handleSelectLayer(opt.id, opt.name)}
+              {/* Basemap Styles */}
+              <div className="mb-3">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
+                  PETA DASAR (BASEMAP)
+                </span>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {layerOptions.map((opt) => {
+                    const Icon = opt.icon;
+                    const isActive = currentLayer === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => handleSelectLayer(opt.id, opt.name)}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2 rounded-xl border text-[10px] font-semibold transition-all cursor-pointer text-center gap-1',
+                          isActive
+                            ? 'bg-[#EAFBF7] border-[#005B54] text-[#005B54] shadow-2xs font-bold'
+                            : 'bg-gray-50/80 border-gray-200/80 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                        )}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                        <span className="leading-tight">{opt.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Spatial Overlays matching user reference */}
+              <div className="pt-2 border-t border-gray-100 space-y-1">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
+                  OVERLAY SPASIAL & GIS
+                </span>
+
+                {/* 1. Radius Buffer IPB */}
+                <div
+                  onClick={() => onToggleOverlay?.('buffer', 'Radius Buffer IPB (500m & 1km)')}
+                  className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors select-none"
+                >
+                  <div className="flex flex-col pr-2">
+                    <span className="text-xs font-bold text-gray-900 leading-tight">Radius Buffer IPB</span>
+                    <span className="text-[10.5px] text-gray-500">Cakupan 500m & 1km</span>
+                  </div>
+                  <div
+                    className={cn(
+                      'w-9 h-5 rounded-full transition-colors relative shrink-0',
+                      overlays.buffer ? 'bg-[#005B54]' : 'bg-gray-200'
+                    )}
+                  >
+                    <div
                       className={cn(
-                        'w-full text-left flex items-center justify-between px-2.5 py-2 rounded-xl transition-all text-xs cursor-pointer',
-                        isActive
-                          ? 'bg-[#E8F8F5] text-[#005B54] font-semibold ring-1 ring-[#A7F3D0]'
-                          : 'hover:bg-gray-50 text-gray-700 font-medium'
+                        'w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 shadow-xs',
+                        overlays.buffer ? 'translate-x-4.5' : 'translate-x-0.5'
                       )}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Icon className={cn('w-4 h-4 shrink-0', isActive ? 'text-[#005B54]' : 'text-gray-500')} />
-                        <div>
-                          <div className="font-semibold leading-snug">{opt.name}</div>
-                          <div className="text-[10.5px] text-gray-400 font-normal">{opt.desc}</div>
-                        </div>
-                      </div>
-                      {isActive && <Check className="w-3.5 h-3.5 text-[#005B54] shrink-0" />}
-                    </button>
-                  );
-                })}
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Isochrone Jalan Kaki */}
+                <div
+                  onClick={() => onToggleOverlay?.('isochrone', 'Isochrone Jalan Kaki (10 menit)')}
+                  className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors select-none"
+                >
+                  <div className="flex flex-col pr-2">
+                    <span className="text-xs font-bold text-gray-900 leading-tight">Isochrone Jalan Kaki</span>
+                    <span className="text-[10.5px] text-gray-500">Area 10 menit tempuh</span>
+                  </div>
+                  <div
+                    className={cn(
+                      'w-9 h-5 rounded-full transition-colors relative shrink-0',
+                      overlays.isochrone ? 'bg-[#005B54]' : 'bg-gray-200'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 shadow-xs',
+                        overlays.isochrone ? 'translate-x-4.5' : 'translate-x-0.5'
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* 3. Heatmap Kepadatan */}
+                <div
+                  onClick={() => onToggleOverlay?.('heatmap', 'Heatmap Kepadatan Spot Nugas')}
+                  className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors select-none"
+                >
+                  <div className="flex flex-col pr-2">
+                    <span className="text-xs font-bold text-gray-900 leading-tight">Heatmap Kepadatan</span>
+                    <span className="text-[10.5px] text-gray-500">Konsentrasi spot nugas</span>
+                  </div>
+                  <div
+                    className={cn(
+                      'w-9 h-5 rounded-full transition-colors relative shrink-0',
+                      overlays.heatmap ? 'bg-[#005B54]' : 'bg-gray-200'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 shadow-xs',
+                        overlays.heatmap ? 'translate-x-4.5' : 'translate-x-0.5'
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* 4. Halte & Rute Biskita */}
+                <div
+                  onClick={() => onToggleOverlay?.('transit', 'Halte & Rute Biskita Transpakuan')}
+                  className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors select-none"
+                >
+                  <div className="flex flex-col pr-2">
+                    <span className="text-xs font-bold text-gray-900 leading-tight">Halte & Rute Biskita</span>
+                    <span className="text-[10.5px] text-gray-500">Akses angkutan umum</span>
+                  </div>
+                  <div
+                    className={cn(
+                      'w-9 h-5 rounded-full transition-colors relative shrink-0',
+                      overlays.transit ? 'bg-[#005B54]' : 'bg-gray-200'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 shadow-xs',
+                        overlays.transit ? 'translate-x-4.5' : 'translate-x-0.5'
+                      )}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </>
@@ -122,7 +248,7 @@ export function MapControls({
 
         <button
           type="button"
-          title="Pilih Lapisan Peta (OSM / Satelit / Terang)"
+          title="Pilih Lapisan Peta & Analisis SIG"
           onClick={() => setShowLayerMenu((prev) => !prev)}
           className={cn(
             'w-10 h-10 border rounded-xl shadow-md flex items-center justify-center transition-all cursor-pointer relative z-40',

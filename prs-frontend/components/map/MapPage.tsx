@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useState, useMemo } from 'react';
 import { FilterBar } from '@/components/places/FilterBar';
 import { PlaceDetailDrawer } from '@/components/places/PlaceDetailDrawer';
-import { MapControls, MapLegend, type TileLayerType } from './MapControls';
+import { MapControls, MapLegend, type TileLayerType, type SpatialOverlays, DEFAULT_SPATIAL_OVERLAYS } from './MapControls';
 import { RecommendationPanel } from '@/components/places/RecommendationPanel';
 import { usePlaces, useBboxPlaces } from '@/hooks/usePlacesQuery';
 import { useToast } from '@/hooks/useToast';
@@ -36,8 +36,21 @@ export function MapPage() {
   const [showLegend, setShowLegend] = useState(false);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
   const [tileLayer, setTileLayer] = useState<TileLayerType>('osm');
+  const [spatialOverlays, setSpatialOverlays] = useState<SpatialOverlays>(DEFAULT_SPATIAL_OVERLAYS);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const { toasts, showToast, dismissToast } = useToast();
+
+  const handleToggleOverlay = (key: keyof SpatialOverlays, label: string) => {
+    setSpatialOverlays((prev) => {
+      const nextState = !prev[key];
+      showToast(
+        `Lapisan ${label} ${nextState ? 'diaktifkan' : 'dinonaktifkan'} 🗺️`,
+        'info',
+        2500
+      );
+      return { ...prev, [key]: nextState };
+    });
+  };
 
   const handleToggleLegend = () => {
     setShowLegend((prev) => {
@@ -235,6 +248,7 @@ export function MapPage() {
         tileLayer={tileLayer}
         userLocation={userLocation}
         onMapReady={setMapInstance}
+        spatialOverlays={spatialOverlays}
       />
 
       {/* Floating Filter Bar (Below topbar) */}
@@ -325,6 +339,8 @@ export function MapPage() {
           onResetCompass={handleResetCompass}
           currentLayer={tileLayer}
           onChangeLayer={setTileLayer}
+          overlays={spatialOverlays}
+          onToggleOverlay={handleToggleOverlay}
           onToast={showToast}
         />
       </div>

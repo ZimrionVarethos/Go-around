@@ -5,7 +5,6 @@ import Link from 'next/link';
 import {
   MapPinPlus,
   AlertTriangle,
-  Layers,
   SlidersHorizontal,
   Search,
   Sparkles,
@@ -17,9 +16,6 @@ import {
   Wifi,
   Zap,
   Coffee,
-  Sun,
-  Moon,
-  Globe,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useToast, type ToastType } from '@/hooks/useToast';
@@ -53,17 +49,7 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
   const [isAiFocused, setIsAiFocused] = useState(false);
 
   // Popover States
-  const [layersOpen, setLayersOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-
-  // Layers GIS States
-  const [basemap, setBasemap] = useState<'standard' | 'satellite' | 'dark'>('standard');
-  const [activeLayers, setActiveLayers] = useState({
-    buffer: true,
-    heatmap: false,
-    isochrone: true,
-    transit: false,
-  });
 
   // Filter States
   const [minScore, setMinScore] = useState<string>('all');
@@ -87,16 +73,12 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
 
   // Outside click handler references
   const aiSearchRef = useRef<HTMLDivElement>(null);
-  const layersRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (aiSearchRef.current && !aiSearchRef.current.contains(event.target as Node)) {
         setIsAiFocused(false);
-      }
-      if (layersRef.current && !layersRef.current.contains(event.target as Node)) {
-        setLayersOpen(false);
       }
       if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
         setFilterOpen(false);
@@ -123,19 +105,6 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
     onAiSearch?.(query);
     // TODO [BACKEND]: POST /api/v1/ai/spatial-search { prompt: query }
     triggerToast(`✨ AI Spatial Match: Menganalisis spot dengan kriteria "${query}"...`, 'success', 4000);
-  };
-
-  const toggleLayer = (layerKey: keyof typeof activeLayers, label: string) => {
-    const nextState = !activeLayers[layerKey];
-    setActiveLayers((prev) => ({ ...prev, [layerKey]: nextState }));
-    // TODO [BACKEND/MAP]: Connect layer toggle to Leaflet layer overlay
-    triggerToast(`Lapisan ${label} ${nextState ? 'diaktifkan' : 'dinonaktifkan'}`, 'info');
-  };
-
-  const selectBasemap = (type: 'standard' | 'satellite' | 'dark', label: string) => {
-    setBasemap(type);
-    // TODO [BACKEND/MAP]: Switch tile layer url in Leaflet MapView
-    triggerToast(`Gaya peta diubah ke: ${label}`, 'success');
   };
 
   const resetFilters = () => {
@@ -357,7 +326,6 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
                 onChange={(e) => setAiQuery(e.target.value)}
                 onFocus={() => {
                   setIsAiFocused(true);
-                  setLayersOpen(false);
                   setFilterOpen(false);
                 }}
                 onKeyDown={(e) => {
@@ -433,204 +401,14 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
             )}
           </div>
 
-          {/* Interactive GIS Control Group (Layers & Filter) */}
+          {/* Interactive GIS Control Group (Filter & Preferences) */}
           <div className="hidden sm:flex items-center gap-1 shrink-0">
-            {/* 1. Layers Button */}
-            <div className="relative" ref={layersRef}>
-              <button
-                type="button"
-                onClick={() => {
-                  setLayersOpen(!layersOpen);
-                  setFilterOpen(false);
-                  setIsAiFocused(false);
-                }}
-                title="Lapisan Peta (GIS)"
-                className={cn(
-                  'w-9 h-9 flex items-center justify-center rounded-[10px] border transition-all cursor-pointer',
-                  layersOpen
-                    ? 'bg-[#005B54] text-white border-[#005B54] shadow-xs'
-                    : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'
-                )}
-              >
-                <Layers className="w-4 h-4" />
-              </button>
-
-              {/* Layers Popover */}
-              {layersOpen && (
-                <div className="fixed sm:absolute inset-x-3 sm:inset-x-auto top-20 sm:top-[48px] sm:right-0 w-auto sm:w-[320px] max-w-[calc(100vw-24px)] bg-white rounded-2xl border border-gray-200 shadow-2xl p-4 flex flex-col gap-3.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-                    <div>
-                      <h4 className="text-xs font-bold text-gray-900">Lapisan Peta WebGIS</h4>
-                      <p className="text-[11px] text-gray-500">Pilih gaya basemap & layer overlay</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setLayersOpen(false)}
-                      className="text-gray-400 hover:text-gray-600 p-1 rounded-md"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {/* Basemap Styles */}
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[11px] font-bold text-gray-600">PETA DASAR (BASEMAP)</span>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => selectBasemap('standard', 'Standard Vector')}
-                        className={cn(
-                          'flex flex-col items-center gap-1 p-2 rounded-xl border text-[10px] font-semibold transition-all cursor-pointer',
-                          basemap === 'standard'
-                            ? 'bg-[#EAFBF7] border-[#005B54] text-[#005B54] shadow-2xs'
-                            : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                        )}
-                      >
-                        <Globe className="w-4 h-4" />
-                        <span>Standard</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => selectBasemap('satellite', 'Satelit Hybrid')}
-                        className={cn(
-                          'flex flex-col items-center gap-1 p-2 rounded-xl border text-[10px] font-semibold transition-all cursor-pointer',
-                          basemap === 'satellite'
-                            ? 'bg-[#EAFBF7] border-[#005B54] text-[#005B54] shadow-2xs'
-                            : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                        )}
-                      >
-                        <Sun className="w-4 h-4" />
-                        <span>Satelit</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => selectBasemap('dark', 'Mode Malam')}
-                        className={cn(
-                          'flex flex-col items-center gap-1 p-2 rounded-xl border text-[10px] font-semibold transition-all cursor-pointer',
-                          basemap === 'dark'
-                            ? 'bg-[#EAFBF7] border-[#005B54] text-[#005B54] shadow-2xs'
-                            : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                        )}
-                      >
-                        <Moon className="w-4 h-4" />
-                        <span>Gelap</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Overlay Layers */}
-                  <div className="flex flex-col gap-2 pt-1 border-t border-gray-100">
-                    <span className="text-[11px] font-bold text-gray-600">OVERLAY SPASIAL & GIS</span>
-
-                    {/* Buffer Switch */}
-                    <div
-                      onClick={() => toggleLayer('buffer', 'Radius Buffer 500m & 1km')}
-                      className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 cursor-pointer select-none"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-gray-900">Radius Buffer IPB</span>
-                        <span className="text-[10px] text-gray-500">Cakupan 500m & 1km</span>
-                      </div>
-                      <div
-                        className={cn(
-                          'w-9 h-5 rounded-full transition-colors relative',
-                          activeLayers.buffer ? 'bg-[#005B54]' : 'bg-gray-200'
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            'w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 shadow-xs',
-                            activeLayers.buffer ? 'translate-x-4' : 'translate-x-0.5'
-                          )}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Isochrone Switch */}
-                    <div
-                      onClick={() => toggleLayer('isochrone', 'Isochrone Jalan Kaki')}
-                      className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 cursor-pointer select-none"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-gray-900">Isochrone Jalan Kaki</span>
-                        <span className="text-[10px] text-gray-500">Area 10 menit tempuh</span>
-                      </div>
-                      <div
-                        className={cn(
-                          'w-9 h-5 rounded-full transition-colors relative',
-                          activeLayers.isochrone ? 'bg-[#005B54]' : 'bg-gray-200'
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            'w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 shadow-xs',
-                            activeLayers.isochrone ? 'translate-x-4' : 'translate-x-0.5'
-                          )}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Heatmap Switch */}
-                    <div
-                      onClick={() => toggleLayer('heatmap', 'Heatmap Kepadatan')}
-                      className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 cursor-pointer select-none"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-gray-900">Heatmap Kepadatan</span>
-                        <span className="text-[10px] text-gray-500">Konsentrasi spot nugas</span>
-                      </div>
-                      <div
-                        className={cn(
-                          'w-9 h-5 rounded-full transition-colors relative',
-                          activeLayers.heatmap ? 'bg-[#005B54]' : 'bg-gray-200'
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            'w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 shadow-xs',
-                            activeLayers.heatmap ? 'translate-x-4' : 'translate-x-0.5'
-                          )}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Transit Corridor Switch */}
-                    <div
-                      onClick={() => toggleLayer('transit', 'Koridor Halte Biskita')}
-                      className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 cursor-pointer select-none"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-gray-900">Halte & Rute Biskita</span>
-                        <span className="text-[10px] text-gray-500">Akses angkutan umum</span>
-                      </div>
-                      <div
-                        className={cn(
-                          'w-9 h-5 rounded-full transition-colors relative',
-                          activeLayers.transit ? 'bg-[#005B54]' : 'bg-gray-200'
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            'w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 shadow-xs',
-                            activeLayers.transit ? 'translate-x-4' : 'translate-x-0.5'
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 2. Filter & GIS Button */}
+            {/* Filter & GIS Button */}
             <div className="relative" ref={filterRef}>
               <button
                 type="button"
                 onClick={() => {
                   setFilterOpen(!filterOpen);
-                  setLayersOpen(false);
                   setIsAiFocused(false);
                 }}
                 title="Pengaturan GIS & Filter"
@@ -871,32 +649,22 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="absolute top-[70px] inset-x-4 bg-white border border-gray-200 rounded-[16px] shadow-lg p-4 flex flex-col gap-3 md:hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-            <div className="grid grid-cols-2 gap-2 py-2 border-b border-gray-100">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setLayersOpen(true);
-                }}
-                title="Lapisan Peta"
-                className="flex flex-col items-center gap-1 text-[11px] text-gray-700 p-2.5 rounded-xl hover:bg-gray-50 border border-gray-100"
-              >
-                <Layers className="w-5 h-5 text-[#005B54]" />
-                <span className="font-semibold">Lapisan Spasial</span>
-              </button>
+            <div className="py-1 border-b border-gray-100">
               <button
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   setFilterOpen(true);
                 }}
-                title="Filter & GIS"
-                className="flex flex-col items-center gap-1 text-[11px] text-gray-700 p-2.5 rounded-xl hover:bg-gray-50 border border-gray-100 relative"
+                title="Filter & Preferensi GIS"
+                className="w-full flex items-center justify-between text-xs text-gray-700 p-2.5 rounded-xl hover:bg-gray-50 border border-gray-100 transition-colors"
               >
-                <SlidersHorizontal className="w-5 h-5 text-[#005B54]" />
-                <span className="font-semibold">Filter GIS</span>
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="w-4 h-4 text-[#005B54]" />
+                  <span className="font-semibold">Filter GIS & Preferensi</span>
+                </div>
                 {activeFilterCount > 0 && (
-                  <span className="absolute top-2 right-4 w-4 h-4 rounded-full bg-[#005B54] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
+                  <span className="w-5 h-5 rounded-full bg-[#005B54] text-white text-[10px] font-bold flex items-center justify-center">
                     {activeFilterCount}
                   </span>
                 )}
