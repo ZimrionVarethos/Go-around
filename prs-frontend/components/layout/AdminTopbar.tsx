@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Download, Plus, Search } from 'lucide-react';
+import { Bell, Download, Search, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import React, { ReactNode } from 'react';
 
@@ -9,6 +9,7 @@ export interface AdminTopbarProps {
   subtitle?: string;
   actions?: ReactNode;
   showSearch?: boolean;
+  onOpenMobileMenu?: () => void;
 }
 
 export function AdminTopbar({
@@ -16,19 +17,32 @@ export function AdminTopbar({
   subtitle,
   actions,
   showSearch = true,
+  onOpenMobileMenu,
 }: AdminTopbarProps) {
   return (
-    <header className="h-[68px] bg-white border-b border-border-subtle px-6 flex items-center justify-between gap-4 shrink-0 select-none">
-      {/* Page Title & Breadcrumb */}
-      <div className="flex flex-col min-w-0">
-        {title && (
-          <h1 className="text-lg font-bold text-text-950 truncate tracking-tight">
-            {title}
-          </h1>
+    <header className="h-[68px] bg-white border-b border-border-subtle px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-4 shrink-0 select-none">
+      {/* Left: Mobile Menu Trigger + Page Title & Breadcrumb */}
+      <div className="flex items-center gap-2.5 min-w-0">
+        {onOpenMobileMenu && (
+          <button
+            type="button"
+            onClick={onOpenMobileMenu}
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-text-700 hover:bg-surface-subtle border border-border-subtle transition-colors cursor-pointer shrink-0"
+            title="Buka Menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         )}
-        {subtitle && (
-          <p className="text-xs text-text-500 truncate">{subtitle}</p>
-        )}
+        <div className="flex flex-col min-w-0">
+          {title && (
+            <h1 className="text-base sm:text-lg font-bold text-text-950 truncate tracking-tight">
+              {title}
+            </h1>
+          )}
+          {subtitle && (
+            <p className="text-xs text-text-500 truncate hidden sm:block">{subtitle}</p>
+          )}
+        </div>
       </div>
 
       {/* Center Search bar */}
@@ -64,13 +78,6 @@ export function AdminTopbar({
           <Bell className="w-4 h-4" />
           <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-danger-base" />
         </button>
-
-        {/* Primary Action */}
-        <Button variant="primary" size="sm" className="rounded-md text-xs">
-          <Plus className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Tambah Data Kafe</span>
-          <span className="sm:hidden">Tambah</span>
-        </Button>
       </div>
     </header>
   );

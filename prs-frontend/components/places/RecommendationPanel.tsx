@@ -27,6 +27,8 @@ export interface RecommendationPanelProps {
   onSelectPlace: (slug: string) => void;
   onDownloadGeoJson: () => void;
   onToast?: (msg: string, type?: ToastType, durationMs?: number) => void;
+  showLegend?: boolean;
+  onToggleLegend?: () => void;
   className?: string;
 }
 
@@ -40,6 +42,8 @@ export function RecommendationPanel({
   onSelectPlace,
   onDownloadGeoJson,
   onToast,
+  showLegend = false,
+  onToggleLegend,
   className,
 }: RecommendationPanelProps) {
   const [isMobile, setIsMobile] = useState(false);
@@ -148,10 +152,17 @@ export function RecommendationPanel({
         {/* Bottom Toolbar */}
         <div className="border-t border-gray-100 px-4 py-2.5 bg-white shrink-0 flex items-center justify-between text-xs text-gray-600">
           <button
-            onClick={() => onToast?.('Legenda peta: Hijau Tua = 0.9–1.0, Hijau = 0.8–0.89, Kuning = 0.6–0.79, Merah < 0.6', 'info')}
-            className="flex items-center gap-1.5 hover:text-gray-900 font-medium transition-colors cursor-pointer"
+            type="button"
+            onClick={onToggleLegend}
+            className={cn(
+              'flex items-center gap-1.5 font-medium transition-all cursor-pointer px-2.5 py-1 rounded-lg',
+              showLegend
+                ? 'text-[#005B54] bg-[#E8F8F5] font-semibold ring-1 ring-[#A7F3D0]'
+                : 'hover:text-gray-900 text-gray-600 hover:bg-gray-100'
+            )}
+            title={showLegend ? 'Sembunyikan Legenda' : 'Tampilkan Legenda'}
           >
-            <MapIcon className="w-3.5 h-3.5 text-gray-500" />
+            <MapIcon className={cn('w-3.5 h-3.5', showLegend ? 'text-[#005B54]' : 'text-gray-500')} />
             <span>Legenda</span>
           </button>
           <button
@@ -290,10 +301,17 @@ export function RecommendationPanel({
       <div className="border-t border-gray-100 px-4 py-2.5 bg-white shrink-0 flex items-center justify-between text-xs text-gray-600">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => onToast?.('Legenda: Hijau Tua = Sangat Ideal (0.9–1.0), Hijau = Bagus (0.8+), Kuning = Cukup (0.6+), Merah = Kurang', 'info', 4000)}
-            className="flex items-center gap-1.5 hover:text-gray-900 font-medium transition-colors cursor-pointer"
+            type="button"
+            onClick={onToggleLegend}
+            className={cn(
+              'flex items-center gap-1.5 font-medium transition-all cursor-pointer px-2.5 py-1 rounded-lg',
+              showLegend
+                ? 'text-[#005B54] bg-[#E8F8F5] font-semibold ring-1 ring-[#A7F3D0]'
+                : 'hover:text-gray-900 text-gray-600 hover:bg-gray-100'
+            )}
+            title={showLegend ? 'Sembunyikan Legenda Peta' : 'Tampilkan Legenda Peta'}
           >
-            <MapIcon className="w-3.5 h-3.5 text-gray-500" />
+            <MapIcon className={cn('w-3.5 h-3.5', showLegend ? 'text-[#005B54]' : 'text-gray-500')} />
             <span>Legenda Peta</span>
           </button>
           <button

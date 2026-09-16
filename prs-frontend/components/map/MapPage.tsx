@@ -2,16 +2,17 @@
 
 import dynamic from 'next/dynamic';
 import { useState, useMemo } from 'react';
-import { FilterBar } from './FilterBar';
-import { PlaceDetailDrawer } from './PlaceDetailDrawer';
-import { MapControls, MapLegend } from './MapControls';
-import { RecommendationPanel } from './RecommendationPanel';
+import { FilterBar } from '@/components/places/FilterBar';
+import { PlaceDetailDrawer } from '@/components/places/PlaceDetailDrawer';
+import { MapControls, MapLegend, type TileLayerType } from './MapControls';
+import { RecommendationPanel } from '@/components/places/RecommendationPanel';
 import { usePlaces, useBboxPlaces } from '@/hooks/usePlacesQuery';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
 import type { PlaceFilters, BboxParams, PlaceGeoJsonFeature } from '@/lib/types';
 import { FIGMA_PLACES } from '@/lib/figma-places';
 import { cn } from '@/lib/cn';
+import type L from 'leaflet';
 
 // Dynamic import for Leaflet MapView (client-only, SSR false)
 const MapView = dynamic(() => import('./MapView'), {
@@ -24,12 +25,31 @@ const MapView = dynamic(() => import('./MapView'), {
   ),
 });
 
+// Centered on Baranangsiang / IPB University district
+const BOGOR_CENTER: [number, number] = [-6.601, 106.806];
+
 export function MapPage() {
   // Default selected place is Anthology Coffee & Tea to match exact Figma design
   const [selectedSlug, setSelectedSlug] = useState<string | null>('anthology-coffee-tea');
   const [sortTab, setSortTab] = useState<'score' | 'nearby' | 'budget'>('score');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
+  const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
+  const [tileLayer, setTileLayer] = useState<TileLayerType>('osm');
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const { toasts, showToast, dismissToast } = useToast();
+
+  const handleToggleLegend = () => {
+    setShowLegend((prev) => {
+      const next = !prev;
+      showToast(
+        next ? 'Menampilkan legenda skor kesesuaian spasial 🗺️' : 'Legenda peta disembunyikan',
+        'info',
+        2500
+      );
+      return next;
+    });
+  };
 
   const [filters, setFilters] = useState<PlaceFilters>({
     plug_availability: 'abundant', // Active by default in Figma design
@@ -129,18 +149,65 @@ export function MapPage() {
     return [...defaultFeatures, ...extraFeatures];
   }, [bboxResponse?.features]);
 
+  // Zoom In
+  const handleZoomIn = () => {
+    if (mapInstance) {
+      mapInstance.zoomIn();
+    } else {
+      const el = document.querySelector('.leaflet-container');
+      const map = (el as unknown as { _leaflet_map?: { zoomIn: () => void } })?._leaflet_map;
+      map?.zoomIn();
+    }
+  };
+
+  // Zoom Out
+  const handleZoomOut = () => {
+    if (mapInstance) {
+      mapInstance.zoomOut();
+    } else {
+      const el = document.querySelector('.leaflet-container');
+      const map = (el as unknown as { _leaflet_map?: { zoomOut: () => void } })?._leaflet_map;
+      map?.zoomOut();
+    }
+  };
+
+  // Reset Compass (Back to North & Bogor Center)
+  const handleResetCompass = () => {
+    if (mapInstance) {
+      mapInstance.flyTo(BOGOR_CENTER, 15, { duration: 1.2 });
+    }
+    showToast('Peta di-reset ke pandangan utama Bogor (Utara ↑)', 'info', 2500);
+  };
+
   // Geolocation trigger
   const handleLocate = () => {
-    if (typeof window !== 'undefined' && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        () => {
-          setSortTab('nearby');
-        },
-        () => {
-          alert('Izin lokasi tidak diberikan atau perangkat tidak mendukung GPS.');
-        }
-      );
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      showToast('Perangkat tidak mendukung geolokasi GPS', 'error', 3000);
+      return;
     }
+
+    showToast('Mencari sinyal GPS Anda... 📡', 'info', 2500);
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+        setUserLocation(coords);
+        if (mapInstance) {
+          mapInstance.flyTo(coords, 16, { duration: 1.5 });
+        }
+        setSortTab('nearby');
+        showToast('Lokasi Anda ditemukan! Menampilkan tempat nugas terdekat 📍', 'success', 3500);
+      },
+      (err) => {
+        console.warn('Geolocation error:', err);
+        showToast(
+          'Izin lokasi tidak diberikan atau GPS belum aktif di perangkat Anda',
+          'warning',
+          4000
+        );
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
   };
 
   const handleDownloadGeoJson = () => {
@@ -165,6 +232,9 @@ export function MapPage() {
         selectedSlug={selectedSlug}
         onMarkerClick={(slug) => setSelectedSlug(slug)}
         onBoundsChange={(b) => setBbox(b)}
+        tileLayer={tileLayer}
+        userLocation={userLocation}
+        onMapReady={setMapInstance}
       />
 
       {/* Floating Filter Bar (Below topbar) */}
@@ -195,6 +265,8 @@ export function MapPage() {
         }}
         onDownloadGeoJson={handleDownloadGeoJson}
         onToast={showToast}
+        showLegend={showLegend}
+        onToggleLegend={handleToggleLegend}
       />
 
       {/* Floating Right Selected Place Detail Drawer
@@ -222,8 +294,15 @@ export function MapPage() {
         </>
       )}
 
+      {/* Mobile Floating Legend (shown conditionally) */}
+      {showLegend && (
+        <div className="sm:hidden absolute top-[76px] right-3 z-[450] pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
+          <MapLegend onClose={() => setShowLegend(false)} />
+        </div>
+      )}
+
       {/* Floating Bottom-Right Map Controls & Suitability Legend
-          - Hide legend on mobile; shift left on md when drawer open */}
+          - Legend appears on desktop/tablet when toggled; shift left on md when drawer open */}
       <div
         className={cn(
           'absolute bottom-3.5 z-[350] flex items-end gap-3 pointer-events-auto transition-all duration-300',
@@ -231,13 +310,23 @@ export function MapPage() {
           selectedSlug ? 'right-6 md:right-[456px]' : 'right-6'
         )}
       >
-        {/* Suitability Legend - desktop only */}
-        <div className="hidden sm:block">
-          <MapLegend />
-        </div>
+        {/* Suitability Legend - desktop only (conditional) */}
+        {showLegend && (
+          <div className="hidden sm:block animate-in fade-in zoom-in-95 duration-200">
+            <MapLegend onClose={() => setShowLegend(false)} />
+          </div>
+        )}
 
         {/* 5-Button Map Controls Stack */}
-        <MapControls onLocate={handleLocate} onToast={showToast} />
+        <MapControls
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onLocate={handleLocate}
+          onResetCompass={handleResetCompass}
+          currentLayer={tileLayer}
+          onChangeLayer={setTileLayer}
+          onToast={showToast}
+        />
       </div>
 
       {/* Global Toast Notifications */}

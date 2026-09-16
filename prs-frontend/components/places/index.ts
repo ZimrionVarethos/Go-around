@@ -1,4 +1,10 @@
-export * from '../../features/map/PlaceCard';
-export * from '../../features/map/FilterBar';
-export * from '../../features/map/PlaceDetailDrawer';
-export * from '../../features/map/AISpatialMatchBanner';
+export { PlaceCard } from './PlaceCard';
+export type { PlaceCardProps } from './PlaceCard';
+export { FilterBar } from './FilterBar';
+export type { FilterBarProps } from './FilterBar';
+export { PlaceDetailDrawer } from './PlaceDetailDrawer';
+export type { PlaceDetailDrawerProps } from './PlaceDetailDrawer';
+export { RecommendationPanel } from './RecommendationPanel';
+export type { RecommendationPanelProps } from './RecommendationPanel';
+export { AISpatialMatchBanner } from './AISpatialMatchBanner';
+export type { AISpatialMatchBannerProps } from './AISpatialMatchBanner';

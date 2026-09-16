@@ -3,8 +3,7 @@
 import Link from 'next/link';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
 import { PublicFooter } from '@/components/layout/PublicFooter';
-import { LaporFasilitasForm } from '@/features/reports/LaporFasilitasForm';
-import { ReportSidebar } from '@/features/reports/ReportSidebar';
+import { LaporFasilitasForm, ReportSidebar } from '@/components/reports';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
 

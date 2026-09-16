@@ -10,9 +10,10 @@ import {
   PhotoUploadSection,
   SubmitSection,
   GisGuideSidebar,
-} from '@/features/contributions';
+} from '@/components/contributions';
 import { Check, FileText, AlertCircle, ArrowLeft } from 'lucide-react';
 import { contributionsApi } from '@/lib/api';
+import { dispatchNewPublicPlace } from '@/lib/admin-store';
 
 export default function TambahTempatPage() {
   // Form state - Basic Info
@@ -110,11 +111,25 @@ export default function TambahTempatPage() {
       submitter_email: submitterEmail.trim() || undefined,
     };
 
+    const newAdminPlace = {
+      name: name.trim() || 'Kafe Baru Usulan',
+      address: address.trim() || 'Kota Bogor',
+      lat: typeof lat === 'number' ? lat : -6.598,
+      lng: typeof lng === 'number' ? lng : 106.805,
+      wifi: parseInt(wifiDownload, 10) || 45,
+      plug: 75,
+      price: `Rp ${priceMinDrink || '18.000'}+`,
+      score: 8.8,
+      status: 'review' as const,
+    };
+
     try {
       await contributionsApi.submit(payload);
+      dispatchNewPublicPlace(newAdminPlace);
       setIsSuccess(true);
     } catch {
       // Fallback graceful success for prototype demonstration
+      dispatchNewPublicPlace(newAdminPlace);
       setIsSuccess(true);
     } finally {
       setIsSubmitting(false);

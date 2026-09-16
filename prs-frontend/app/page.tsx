@@ -1,6 +1,6 @@
 import { PublicTopbar } from '@/components/layout/PublicTopbar';
 import { PublicFooter } from '@/components/layout/PublicFooter';
-import { MapPage } from '@/features/map';
+import { MapPage } from '@/components/map';
 
 export default function WebGisPage() {
   return (

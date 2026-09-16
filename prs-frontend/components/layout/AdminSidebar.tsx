@@ -7,17 +7,17 @@ import {
   FileText,
   Coffee,
   BarChart2,
-  MapPin,
   ExternalLink,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
-const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/reports', label: 'Report / Tiket', icon: FileText, badge: '8 baru', badgeVariant: 'danger' as const },
-  { href: '/admin/places', label: 'Kelola Kafe', icon: Coffee, badge: '108 titik', badgeVariant: 'default' as const },
-  { href: '/admin/analytics', label: 'Analisis Pengguna', icon: BarChart2 },
-];
+import { useAdminStore } from '@/lib/admin-store';
+
+export interface AdminSidebarProps {
+  onCloseMobile?: () => void;
+  className?: string;
+}
 
 type BadgeVariant = 'danger' | 'default';
 
@@ -25,9 +25,9 @@ function NavBadge({ label, variant }: { label: string; variant?: BadgeVariant })
   return (
     <span
       className={cn(
-        'ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-full',
+        'ml-auto text-[11px] font-bold px-2 py-0.5 rounded-full transition-all duration-200 animate-in fade-in',
         variant === 'danger'
-          ? 'bg-danger-bg text-danger-base border border-danger-border'
+          ? 'bg-rose-50 text-rose-600 border border-rose-200 shadow-xs'
           : 'bg-surface-header text-text-700 border border-border-subtle'
       )}
     >
@@ -36,8 +36,28 @@ function NavBadge({ label, variant }: { label: string; variant?: BadgeVariant })
   );
 }
 
-export function AdminSidebar() {
+export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {}) {
   const pathname = usePathname();
+  const { unreadTicketsCount, newPlacesCount } = useAdminStore();
+
+  const navItems = [
+    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+    {
+      href: '/admin/reports',
+      label: 'Report / Tiket',
+      icon: FileText,
+      badge: unreadTicketsCount > 0 ? `${unreadTicketsCount} baru` : undefined,
+      badgeVariant: 'danger' as const,
+    },
+    {
+      href: '/admin/places',
+      label: 'Kelola Kafe',
+      icon: Coffee,
+      badge: newPlacesCount > 0 ? `${newPlacesCount} baru` : undefined,
+      badgeVariant: 'danger' as const,
+    },
+    { href: '/admin/analytics', label: 'Analisis Pengguna', icon: BarChart2 },
+  ];
 
   function isActive(href: string, exact?: boolean) {
     if (exact) return pathname === href;
@@ -45,15 +65,47 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="w-[240px] h-screen bg-white border-r border-border-subtle flex flex-col shrink-0 select-none">
-      {/* Brand Logo & Wordmark */}
-      <div className="h-[68px] flex items-center px-5 border-b border-border-subtle gap-2.5">
-        <div className="w-8 h-8 bg-primary-900 rounded-full flex items-center justify-center shrink-0">
-          <MapPin className="w-4 h-4 text-white fill-white" />
-        </div>
-        <span className="font-brand text-xl font-medium text-text-950 tracking-[-0.03em]">
-          Go Around
-        </span>
+    <aside className={cn('w-[254px] h-screen bg-white border-r border-border-subtle flex flex-col shrink-0 select-none', className)}>
+      {/* Brand Wordmark matching exact Figma 254x66px & Onest 24px */}
+      <div className="h-[66px] flex items-center justify-between px-5 border-b border-border-subtle shrink-0">
+        <Link
+          href="/admin"
+          className="select-none"
+          style={{
+            display: 'flex',
+            width: '254px',
+            height: '66px',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <span
+            style={{
+              color: '#0F172A',
+              fontFamily: "var(--font-onest), 'Onest', sans-serif",
+              fontSize: '24px',
+              fontStyle: 'normal',
+              fontWeight: 500,
+              lineHeight: 'normal',
+              letterSpacing: '-0.724px',
+            }}
+          >
+            Go Around
+          </span>
+        </Link>
+
+        {/* Mobile close button */}
+        {onCloseMobile && (
+          <button
+            type="button"
+            onClick={onCloseMobile}
+            className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-text-400 hover:text-text-700 hover:bg-surface-subtle transition-colors cursor-pointer shrink-0"
+            title="Tutup Menu"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}

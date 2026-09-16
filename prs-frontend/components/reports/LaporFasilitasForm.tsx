@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { dispatchNewPublicTicket } from '@/lib/admin-store';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 type IssueType =
@@ -174,7 +175,14 @@ export function LaporFasilitasForm({ onToast }: LaporFasilitasFormProps = {}) {
     //     is_anonymous: isAnonymous, contact: contactInfo,
     //   };
     //   await fetch('/api/v1/reports', { method: 'POST', body: JSON.stringify(payload) })
-    await new Promise((r) => setTimeout(r, 1200));
+    dispatchNewPublicTicket({
+      category: selectedIssues.join(', ') || 'Laporan Fasilitas',
+      cafeName: selectedCafe || 'Kafe di Bogor',
+      location: 'Kota Bogor',
+      reportedBy: isAnonymous ? 'Mahasiswa (Anonim)' : contactInfo || 'Kontributor Mahasiswa',
+      description: detail || 'Laporan kendala fasilitas kafe dari mahasiswa.',
+      priority: selectedIssues.includes('colokan_rusak') ? 'high' : 'medium',
+    });
 
     setIsSubmitting(false);
     setIsSuccess(true);

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { Check, Image as ImageIcon, Wifi, Coffee, X, Upload } from 'lucide-react';
