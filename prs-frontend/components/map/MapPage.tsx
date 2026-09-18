@@ -25,14 +25,28 @@ const MapView = dynamic(() => import('./MapView'), {
   ),
 });
 
+// Haversine formula to calculate real-world distance in km
+function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
 // Centered on Baranangsiang / IPB University district
 const BOGOR_CENTER: [number, number] = [-6.601, 106.806];
 
 export function MapPage() {
-  // Default selected place is Anthology Coffee & Tea to match exact Figma design
-  const [selectedSlug, setSelectedSlug] = useState<string | null>('anthology-coffee-tea');
+  // Default: clean map without auto-opened drawer, collapsed left panel pill
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [sortTab, setSortTab] = useState<'score' | 'nearby' | 'budget'>('score');
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
   const [tileLayer, setTileLayer] = useState<TileLayerType>('osm');
@@ -64,8 +78,17 @@ export function MapPage() {
     });
   };
 
+  const handleSortChange = (newTab: 'score' | 'nearby' | 'budget') => {
+    setSortTab(newTab);
+    const labels = {
+      score: 'Skor Tertinggi ⭐',
+      nearby: 'Jarak Terdekat 📍',
+      budget: 'Paling Hemat ☕',
+    };
+    showToast(`Urutan: ${labels[newTab]}`, 'info', 2000);
+  };
+
   const [filters, setFilters] = useState<PlaceFilters>({
-    plug_availability: 'abundant', // Active by default in Figma design
     sort_by: 'nugas_score',
     order: 'desc',
   });
@@ -102,13 +125,37 @@ export function MapPage() {
   }, [filters, sortTab]);
 
   const { data: placesResponse } = usePlaces(queryFilters);
-  // Merge Figma showcase places with API places so Figma design is 100% represented
+  // Merge Figma showcase places with API places & sort dynamically
   const places = useMemo(() => {
     const apiPlaces = placesResponse?.data ?? [];
     const existingSlugs = new Set(FIGMA_PLACES.map((p) => p.slug));
     const nonDuplicateApiPlaces = apiPlaces.filter((p) => !existingSlugs.has(p.slug));
-    return [...FIGMA_PLACES, ...nonDuplicateApiPlaces];
-  }, [placesResponse?.data]);
+    const combined = [...FIGMA_PLACES, ...nonDuplicateApiPlaces];
+
+    const refPoint = userLocation ?? BOGOR_CENTER;
+
+    return [...combined].sort((a, b) => {
+      if (sortTab === 'score') {
+        // Skor Tertinggi: nugas_score descending
+        return (b.nugas_score ?? 0) - (a.nugas_score ?? 0);
+      }
+      if (sortTab === 'budget') {
+        // Paling Hemat: harga kopi termurah ascending
+        const priceA = a.price_min_drink || 999999;
+        const priceB = b.price_min_drink || 999999;
+        return priceA - priceB;
+      }
+      if (sortTab === 'nearby') {
+        // Paling Dekat: jarak radius kilometer dari IPB Baranangsiang / GPS
+        const distA = getDistanceKm(refPoint[0], refPoint[1], a.latitude, a.longitude);
+        const distB = getDistanceKm(refPoint[0], refPoint[1], b.latitude, b.longitude);
+        return distA - distB;
+      }
+      return 0;
+    });
+  }, [placesResponse?.data, sortTab, userLocation]);
+
+  const totalSpots = placesResponse?.pagination?.total ?? places.length;
 
   // Query geojson markers in current map viewport
   const { data: bboxResponse } = useBboxPlaces({
@@ -267,8 +314,9 @@ export function MapPage() {
         isCollapsed={isCollapsed}
         onToggleCollapse={setIsCollapsed}
         sortTab={sortTab}
-        onSortChange={setSortTab}
+        onSortChange={handleSortChange}
         places={places}
+        totalCount={totalSpots}
         selectedSlug={selectedSlug}
         onSelectPlace={(slug) => {
           setSelectedSlug(slug);

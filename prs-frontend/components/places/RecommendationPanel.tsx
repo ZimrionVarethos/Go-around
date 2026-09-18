@@ -23,6 +23,7 @@ export interface RecommendationPanelProps {
   sortTab: 'score' | 'nearby' | 'budget';
   onSortChange: (tab: 'score' | 'nearby' | 'budget') => void;
   places: PlaceListItem[];
+  totalCount?: number;
   selectedSlug: string | null;
   onSelectPlace: (slug: string) => void;
   onDownloadGeoJson: () => void;
@@ -38,6 +39,7 @@ export function RecommendationPanel({
   sortTab,
   onSortChange,
   places,
+  totalCount,
   selectedSlug,
   onSelectPlace,
   onDownloadGeoJson,
@@ -47,6 +49,7 @@ export function RecommendationPanel({
   className,
 }: RecommendationPanelProps) {
   const [isMobile, setIsMobile] = useState(false);
+  const spotCount = totalCount ?? places?.length ?? 0;
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -74,7 +77,7 @@ export function RecommendationPanel({
           </span>
           <span className="inline-flex items-center gap-1 bg-[#E8F8F5] text-[#005B54] text-[11px] font-bold px-2 py-0.5 rounded-full">
             <Check className="w-2.5 h-2.5 stroke-[3]" />
-            <span>108 Spot</span>
+            <span>{spotCount} Spot</span>
           </span>
         </div>
       );
@@ -100,7 +103,7 @@ export function RecommendationPanel({
               </h2>
               <span className="inline-flex items-center gap-1 bg-[#E8F8F5] text-[#005B54] text-xs font-bold px-2 py-0.5 rounded-full">
                 <Check className="w-3 h-3 stroke-[3]" />
-                <span>108 Spot</span>
+                <span>{spotCount} Spot</span>
               </span>
             </div>
             <ChevronsDown className="w-4 h-4 text-gray-400" />
@@ -200,7 +203,7 @@ export function RecommendationPanel({
           <span className="text-slate-300 text-xs">•</span>
           <span className="inline-flex items-center gap-1 bg-[#E8F8F5] text-[#005B54] text-[11px] font-bold px-2 py-0.5 rounded-full border border-teal-200/60 shadow-2xs">
             <Check className="w-2.5 h-2.5 stroke-[3]" />
-            <span>108 Spot</span>
+            <span>{spotCount} Spot</span>
           </span>
         </div>
       </div>
@@ -221,9 +224,9 @@ export function RecommendationPanel({
             <h1 className="text-[17px] font-extrabold text-slate-900 tracking-tight">
               Rekomendasi Nugas Bogor
             </h1>
-            <span className="inline-flex items-center gap-1 bg-[#E8F8F5] text-[#005B54] text-xs font-bold px-2 py-0.5 rounded-full border border-teal-200/60 shadow-2xs">
+            <span className="inline-flex items-center gap-1 bg-[#E8F8F5] text-[#005B54] text-xs font-bold px-2.5 py-0.5 rounded-full border border-teal-200/60 shadow-2xs">
               <Check className="w-3 h-3 stroke-[3]" />
-              <span>108 Spot</span>
+              <span>{spotCount} Spot</span>
             </span>
           </div>
           <button
