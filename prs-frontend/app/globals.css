@@ -166,4 +166,34 @@ body {
     .xs\:flex { display: flex; }
     .xs\:block { display: block; }
   }
+
+  /* Impeccable Design Utilities: Frosted Glass Islands & Tactile Surfaces */
+  .glass-island {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 1);
+  }
+
+  .glass-island-subtle {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(241, 245, 249, 0.9);
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+  }
+
+  .tactile-press {
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .tactile-press:active {
+    transform: scale(0.98);
+  }
+
+  .subtle-border {
+    border: 1px solid rgba(226, 232, 240, 0.85);
+    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
+  }
 }
+

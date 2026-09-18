@@ -42,14 +42,14 @@ export function FacilitiesSection({
   onToggleAmenity,
 }: FacilitiesSectionProps) {
   return (
-    <section className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-6 sm:p-7 space-y-5">
+    <section className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-5 sm:p-7 space-y-5">
       {/* Header with Step 2 Circle */}
       <div className="flex items-start gap-3">
-        <div className="w-7 h-7 rounded-lg bg-[#005B54] text-white font-extrabold text-sm flex items-center justify-center shrink-0 mt-0.5">
+        <div className="w-7 h-7 rounded-lg bg-[#005B54] text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
           2
         </div>
         <div>
-          <h2 className="text-base font-bold text-gray-900">
+          <h2 className="text-sm sm:text-base font-bold text-gray-900">
             Verifikasi Fasilitas Kunci Nugas
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">
@@ -68,10 +68,10 @@ export function FacilitiesSection({
           <div
             onClick={() => onPlugAvailabilityChange('abundant')}
             className={cn(
-              'p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col gap-1',
+              'p-3.5 rounded-[12px] border cursor-pointer transition-all flex flex-col gap-1 active:scale-[0.98] select-none',
               plugAvailability === 'abundant'
-                ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
-                : 'bg-white border-gray-200 hover:border-gray-300'
+                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
             <div className="flex items-center gap-1.5 text-xs font-bold text-gray-900">
@@ -85,14 +85,14 @@ export function FacilitiesSection({
           <div
             onClick={() => onPlugAvailabilityChange('moderate')}
             className={cn(
-              'p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col gap-1',
+              'p-3.5 rounded-[12px] border cursor-pointer transition-all flex flex-col gap-1 active:scale-[0.98] select-none',
               plugAvailability === 'moderate'
-                ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
-                : 'bg-white border-gray-200 hover:border-gray-300'
+                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
             <div className="flex items-center gap-1.5 text-xs font-bold text-gray-900">
-              <Zap className="w-3.5 h-3.5 text-teal-600" />
+              <Zap className="w-3.5 h-3.5 text-teal-600 fill-teal-600" />
               <span>Cukup (~50%)</span>
             </div>
             <p className="text-[11px] text-gray-500">Ada di meja tertentu atau tiang tengah</p>
@@ -102,14 +102,14 @@ export function FacilitiesSection({
           <div
             onClick={() => onPlugAvailabilityChange('limited')}
             className={cn(
-              'p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col gap-1',
+              'p-3.5 rounded-[12px] border cursor-pointer transition-all flex flex-col gap-1 active:scale-[0.98] select-none',
               plugAvailability === 'limited'
-                ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
-                : 'bg-white border-gray-200 hover:border-gray-300'
+                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
             <div className="flex items-center gap-1.5 text-xs font-bold text-gray-900">
-              <span className="text-gray-400">⚡</span>
+              <Zap className="w-3.5 h-3.5 text-gray-400" />
               <span>Terbatas</span>
             </div>
             <p className="text-[11px] text-gray-500">Hanya di sudut dinding atau meja kasir</p>
@@ -118,7 +118,7 @@ export function FacilitiesSection({
       </div>
 
       {/* Card: Kecepatan Wi-Fi Rata-rata */}
-      <div className="bg-[#F0FAF7] border border-[#A7F3D0] rounded-xl p-4 space-y-3">
+      <div className="bg-[#F0FAF7] border border-[#A7F3D0] rounded-[14px] p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Wifi className="w-4 h-4 text-[#005B54]" />
@@ -192,10 +192,10 @@ export function FacilitiesSection({
           <div
             onClick={() => onNoiseLevelChange('quiet')}
             className={cn(
-              'p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between',
+              'p-3 rounded-[12px] border cursor-pointer transition-all flex items-center justify-between active:scale-[0.99] select-none',
               noiseLevel === 'quiet'
-                ? 'bg-[#F0FAF7] border-[#005B54]'
-                : 'bg-white border-gray-200 hover:border-gray-300'
+                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
             <div className="flex items-center gap-3">
@@ -210,10 +210,10 @@ export function FacilitiesSection({
               </div>
             </div>
             <div className={cn(
-              'w-4 h-4 rounded-full border flex items-center justify-center',
-              noiseLevel === 'quiet' ? 'border-[#005B54]' : 'border-gray-300'
+              'w-4 h-4 rounded-full border flex items-center justify-center transition-colors',
+              noiseLevel === 'quiet' ? 'border-[#005B54] bg-[#005B54]' : 'border-gray-300'
             )}>
-              {noiseLevel === 'quiet' && <div className="w-2 h-2 rounded-full bg-[#005B54]" />}
+              {noiseLevel === 'quiet' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
             </div>
           </div>
 
@@ -221,10 +221,10 @@ export function FacilitiesSection({
           <div
             onClick={() => onNoiseLevelChange('moderate')}
             className={cn(
-              'p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between',
+              'p-3 rounded-[12px] border cursor-pointer transition-all flex items-center justify-between active:scale-[0.99] select-none',
               noiseLevel === 'moderate'
-                ? 'bg-[#F0FAF7] border-[#005B54]'
-                : 'bg-white border-gray-200 hover:border-gray-300'
+                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
             <div className="flex items-center gap-3">
@@ -239,10 +239,10 @@ export function FacilitiesSection({
               </div>
             </div>
             <div className={cn(
-              'w-4 h-4 rounded-full border flex items-center justify-center',
-              noiseLevel === 'moderate' ? 'border-[#005B54]' : 'border-gray-300'
+              'w-4 h-4 rounded-full border flex items-center justify-center transition-colors',
+              noiseLevel === 'moderate' ? 'border-[#005B54] bg-[#005B54]' : 'border-gray-300'
             )}>
-              {noiseLevel === 'moderate' && <div className="w-2 h-2 rounded-full bg-[#005B54]" />}
+              {noiseLevel === 'moderate' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
             </div>
           </div>
 
@@ -250,10 +250,10 @@ export function FacilitiesSection({
           <div
             onClick={() => onNoiseLevelChange('lively')}
             className={cn(
-              'p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between',
+              'p-3 rounded-[12px] border cursor-pointer transition-all flex items-center justify-between active:scale-[0.99] select-none',
               noiseLevel === 'lively'
-                ? 'bg-[#F0FAF7] border-[#005B54]'
-                : 'bg-white border-gray-200 hover:border-gray-300'
+                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
             <div className="flex items-center gap-3">
@@ -268,10 +268,10 @@ export function FacilitiesSection({
               </div>
             </div>
             <div className={cn(
-              'w-4 h-4 rounded-full border flex items-center justify-center',
-              noiseLevel === 'lively' ? 'border-[#005B54]' : 'border-gray-300'
+              'w-4 h-4 rounded-full border flex items-center justify-center transition-colors',
+              noiseLevel === 'lively' ? 'border-[#005B54] bg-[#005B54]' : 'border-gray-300'
             )}>
-              {noiseLevel === 'lively' && <div className="w-2 h-2 rounded-full bg-[#005B54]" />}
+              {noiseLevel === 'lively' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
             </div>
           </div>
         </div>
@@ -283,28 +283,31 @@ export function FacilitiesSection({
           Fasilitas Penunjang Penting Lainnya
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-          {AMENITIES_LIST.map((item) => (
-            <label
-              key={item.id}
-              onClick={() => onToggleAmenity(item.id)}
-              className={cn(
-                'p-2.5 rounded-xl border text-xs font-medium cursor-pointer transition-all flex items-center gap-2',
-                amenities.includes(item.id)
-                  ? 'bg-[#F0FAF7] border-[#005B54] text-[#005B54] font-semibold'
-                  : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
-              )}
-            >
-              <div
+          {AMENITIES_LIST.map((item) => {
+            const isChecked = amenities.includes(item.id);
+            return (
+              <label
+                key={item.id}
+                onClick={() => onToggleAmenity(item.id)}
                 className={cn(
-                  'w-4 h-4 rounded flex items-center justify-center transition-colors',
-                  amenities.includes(item.id) ? 'bg-[#005B54] text-white' : 'border border-gray-300'
+                  'p-2.5 rounded-[12px] border text-xs font-medium cursor-pointer transition-all flex items-center gap-2 select-none active:scale-[0.98]',
+                  isChecked
+                    ? 'bg-[#F0FAF7] border-[#005B54] text-[#005B54] font-semibold ring-1 ring-[#005B54]/20 shadow-2xs'
+                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50/50'
                 )}
               >
-                {amenities.includes(item.id) && <Check className="w-3 h-3 stroke-[3]" />}
-              </div>
-              <span className="truncate">{item.label}</span>
-            </label>
-          ))}
+                <div
+                  className={cn(
+                    'w-4 h-4 rounded-[5px] flex items-center justify-center transition-colors shrink-0',
+                    isChecked ? 'bg-[#005B54] text-white' : 'border border-gray-300 bg-white'
+                  )}
+                >
+                  {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                </div>
+                <span className="truncate">{item.label}</span>
+              </label>
+            );
+          })}
         </div>
       </div>
     </section>

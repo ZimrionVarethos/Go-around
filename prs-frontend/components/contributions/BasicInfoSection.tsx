@@ -56,14 +56,14 @@ export function BasicInfoSection({
   onAddressChange,
 }: BasicInfoSectionProps) {
   return (
-    <section className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-6 sm:p-7 space-y-5">
+    <section className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-5 sm:p-7 space-y-5">
       {/* Header with Step 1 Circle */}
       <div className="flex items-start gap-3">
-        <div className="w-7 h-7 rounded-lg bg-[#005B54] text-white font-extrabold text-sm flex items-center justify-center shrink-0 mt-0.5">
+        <div className="w-7 h-7 rounded-lg bg-[#005B54] text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
           1
         </div>
         <div>
-          <h2 className="text-base font-bold text-gray-900">
+          <h2 className="text-sm sm:text-base font-bold text-gray-900">
             Informasi Dasar &amp; Kategori Spot
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">
@@ -83,7 +83,7 @@ export function BasicInfoSection({
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
           placeholder="Contoh: Anthology Coffee & Tea, Kopi Nako, Rumah Seduh"
-          className="w-full h-11 px-3.5 text-xs bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#005B54] focus:border-[#005B54] transition-all"
+          className="w-full h-11 px-3.5 text-xs bg-white border border-gray-200 rounded-[10px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] transition-all"
         />
       </div>
 
@@ -101,16 +101,16 @@ export function BasicInfoSection({
                 key={item.id}
                 onClick={() => onCategoryChange(item.id)}
                 className={cn(
-                  'p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 select-none',
+                  'p-3.5 rounded-[12px] border cursor-pointer transition-all flex items-start gap-3 select-none active:scale-[0.98]',
                   isSelected
-                    ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
-                    : 'bg-white border-gray-200 hover:border-gray-300'
+                    ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                    : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
                 )}
               >
                 <div
                   className={cn(
                     'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors',
-                    isSelected ? 'bg-[#005B54] text-white' : 'bg-gray-100 text-gray-600'
+                    isSelected ? 'bg-[#005B54] text-white shadow-2xs' : 'bg-gray-100 text-gray-600'
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -134,7 +134,7 @@ export function BasicInfoSection({
           <select
             value={subdistrict}
             onChange={(e) => onSubdistrictChange(e.target.value)}
-            className="w-full h-11 px-3 text-xs bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#005B54] focus:border-[#005B54] cursor-pointer"
+            className="w-full h-11 px-3 text-xs bg-white border border-gray-200 rounded-[10px] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] cursor-pointer"
           >
             <option value="Bogor Tengah">Bogor Tengah (Pusat Kota)</option>
             <option value="Bogor Timur">Bogor Timur</option>
@@ -152,7 +152,7 @@ export function BasicInfoSection({
           <select
             value={campusAccess}
             onChange={(e) => onCampusAccessChange(e.target.value)}
-            className="w-full h-11 px-3 text-xs bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#005B54] focus:border-[#005B54] cursor-pointer"
+            className="w-full h-11 px-3 text-xs bg-white border border-gray-200 rounded-[10px] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] cursor-pointer"
           >
             <option value="Dekat Kampus IPB Baranangsiang (< 1.5 km)">
               Dekat Kampus IPB Baranangsiang (&lt; 1.5 km)
@@ -176,7 +176,7 @@ export function BasicInfoSection({
           value={address}
           onChange={(e) => onAddressChange(e.target.value)}
           placeholder="Contoh: Jl. Pajajaran No. 28, Baranangsiang (Sebelah Bank Mandiri, seberang Botani Square)"
-          className="w-full h-11 px-3.5 text-xs bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#005B54] focus:border-[#005B54] transition-all"
+          className="w-full h-11 px-3.5 text-xs bg-white border border-gray-200 rounded-[10px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] transition-all"
         />
       </div>
     </section>

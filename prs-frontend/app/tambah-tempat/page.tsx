@@ -11,7 +11,7 @@ import {
   SubmitSection,
   GisGuideSidebar,
 } from '@/components/contributions';
-import { Check, FileText, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Check, AlertCircle, ArrowLeft } from 'lucide-react';
 import { contributionsApi } from '@/lib/api';
 import { dispatchNewPublicPlace } from '@/lib/admin-store';
 
@@ -139,32 +139,38 @@ export default function TambahTempatPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col select-none">
       {/* Sticky back-button header */}
-      <div className="sticky top-0 z-[500] bg-white/95 backdrop-blur-md border-b border-gray-200/80">
-        <div className="max-w-[1360px] mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-[#005B54] transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Kembali ke Peta</span>
-          </Link>
-          <div className="h-4 w-px bg-gray-200" />
-          <span className="text-xs font-bold text-gray-900 truncate">Tambah Tempat Nugas</span>
+      <header className="sticky top-0 z-[500] bg-white/95 backdrop-blur-md border-b border-gray-200/90 shadow-2xs">
+        <div className="max-w-[1360px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:text-[#005B54] bg-gray-50 hover:bg-teal-50/60 rounded-[10px] border border-gray-200 transition-all active:scale-[0.98] cursor-pointer shrink-0"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Kembali ke Peta</span>
+            </Link>
+            <div className="h-4 w-px bg-gray-200" />
+            <span className="text-xs font-bold text-gray-900 truncate">
+              Tambah Tempat Nugas
+            </span>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="text-xs text-gray-500 font-medium">
+              Kontribusi Publik &amp; Terbuka
+            </span>
+          </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Container */}
-      <main className="max-w-[1360px] mx-auto px-6 py-8 w-full flex-1">
-        {/* Page Title & Badge */}
-        <div className="mb-7">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0F3EE] text-[#005B54] text-xs font-bold shadow-2xs">
-            <FileText className="w-3.5 h-3.5" />
-            <span>Formulir Kurasi Spasial Publik</span>
-          </div>
-          <h1 className="text-[26px] sm:text-[32px] font-extrabold text-[#005C55] leading-[34px] sm:leading-[40px] tracking-[-0.8px] mt-2.5">
+      <main className="max-w-[1360px] mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full flex-1">
+        {/* Page Title */}
+        <div className="mb-7 space-y-2">
+          <h1 className="text-[26px] sm:text-[32px] font-extrabold text-[#005B54] leading-[34px] sm:leading-[40px] tracking-[-0.03em]">
             Tambah &amp; Rekomendasikan Tempat Nugas Baru
           </h1>
-          <p className="text-gray-500 text-xs sm:text-sm mt-1 max-w-3xl leading-relaxed">
+          <p className="text-gray-600 text-xs sm:text-sm max-w-3xl leading-relaxed">
             Bantu sesama mahasiswa Bogor memetakan kafe, working space, dan spot belajar ramah kantong dengan kecepatan Wi-Fi dan colokan terverifikasi. Tidak perlu login akun.
           </p>
         </div>

@@ -1,12 +1,12 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { MapPin, Lightbulb } from 'lucide-react';
+import { MapPin, Lightbulb, Info, Plug, Wifi, Coffee } from 'lucide-react';
 
 const LocationPickerMap = dynamic(() => import('./LocationPickerMap'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[220px] bg-[#F6F4ED] rounded-xl flex flex-col items-center justify-center gap-2">
+    <div className="w-full h-[220px] bg-[#F6F4ED] rounded-[12px] flex flex-col items-center justify-center gap-2">
       <div className="w-7 h-7 rounded-full border-2 border-[#005B54] border-t-transparent animate-spin" />
       <span className="text-[11px] font-semibold text-gray-600">Memuat Peta GIS...</span>
     </div>
@@ -25,7 +25,7 @@ export function GisGuideSidebar({
   onLocationChange,
 }: GisGuideSidebarProps) {
   return (
-    <aside className="w-full lg:w-[420px] shrink-0 space-y-5 lg:sticky lg:top-24">
+    <aside className="w-full lg:w-[420px] shrink-0 space-y-5 lg:sticky lg:top-20">
       {/* Card 1: Pin Lokasi GIS Interaktif */}
       <div className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-5 space-y-3.5">
         <div className="flex items-center justify-between">
@@ -35,13 +35,13 @@ export function GisGuideSidebar({
               Pin Lokasi GIS Interaktif
             </h3>
           </div>
-          <span className="bg-[#E0F3EE] text-[#005B54] text-[10px] font-bold px-2 py-0.5 rounded-full">
+          <span className="bg-[#E0F3EE] text-[#005B54] text-[10px] font-bold px-2 py-0.5 rounded-full border border-teal-200/60">
             Georeferensi GPS
           </span>
         </div>
 
         {/* Interactive Leaflet Mini Map */}
-        <div className="w-full h-[220px] rounded-xl overflow-hidden border border-gray-200 shadow-2xs">
+        <div className="w-full h-[220px] rounded-[12px] overflow-hidden border border-gray-200 shadow-2xs">
           <LocationPickerMap
             lat={lat}
             lng={lng}
@@ -56,11 +56,11 @@ export function GisGuideSidebar({
             <span className="text-[#005B54] font-bold">WGS 84 (EPSG:4326)</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-[#F8FAFC] border border-gray-200 rounded-lg p-2">
+            <div className="bg-[#F8FAFC] border border-gray-200 rounded-[10px] p-2">
               <span className="text-[10px] text-gray-400 block font-medium">Latitude</span>
               <span className="font-mono text-xs font-bold text-gray-800">{lat}</span>
             </div>
-            <div className="bg-[#F8FAFC] border border-gray-200 rounded-lg p-2">
+            <div className="bg-[#F8FAFC] border border-gray-200 rounded-[10px] p-2">
               <span className="text-[10px] text-gray-400 block font-medium">Longitude</span>
               <span className="font-mono text-xs font-bold text-gray-800">{lng}</span>
             </div>
@@ -68,7 +68,7 @@ export function GisGuideSidebar({
         </div>
 
         <p className="text-[11px] text-gray-500 flex items-start gap-1.5 leading-snug">
-          <span className="text-[#005B54] font-bold">ℹ️</span>
+          <Info className="w-3.5 h-3.5 text-[#005B54] shrink-0 mt-0.5" />
           <span>Geser pin di peta atau klik lokasi tepat di peta untuk menentukan koordinat GPS yang akurat.</span>
         </p>
       </div>
@@ -84,7 +84,7 @@ export function GisGuideSidebar({
 
         <div className="space-y-3">
           <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-[#005B54] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+            <div className="w-5 h-5 rounded-full bg-[#005B54] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
               1
             </div>
             <div>
@@ -98,7 +98,7 @@ export function GisGuideSidebar({
           </div>
 
           <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-[#005B54] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+            <div className="w-5 h-5 rounded-full bg-[#005B54] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
               2
             </div>
             <div>
@@ -112,7 +112,7 @@ export function GisGuideSidebar({
           </div>
 
           <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-[#005B54] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+            <div className="w-5 h-5 rounded-full bg-[#005B54] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
               3
             </div>
             <div>
@@ -137,20 +137,26 @@ export function GisGuideSidebar({
         </div>
 
         <div className="space-y-2.5 text-xs text-gray-600">
-          <div className="flex items-start gap-2">
-            <span className="text-[#005B54] font-bold shrink-0">🔌</span>
+          <div className="flex items-start gap-2.5">
+            <div className="w-5 h-5 rounded-md bg-teal-50 flex items-center justify-center text-[#005B54] shrink-0 mt-0.5">
+              <Plug className="w-3 h-3" />
+            </div>
             <p className="leading-snug">
               <strong className="text-gray-900 font-semibold">Colokan Kokoh:</strong> Stopkontak tidak longgar atau mudah lepas saat dicolok charger laptop berat.
             </p>
           </div>
-          <div className="flex items-start gap-2">
-            <span className="text-[#005B54] font-bold shrink-0">📶</span>
+          <div className="flex items-start gap-2.5">
+            <div className="w-5 h-5 rounded-md bg-teal-50 flex items-center justify-center text-[#005B54] shrink-0 mt-0.5">
+              <Wifi className="w-3 h-3" />
+            </div>
             <p className="leading-snug">
               <strong className="text-gray-900 font-semibold">Wi-Fi Minimal 25 Mbps:</strong> Tidak mengalami throttling saat jam ramai sore hari (15.00 - 19.00 WIB).
             </p>
           </div>
-          <div className="flex items-start gap-2">
-            <span className="text-[#005B54] font-bold shrink-0">☕</span>
+          <div className="flex items-start gap-2.5">
+            <div className="w-5 h-5 rounded-md bg-teal-50 flex items-center justify-center text-[#005B54] shrink-0 mt-0.5">
+              <Coffee className="w-3 h-3" />
+            </div>
             <p className="leading-snug">
               <strong className="text-gray-900 font-semibold">Ramah Mahasiswa:</strong> Barista atau staf tidak mengusir mahasiswa yang memesan wajar dan nugas &gt; 3 jam.
             </p>

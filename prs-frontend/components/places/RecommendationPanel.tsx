@@ -185,7 +185,7 @@ export function RecommendationPanel({
       <div
         onClick={() => onToggleCollapse(false)}
         className={cn(
-          'absolute top-[138px] left-6 z-[400] bg-white/95 backdrop-blur-md border border-gray-200/90 rounded-2xl shadow-lg hover:shadow-xl hover:border-[#005B54]/50 transition-all duration-300 cursor-pointer flex items-center gap-2.5 px-3.5 py-2.5 select-none pointer-events-auto group animate-in fade-in slide-in-from-left-2',
+          'absolute top-[138px] left-6 z-[400] glass-island rounded-2xl shadow-lg hover:shadow-xl hover:border-[#005B54]/40 transition-all duration-300 cursor-pointer flex items-center gap-2.5 px-3.5 py-2.5 select-none pointer-events-auto group animate-in fade-in slide-in-from-left-2 tactile-press',
           className
         )}
         title="Klik untuk membuka rekomendasi lengkap"
@@ -194,11 +194,11 @@ export function RecommendationPanel({
           <ChevronsRight className="w-4 h-4" />
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-extrabold text-xs text-gray-900 tracking-tight group-hover:text-[#005B54] transition-colors">
+          <span className="font-extrabold text-xs text-slate-900 tracking-tight group-hover:text-[#005B54] transition-colors">
             Rekomendasi Nugas
           </span>
-          <span className="text-gray-300 text-xs">•</span>
-          <span className="inline-flex items-center gap-1 bg-[#E8F8F5] text-[#005B54] text-[11px] font-bold px-2 py-0.5 rounded-full shadow-2xs">
+          <span className="text-slate-300 text-xs">•</span>
+          <span className="inline-flex items-center gap-1 bg-[#E8F8F5] text-[#005B54] text-[11px] font-bold px-2 py-0.5 rounded-full border border-teal-200/60 shadow-2xs">
             <Check className="w-2.5 h-2.5 stroke-[3]" />
             <span>108 Spot</span>
           </span>
@@ -210,45 +210,45 @@ export function RecommendationPanel({
   return (
     <aside
       className={cn(
-        'absolute top-[138px] left-6 bottom-3.5 w-[430px] z-[400] bg-white rounded-2xl shadow-xl border border-gray-100 flex flex-col overflow-hidden pointer-events-auto transition-all duration-300 animate-in fade-in slide-in-from-left-2',
+        'absolute top-[138px] left-6 bottom-3.5 w-[430px] z-[400] glass-island rounded-2xl shadow-[0_16px_40px_-6px_rgba(15,23,42,0.12)] flex flex-col overflow-hidden pointer-events-auto transition-all duration-300 animate-in fade-in slide-in-from-left-2',
         className
       )}
     >
       {/* Sidebar Card Header */}
-      <div className="p-4 pb-2 shrink-0">
+      <div className="p-4 pb-2.5 shrink-0 border-b border-slate-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="text-base font-extrabold text-gray-900 tracking-tight">
+            <h1 className="text-[17px] font-extrabold text-slate-900 tracking-tight">
               Rekomendasi Nugas Bogor
             </h1>
-            <span className="inline-flex items-center gap-1 bg-[#E8F8F5] text-[#005B54] text-xs font-bold px-2 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-1 bg-[#E8F8F5] text-[#005B54] text-xs font-bold px-2 py-0.5 rounded-full border border-teal-200/60 shadow-2xs">
               <Check className="w-3 h-3 stroke-[3]" />
               <span>108 Spot</span>
             </span>
           </div>
           <button
             onClick={() => onToggleCollapse(true)}
-            className="w-7 h-7 rounded-lg hover:bg-[#E8F8F5] text-gray-400 hover:text-[#005B54] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
             title="Ciutkan Panel (Collapse)"
           >
             <ChevronsLeft className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-[11.5px] text-gray-500 mt-0.5">
+        <p className="text-[11.5px] font-medium text-slate-500 mt-0.5">
           Terverifikasi Lapangan oleh Mahasiswa IPB University
         </p>
       </div>
 
       {/* Sort Tabs */}
-      <div className="px-4 py-1.5 shrink-0">
-        <div className="grid grid-cols-3 p-1 bg-[#F3F4F6] rounded-xl gap-1">
+      <div className="px-4 py-2 shrink-0">
+        <div className="grid grid-cols-3 p-1 bg-slate-100/90 rounded-xl gap-1 border border-slate-200/60">
           <button
             onClick={() => onSortChange('score')}
             className={cn(
-              'py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer text-center',
+              'py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer text-center',
               sortTab === 'score'
-                ? 'bg-white text-gray-900 shadow-xs'
-                : 'text-gray-500 hover:text-gray-900'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-500 hover:text-slate-900'
             )}
           >
             Skor Tertinggi
@@ -256,10 +256,10 @@ export function RecommendationPanel({
           <button
             onClick={() => onSortChange('nearby')}
             className={cn(
-              'py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer text-center',
+              'py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer text-center',
               sortTab === 'nearby'
-                ? 'bg-white text-gray-900 shadow-xs'
-                : 'text-gray-500 hover:text-gray-900'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-500 hover:text-slate-900'
             )}
           >
             Paling Dekat
@@ -267,16 +267,17 @@ export function RecommendationPanel({
           <button
             onClick={() => onSortChange('budget')}
             className={cn(
-              'py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer text-center',
+              'py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer text-center',
               sortTab === 'budget'
-                ? 'bg-white text-gray-900 shadow-xs'
-                : 'text-gray-500 hover:text-gray-900'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-500 hover:text-slate-900'
             )}
           >
             Paling Hemat
           </button>
         </div>
       </div>
+
 
       {/* Scrollable List Body */}
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3 no-scrollbar">

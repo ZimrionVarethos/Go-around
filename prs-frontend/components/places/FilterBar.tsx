@@ -66,12 +66,13 @@ export function FilterBar({
     >
       {/* 1. Colokan Tiap Meja (Active by default in Figma design) */}
       <button
+        type="button"
         onClick={togglePlug}
         className={cn(
-          'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 shadow-xs',
+          'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 tactile-press',
           isPlugActive
-            ? 'bg-[#005B54] text-white'
-            : 'bg-white border border-gray-200 text-gray-800 hover:border-gray-300'
+            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)] ring-2 ring-[#005B54]/20'
+            : 'glass-island-subtle text-slate-700 hover:text-slate-900 hover:border-slate-300'
         )}
       >
         <Zap className={cn('w-3.5 h-3.5', isPlugActive ? 'text-amber-300 fill-amber-300' : 'text-amber-500')} />
@@ -83,12 +84,13 @@ export function FilterBar({
 
       {/* 2. Tenang & Kondusif (< 45dB) */}
       <button
+        type="button"
         onClick={toggleQuiet}
         className={cn(
-          'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer shrink-0 shadow-xs',
+          'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 tactile-press',
           isQuietActive
-            ? 'bg-[#005B54] text-white'
-            : 'bg-white border border-gray-200 text-gray-800 hover:border-gray-300'
+            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)] ring-2 ring-[#005B54]/20'
+            : 'glass-island-subtle text-slate-700 hover:text-slate-900 hover:border-slate-300'
         )}
       >
         <Headphones className={cn('w-3.5 h-3.5', isQuietActive ? 'text-white' : 'text-teal-700')} />
@@ -98,12 +100,13 @@ export function FilterBar({
 
       {/* 3. Es Kopi < Rp25.000 */}
       <button
+        type="button"
         onClick={toggleBudget}
         className={cn(
-          'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer shrink-0 shadow-xs',
+          'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 tactile-press',
           isBudgetActive
-            ? 'bg-[#005B54] text-white'
-            : 'bg-white border border-gray-200 text-gray-800 hover:border-gray-300'
+            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)] ring-2 ring-[#005B54]/20'
+            : 'glass-island-subtle text-slate-700 hover:text-slate-900 hover:border-slate-300'
         )}
       >
         <Banknote className={cn('w-3.5 h-3.5', isBudgetActive ? 'text-white' : 'text-emerald-600')} />
@@ -113,12 +116,13 @@ export function FilterBar({
 
       {/* 4. Buka 24 Jam Nonstop */}
       <button
+        type="button"
         onClick={toggle24Hours}
         className={cn(
-          'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer shrink-0 shadow-xs',
+          'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 tactile-press',
           is24HoursActive
-            ? 'bg-[#005B54] text-white'
-            : 'bg-white border border-gray-200 text-gray-800 hover:border-gray-300'
+            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)] ring-2 ring-[#005B54]/20'
+            : 'glass-island-subtle text-slate-700 hover:text-slate-900 hover:border-slate-300'
         )}
       >
         <Clock className={cn('w-3.5 h-3.5', is24HoursActive ? 'text-white' : 'text-amber-500')} />
@@ -128,12 +132,14 @@ export function FilterBar({
 
       {/* 5. Reset Filter */}
       <button
+        type="button"
         onClick={resetFilters}
-        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-white border border-gray-200 text-gray-800 hover:border-gray-300 transition-all cursor-pointer shrink-0 shadow-xs ml-auto"
+        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold glass-island-subtle text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-all cursor-pointer shrink-0 ml-auto tactile-press"
       >
         <SlidersHorizontal className="w-3.5 h-3.5 text-teal-700" />
         <span>Reset Filter</span>
       </button>
+
     </div>
   );
 }

@@ -251,10 +251,10 @@ export function MapControls({
           title="Pilih Lapisan Peta & Analisis SIG"
           onClick={() => setShowLayerMenu((prev) => !prev)}
           className={cn(
-            'w-10 h-10 border rounded-xl shadow-md flex items-center justify-center transition-all cursor-pointer relative z-40',
+            'w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer relative z-40 tactile-press',
             showLayerMenu
-              ? 'bg-[#E8F8F5] text-[#005B54] border-[#005B54] ring-2 ring-[#005B54]/20'
-              : 'bg-white border-gray-200/80 text-gray-700 hover:text-[#005B54] hover:bg-gray-50 active:bg-gray-100 active:scale-95'
+              ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)] ring-2 ring-[#005B54]/20'
+              : 'glass-island text-slate-700 hover:text-[#005B54] hover:border-[#005B54]/30'
           )}
         >
           <Layers className="w-4 h-4" />
@@ -266,7 +266,7 @@ export function MapControls({
         type="button"
         title="Lokasi Anda (GPS)"
         onClick={onLocate}
-        className="w-10 h-10 bg-white border border-gray-200/80 rounded-xl shadow-md flex items-center justify-center text-gray-700 hover:text-[#005B54] hover:bg-gray-50 active:bg-gray-100 active:scale-95 transition-all cursor-pointer"
+        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54]/30 transition-all cursor-pointer tactile-press"
       >
         <Locate className="w-4 h-4" />
       </button>
@@ -276,7 +276,7 @@ export function MapControls({
         type="button"
         title="Perbesar Peta (+)"
         onClick={handleZoomIn}
-        className="w-10 h-10 bg-white border border-gray-200/80 rounded-xl shadow-md flex items-center justify-center text-gray-700 hover:text-[#005B54] hover:bg-gray-50 active:bg-gray-100 active:scale-95 transition-all cursor-pointer"
+        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54]/30 transition-all cursor-pointer tactile-press"
       >
         <Plus className="w-4 h-4" />
       </button>
@@ -286,7 +286,7 @@ export function MapControls({
         type="button"
         title="Perkecil Peta (-)"
         onClick={handleZoomOut}
-        className="w-10 h-10 bg-white border border-gray-200/80 rounded-xl shadow-md flex items-center justify-center text-gray-700 hover:text-[#005B54] hover:bg-gray-50 active:bg-gray-100 active:scale-95 transition-all cursor-pointer"
+        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54]/30 transition-all cursor-pointer tactile-press"
       >
         <Minus className="w-4 h-4" />
       </button>
@@ -296,7 +296,7 @@ export function MapControls({
         type="button"
         title="Reset ke Pusat Bogor (Utara ↑)"
         onClick={onResetCompass}
-        className="w-10 h-10 bg-white border border-gray-200/80 rounded-xl shadow-md flex items-center justify-center text-gray-700 hover:text-[#005B54] hover:bg-gray-50 active:bg-gray-100 active:scale-95 transition-all cursor-pointer"
+        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54]/30 transition-all cursor-pointer tactile-press"
       >
         <Compass className="w-4 h-4" />
       </button>
@@ -319,21 +319,21 @@ export function MapLegend({ onClose, className }: MapLegendProps = {}) {
   ];
 
   return (
-    <div className={cn('bg-white rounded-2xl border border-gray-200/90 shadow-lg p-3.5 w-60 select-none', className)}>
+    <div className={cn('glass-island rounded-2xl shadow-xl p-3.5 w-64 select-none', className)}>
       {/* Title with Info icon and optional close button */}
-      <div className="flex items-center justify-between mb-2.5 pb-1 border-b border-gray-100">
+      <div className="flex items-center justify-between mb-2.5 pb-1 border-b border-slate-100">
         <div className="flex items-center gap-1.5">
-          <h4 className="text-xs font-bold text-gray-900">
-            Skor Kesesuaian
+          <h4 className="text-xs font-extrabold text-slate-900 tracking-tight">
+            Skor Kesesuaian Spasial
           </h4>
-          <Info className="w-3.5 h-3.5 text-gray-400 cursor-pointer hover:text-gray-600" />
+          <Info className="w-3.5 h-3.5 text-slate-400 cursor-pointer hover:text-slate-600" />
         </div>
         {onClose && (
           <button
             type="button"
             onClick={onClose}
             title="Tutup Legenda"
-            className="w-5 h-5 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+            className="w-5 h-5 flex items-center justify-center rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -343,9 +343,9 @@ export function MapLegend({ onClose, className }: MapLegendProps = {}) {
       {/* 4 Swatches */}
       <div className="space-y-1.5">
         {scores.map((s) => (
-          <div key={s.label} className="flex items-center gap-2 text-[11px] text-gray-700">
+          <div key={s.label} className="flex items-center gap-2 text-[11px] text-slate-700 font-medium">
             <span
-              className="w-2.5 h-2.5 rounded-xs shrink-0"
+              className="w-2.5 h-2.5 rounded-sm shrink-0 shadow-2xs"
               style={{ backgroundColor: s.color }}
             />
             <span>{s.label}</span>
@@ -354,12 +354,13 @@ export function MapLegend({ onClose, className }: MapLegendProps = {}) {
       </div>
 
       {/* Bottom Scale Bar */}
-      <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-end gap-2 text-[11px] text-gray-600 font-medium">
+      <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-end gap-2 text-[11px] text-slate-600 font-semibold">
         <div className="flex items-center gap-1.5">
-          <div className="h-1 bg-black w-10 rounded-xs" />
-          <span className="font-semibold text-[10px]">1 Km</span>
+          <div className="h-1 bg-slate-800 w-10 rounded-full" />
+          <span className="text-[10px]">1 Km</span>
         </div>
       </div>
     </div>
   );
 }
+

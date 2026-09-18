@@ -10,9 +10,11 @@ import type {
 
 // ─── Score display ─────────────────────────────────────────────────────────────
 
-/** Convert 0–100 backend score to "9.7" display string */
+/** Convert 0–100 or 0–10 backend score to "9.7" display string */
 export function formatNugasScore(score: number): string {
-  return (score / 10).toFixed(1);
+  if (typeof score !== 'number' || isNaN(score)) return '0.0';
+  const normalized = score > 10 ? score / 10 : score;
+  return normalized.toFixed(1);
 }
 
 // ─── GeoJSON coordinate extraction ────────────────────────────────────────────

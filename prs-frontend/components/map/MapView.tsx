@@ -17,6 +17,34 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
+// Clean SVG Icons for Leaflet Markers (No OS Emojis)
+const SVG_COFFEE = `
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h12Z"/>
+    <path d="M6 2v2"/><path d="M17 11h1a3 3 0 0 1 3 3v0a3 3 0 0 1-3 3h-1"/>
+  </svg>
+`;
+
+const SVG_ZAP = `
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </svg>
+`;
+
+const SVG_GRAD_CAP = `
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21.42 10.922a1 1 0 0 0-.019-.838L12.83 2.18a2 2 0 0 0-1.66 0L2.6 10.08a1 1 0 0 0 0 1.832l8.57 7.908a2 2 0 0 0 1.66 0l8.57-7.9a1 1 0 0 0 .02-.998Z"/>
+    <path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>
+  </svg>
+`;
+
+const SVG_BUS = `
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 6v6"/><path d="M16 6v6"/><path d="M4 18v3a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-3"/><path d="M17 18v3a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-3"/>
+    <rect width="16" height="16" x="4" y="2" rx="2"/><path d="M4 10h16"/><path d="M8 14h.01"/><path d="M16 14h.01"/>
+  </svg>
+`;
+
 // Custom Pins matching Figma
 function createPinIcon(score: number, isSelected: boolean, iconType?: string): L.DivIcon {
   const displayScore = formatNugasScore(score);
@@ -68,10 +96,10 @@ function createPinIcon(score: number, isSelected: boolean, iconType?: string): L
     });
   }
 
-  // Unselected Pin: circle icon matching Figma (Coffee orange, Zap teal, or WiFi)
-  const isCoffee = iconType === 'coffee' || score < 9.0;
+  // Unselected Pin: circle icon matching Figma (Coffee orange or Zap teal)
+  const isCoffee = iconType === 'coffee' || score < 90;
   const bgColor = isCoffee ? '#F97316' : '#005B54';
-  const iconEmoji = isCoffee ? '☕' : '⚡';
+  const iconSvg = isCoffee ? SVG_COFFEE : SVG_ZAP;
 
   return L.divIcon({
     className: 'custom-marker-pin',
@@ -93,10 +121,9 @@ function createPinIcon(score: number, isSelected: boolean, iconType?: string): L
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 13px;
           color: white;
         ">
-          ${iconEmoji}
+          ${iconSvg}
         </div>
         <div style="
           width: 0;
@@ -133,7 +160,6 @@ function BoundsTracker({
   });
   return null;
 }
-
 
 // Tile Layer configurations
 const TILE_LAYERS: Record<TileLayerType, { url: string; attribution: string; maxZoom: number }> = {
@@ -186,14 +212,14 @@ function MapReadyEmitter({ onMapReady }: { onMapReady?: (map: L.Map) => void }) 
   return null;
 }
 
-// Custom Pin for IPB Baranangsiang Campus
+// Custom Pin for IPB Baranangsiang Campus with SVG icon
 const IPB_CAMPUS_PIN = L.divIcon({
   className: 'custom-ipb-pin',
   html: `
     <div style="
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       background: #005B54;
       color: #ffffff;
       padding: 4px 10px;
@@ -206,7 +232,7 @@ const IPB_CAMPUS_PIN = L.divIcon({
       white-space: nowrap;
       cursor: pointer;
     ">
-      <span>🎓</span>
+      <span style="display: flex; align-items: center;">${SVG_GRAD_CAP}</span>
       <span>Kampus IPB Baranangsiang</span>
     </div>
   `,
@@ -259,17 +285,17 @@ const DENSITY_CLUSTERS: { name: string; center: [number, number]; radius: number
   },
 ];
 
-// Biskita Transpakuan Public Transit Route (Koridor 1 & 2)
+// Biskita Transpakuan Public Transit Corridor
 const BISKITA_CORRIDOR: [number, number][] = [
-  [-6.5815, 106.8090], // Warung Jambu
-  [-6.5890, 106.8080], // Pajajaran Utara
-  [-6.5955, 106.8070], // Lodaya
-  [-6.6010, 106.8060], // Baranangsiang
-  [-6.6045, 106.8010], // Otista
-  [-6.6010, 106.7940], // Djuanda
-  [-6.5935, 106.7915], // Stasiun Bogor
-  [-6.5885, 106.7970], // Balai Kota / Sempur
-  [-6.5925, 106.8055], // Simpang Pajajaran
+  [-6.5815, 106.8090],
+  [-6.5890, 106.8080],
+  [-6.5955, 106.8070],
+  [-6.6010, 106.8060],
+  [-6.6045, 106.8010],
+  [-6.6010, 106.7940],
+  [-6.5935, 106.7915],
+  [-6.5885, 106.7970],
+  [-6.5925, 106.8055],
 ];
 
 const BISKITA_STOPS: { name: string; position: [number, number]; koridor: string; desc: string }[] = [
@@ -292,12 +318,11 @@ const BISKITA_STOP_PIN = L.divIcon({
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
       border: 2px solid white;
       box-shadow: 0 2px 6px rgba(2, 132, 199, 0.45);
       cursor: pointer;
     ">
-      🚌
+      ${SVG_BUS}
     </div>
   `,
   iconSize: [24, 24],
@@ -305,9 +330,23 @@ const BISKITA_STOP_PIN = L.divIcon({
   popupAnchor: [0, -14],
 });
 
+// Component to smoothly pan the map when a place is selected
+function MapFlyTo({ selectedSlug, features }: { selectedSlug?: string | null; features: PlaceGeoJsonFeature[] }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!selectedSlug) return;
+    const target = features.find((f) => f.properties.slug === selectedSlug);
+    if (target) {
+      const { lat, lng } = latLngFromFeature(target);
+      map.flyTo([lat, lng], 16, { duration: 1.2 });
+    }
+  }, [selectedSlug, features, map]);
+  return null;
+}
+
 export interface MapViewProps {
   features: PlaceGeoJsonFeature[];
-  selectedSlug: string | null;
+  selectedSlug?: string | null;
   onMarkerClick: (slug: string) => void;
   onBoundsChange: (bounds: { north: number; south: number; east: number; west: number }) => void;
   tileLayer?: TileLayerType;
@@ -316,7 +355,7 @@ export interface MapViewProps {
   spatialOverlays?: SpatialOverlays;
 }
 
-// Centered on Baranangsiang / IPB University district
+// Baranangsiang / IPB University center coordinate
 export const BOGOR_CENTER: [number, number] = [-6.601, 106.806];
 
 export default function MapView({
@@ -335,26 +374,36 @@ export default function MapView({
     <MapContainer
       center={BOGOR_CENTER}
       zoom={15}
-      minZoom={12}
-      maxZoom={18}
-      className="w-full h-full z-0"
+      minZoom={11}
+      maxZoom={19}
       zoomControl={false}
+      className="w-full h-full relative z-0 outline-none"
+      style={{ minHeight: '100%' }}
     >
-      {/* Dynamic Tile Layer */}
       <TileLayer
         key={tileLayer}
-        attribution={currentTile.attribution}
         url={currentTile.url}
+        attribution={currentTile.attribution}
         maxZoom={currentTile.maxZoom}
       />
 
-      <MapReadyEmitter onMapReady={onMapReady} />
       <BoundsTracker onBoundsChange={onBoundsChange} />
+      <MapReadyEmitter onMapReady={onMapReady} />
+      <MapFlyTo selectedSlug={selectedSlug} features={features} />
 
-      {/* 1. Spatial Overlay: Radius Buffer IPB (500m & 1km) */}
+      {/* Campus Pin IPB Baranangsiang */}
+      <Marker position={BOGOR_CENTER} icon={IPB_CAMPUS_PIN}>
+        <Popup className="custom-leaflet-popup">
+          <div className="p-1 font-sans">
+            <p className="font-bold text-xs text-[#005B54]">Kampus IPB Baranangsiang</p>
+            <p className="text-[11px] text-gray-500">Pusat Kajian &amp; Titik Temu Mahasiswa</p>
+          </div>
+        </Popup>
+      </Marker>
+
+      {/* 1. Spatial Overlay: Buffer Jangkauan IPB (500m & 1000m) */}
       {spatialOverlays?.buffer && (
         <>
-          {/* 1000m outer buffer */}
           <Circle
             center={BOGOR_CENTER}
             radius={1000}
@@ -363,17 +412,14 @@ export default function MapView({
               fillColor: '#005B54',
               fillOpacity: 0.05,
               weight: 1.5,
-              dashArray: '5, 8',
+              dashArray: '6, 6',
             }}
           >
-            <Tooltip direction="top" opacity={0.9} sticky>
-              <div className="font-sans text-xs font-semibold">
-                Zona Buffer 1 Km IPB Baranangsiang (Sepeda / Angkot)
-              </div>
+            <Tooltip direction="top" opacity={0.85}>
+              <span className="font-sans text-xs">Radius 1000m (Jangkauan Berkendara 5 Menit)</span>
             </Tooltip>
           </Circle>
 
-          {/* 500m inner buffer */}
           <Circle
             center={BOGOR_CENTER}
             radius={500}
@@ -382,55 +428,38 @@ export default function MapView({
               fillColor: '#005B54',
               fillOpacity: 0.12,
               weight: 2,
+              dashArray: '4, 4',
             }}
           >
-            <Tooltip direction="top" opacity={0.9} sticky>
-              <div className="font-sans text-xs font-semibold">
-                Zona Buffer 500m IPB Baranangsiang (Jalan Kaki Nyaman)
-              </div>
+            <Tooltip direction="top" opacity={0.85}>
+              <span className="font-sans text-xs font-semibold">Radius 500m (Sangat Dekat dari Kampus)</span>
             </Tooltip>
           </Circle>
-
-          {/* IPB Campus Marker */}
-          <Marker position={BOGOR_CENTER} icon={IPB_CAMPUS_PIN}>
-            <Popup className="custom-leaflet-popup">
-              <div className="p-1 font-sans">
-                <p className="text-xs font-bold text-[#005B54] flex items-center gap-1">
-                  <span>🎓</span> Kampus IPB Baranangsiang
-                </p>
-                <p className="text-[11px] text-gray-600 mt-1">
-                  Titik sentral analisis spasial PJBL SIG Go Around.
-                </p>
-                <div className="mt-2 pt-1.5 border-t border-gray-100 flex items-center gap-2 text-[10px] text-gray-500">
-                  <span className="w-2 h-2 rounded-full bg-[#005B54]" /> Radius 500m & 1km aktif
-                </div>
-              </div>
-            </Popup>
-          </Marker>
         </>
       )}
 
-      {/* 2. Spatial Overlay: Isochrone Jalan Kaki 10 Menit */}
+      {/* 2. Spatial Overlay: Isochrone 10 Menit Jalan Kaki */}
       {spatialOverlays?.isochrone && (
         <Polygon
           positions={ISOCHRONE_PEDESTRIAN_10MIN}
           pathOptions={{
-            color: '#F97316',
-            fillColor: '#F97316',
-            fillOpacity: 0.14,
-            weight: 2,
-            dashArray: '4, 6',
+            color: '#005B54',
+            fillColor: '#005B54',
+            fillOpacity: 0.16,
+            weight: 2.5,
+            dashArray: '3, 3',
           }}
         >
           <Tooltip direction="center" opacity={0.9} sticky>
-            <div className="font-sans text-xs font-semibold text-orange-950">
-              🚶 Isochrone 10 Menit Jalan Kaki (~800m Pedestrian Shed)
+            <div className="font-sans text-xs p-0.5">
+              <p className="font-bold text-[#005B54]">Isochrone 10 Menit</p>
+              <p className="text-[11px] text-gray-600">Jangkauan jalan kaki santai mahasiswa (~800m)</p>
             </div>
           </Tooltip>
         </Polygon>
       )}
 
-      {/* 3. Spatial Overlay: Heatmap Kepadatan Spot Nugas */}
+      {/* 3. Spatial Overlay: Heatmap / Klaster Kepadatan Kafe */}
       {spatialOverlays?.heatmap && (
         <>
           {DENSITY_CLUSTERS.map((cluster) => (
@@ -439,16 +468,17 @@ export default function MapView({
               center={cluster.center}
               radius={cluster.radius}
               pathOptions={{
-                color: '#10B981',
-                fillColor: '#10B981',
-                fillOpacity: 0.2,
-                weight: 1.5,
+                color: '#F97316',
+                fillColor: '#F97316',
+                fillOpacity: 0.14,
+                weight: 2,
+                dashArray: '4, 4',
               }}
             >
-              <Tooltip direction="top" opacity={0.9} sticky>
+              <Tooltip direction="top" opacity={0.9}>
                 <div className="font-sans text-xs">
-                  <span className="font-bold text-emerald-900 block">🔥 {cluster.name}</span>
-                  <span className="text-[11px] text-emerald-700">{cluster.count} spot nugas &bull; {cluster.desc}</span>
+                  <span className="font-bold text-gray-900 block">{cluster.name}</span>
+                  <span className="text-[11px] text-gray-600">{cluster.count} spot nugas &bull; {cluster.desc}</span>
                 </div>
               </Tooltip>
             </Circle>
@@ -471,7 +501,7 @@ export default function MapView({
           >
             <Tooltip direction="center" opacity={0.9} sticky>
               <div className="font-sans text-xs font-semibold text-sky-950">
-                🚌 Rute Koridor Biskita Transpakuan (Pajajaran - SSA)
+                Rute Koridor Biskita Transpakuan (Pajajaran - SSA)
               </div>
             </Tooltip>
           </Polyline>
@@ -482,7 +512,7 @@ export default function MapView({
               <Popup className="custom-leaflet-popup">
                 <div className="p-1 font-sans">
                   <p className="text-xs font-bold text-sky-800 flex items-center gap-1">
-                    <span>🚏</span> {stop.name}
+                    {stop.name}
                   </p>
                   <p className="text-[11px] text-gray-500 mt-0.5">{stop.koridor} &bull; {stop.desc}</p>
                 </div>
@@ -497,8 +527,8 @@ export default function MapView({
         <Marker position={userLocation} icon={USER_LOCATION_PIN}>
           <Popup className="custom-leaflet-popup">
             <div className="p-1 font-sans text-xs">
-              <p className="font-bold text-sky-700 flex items-center gap-1">
-                <span>📍</span> Lokasi Anda Saat Ini
+              <p className="font-bold text-sky-700">
+                Lokasi Anda Saat Ini
               </p>
               <p className="text-gray-500 text-[11px] mt-0.5">
                 Koordinat: {userLocation[0].toFixed(4)}, {userLocation[1].toFixed(4)}

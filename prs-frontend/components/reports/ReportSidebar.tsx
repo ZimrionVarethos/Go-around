@@ -1,138 +1,155 @@
 'use client';
 
-import { FileText, Wifi, Volume2, Tag, MessageSquare } from 'lucide-react';
+import { FileText, Wifi, Volume2, Tag, MessageSquare, ShieldCheck, Clock } from 'lucide-react';
 
 const VERIFIED_TICKETS = [
   {
     id: '#TK-992',
     status: 'Selesai Diperbaiki',
-    statusColor: 'text-emerald-600 bg-emerald-50',
+    statusColor: 'text-emerald-700 bg-emerald-50 border-emerald-200/60',
     dotColor: 'bg-emerald-500',
     cafe: 'Popolo Coffee – Lodaya',
     desc: 'Colokan meja lantai 2 kini telah dipasang perpanjangan stopkontak 6 lubang oleh pihak manajemen cafe.',
     verifier: 'Mhs SV IPB TIK',
-    time: '2 jam yang lalu',
-    icon: <Tag className="w-3 h-3" />,
+    time: '2 jam lalu',
   },
   {
     id: '#TK-888',
     status: 'Selesai Dipulihkan',
-    statusColor: 'text-teal-600 bg-teal-50',
+    statusColor: 'text-teal-700 bg-teal-50 border-teal-200/60',
     dotColor: 'bg-teal-500',
     cafe: 'Anthology Coffee & Tea',
     desc: 'WiFi fiber optic dipulihkan menjadi 85 Mbps pasca perbaikan kabel jaringan putus di Jl. Baranangsiang Indah.',
     verifier: 'QA Kurator Kampus',
     time: 'Kemarin 16:20 WIB',
-    icon: <Wifi className="w-3 h-3" />,
   },
   {
     id: '#TK-335',
     status: 'Sedang Divalidasi',
-    statusColor: 'text-amber-600 bg-amber-50',
-    dotColor: 'bg-amber-400',
+    statusColor: 'text-amber-700 bg-amber-50 border-amber-200/60',
+    dotColor: 'bg-amber-500',
     cafe: 'Kopi Nako – Pajajaran',
-    desc: 'Laporan musik live terlalu keras pada sore hari. Tim sedang verifikasi tingkat kebisingan (dBA meter).',
+    desc: 'Laporan musik live terlalu bising. Tim relawan sedang verifikasi tingkat kebisingan (dBA meter) saat jam nugas.',
     verifier: 'Cek On-site',
     time: '2 hari lalu',
-    icon: <Volume2 className="w-3 h-3" />,
   },
 ];
 
 export function ReportSidebar() {
   return (
-    <aside className="hidden lg:flex flex-col gap-5 w-[400px] xl:w-[440px] shrink-0">
-      {/* Card 1: Alur Penanganan */}
-      <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-6">
-        <div className="flex items-center gap-2.5 mb-5">
-          <FileText className="w-4.5 h-4.5 text-[#005B54]" />
-          <h2 className="text-[15px] font-bold text-gray-900">Alur Penanganan Laporan</h2>
-        </div>
-
-        <div className="relative flex flex-col gap-6">
-          {/* Continuous vertical line connecting all 3 step centers */}
-          <div className="absolute left-[13px] top-3.5 bottom-3.5 w-0.5 bg-gray-200 rounded-full" />
-
-          {/* Step 1 */}
-          <div className="flex items-start gap-3.5 relative">
-            <div className="w-7 h-7 rounded-full bg-[#005B54] text-white text-xs font-bold flex items-center justify-center shadow-xs shrink-0 z-10">
-              1
-            </div>
-            <div className="flex-1 min-w-0 pt-0.5">
-              <h4 className="text-[13px] font-semibold text-gray-900 mb-1">
-                Generate Tiket Publik Otomatis
-              </h4>
-              <p className="text-[11.5px] text-gray-500 leading-relaxed">
-                Laporan tercatat dengan kode unik publik seperti{' '}
-                <span className="font-mono bg-gray-100 text-gray-700 px-1 py-0.5 rounded text-[10px]">
-                  #TK-2026-xxx
-                </span>{' '}
-                tanpa identitas pelapor.
-              </p>
-            </div>
+    <aside className="w-full lg:w-[420px] shrink-0 space-y-5 lg:sticky lg:top-20">
+      {/* Card 1: Alur Penanganan Laporan */}
+      <div className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-5 space-y-3.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#005B54]" />
+            <h3 className="text-xs font-bold text-gray-900">
+              Alur Verifikasi Penanganan Laporan
+            </h3>
           </div>
-
-          {/* Step 2 */}
-          <div className="flex items-start gap-3.5 relative">
-            <div className="w-7 h-7 rounded-full bg-[#005B54] text-white text-xs font-bold flex items-center justify-center shadow-xs shrink-0 z-10">
-              2
-            </div>
-            <div className="flex-1 min-w-0 pt-0.5">
-              <h4 className="text-[13px] font-semibold text-gray-900 mb-1">
-                Verifikasi Lapangan Mahasiswa SV IPB
-              </h4>
-              <p className="text-[11.5px] text-gray-500 leading-relaxed">
-                Tim surveyor &amp; kurator memeriksa ke lokasi atau konfirmasi silang dengan barista cafe dalam &lt; 24 jam.
-              </p>
-            </div>
-          </div>
-
-          {/* Step 3 */}
-          <div className="flex items-start gap-3.5 relative">
-            <div className="w-7 h-7 rounded-full bg-[#005B54] text-white text-xs font-bold flex items-center justify-center shadow-xs shrink-0 z-10">
-              3
-            </div>
-            <div className="flex-1 min-w-0 pt-0.5">
-              <h4 className="text-[13px] font-semibold text-gray-900 mb-1">
-                Update Spasial &amp; Tagging WebGIS
-              </h4>
-              <p className="text-[11.5px] text-gray-500 leading-relaxed">
-                Metadata cafe otomatis diperbarui di peta interaktif agar mahasiswa Bogor lainnya tahu dari zona colokan/WiFi.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Card 2: Laporan Terverifikasi Terkini */}
-      <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-6">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2.5">
-            <MessageSquare className="w-4.5 h-4.5 text-[#005B54]" />
-            <h2 className="text-[15px] font-bold text-gray-900">Laporan Terverifikasi Terkini</h2>
-          </div>
-          {/* Live dot */}
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+          <span className="bg-[#E0F3EE] text-[#005B54] text-[10px] font-bold px-2 py-0.5 rounded-full border border-teal-200/60">
+            SOP Kurasi
           </span>
         </div>
 
-        <div className="divide-y divide-gray-100">
+        {/* SLA Target Box */}
+        <div className="bg-[#F8FAFC] border border-gray-200 rounded-[10px] p-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-gray-700">
+            <Clock className="w-3.5 h-3.5 text-[#005B54]" />
+            <span className="text-[11px] font-bold">Target Validasi On-site</span>
+          </div>
+          <span className="text-xs font-extrabold text-[#005B54]">&lt; 24 Jam Kerja</span>
+        </div>
+
+        {/* Steps List */}
+        <div className="space-y-3 pt-1">
+          <div className="flex items-start gap-3">
+            <div className="w-5 h-5 rounded-full bg-[#005B54] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+              1
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-900 leading-tight">
+                Generate Tiket Publik Otomatis
+              </p>
+              <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
+                Laporan tercatat dengan kode unik publik seperti{' '}
+                <span className="font-mono bg-teal-50 border border-teal-200/60 text-[#005B54] px-1 py-0.2 rounded text-[10px] font-bold">
+                  #TK-2026-xxx
+                </span>{' '}
+                tanpa mempublikasikan data pelapor.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className="w-5 h-5 rounded-full bg-[#005B54] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+              2
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-900 leading-tight">
+                Verifikasi Lapangan Mahasiswa SV IPB
+              </p>
+              <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
+                Tim surveyor &amp; kurator memeriksa ke lokasi fisik kafe atau konfirmasi silang langsung dengan barista.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className="w-5 h-5 rounded-full bg-[#005B54] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+              3
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-900 leading-tight">
+                Sinkronisasi Spasial &amp; Tagging WebGIS
+              </p>
+              <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
+                Kondisi aktual spot nugas otomatis diperbarui pada peta interaktif agar mahasiswa Bogor lainnya terhindar dari info keliru.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-[11px] text-gray-500 flex items-start gap-1.5 leading-snug pt-2 border-t border-gray-100">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#005B54] shrink-0 mt-0.5" />
+          <span>Setiap perbaikan divalidasi langsung oleh komunitas relawan mahasiswa IPB University.</span>
+        </p>
+      </div>
+
+      {/* Card 2: Laporan Terverifikasi Terkini */}
+      <div className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-5 space-y-3.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+            <h3 className="text-xs font-bold text-gray-900">
+              Laporan Terverifikasi Terkini
+            </h3>
+          </div>
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
+        </div>
+
+        <div className="space-y-2.5">
           {VERIFIED_TICKETS.map((ticket) => (
-            <div key={ticket.id} className="py-4 first:pt-0 last:pb-0">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+            <div
+              key={ticket.id}
+              className="border border-gray-200/80 rounded-[10px] p-3 bg-gray-50/40 hover:bg-white hover:border-[#005B54]/40 hover:shadow-2xs transition-all space-y-1.5"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[10px] font-bold text-teal-800 bg-teal-50 border border-teal-200/60 px-1.5 py-0.5 rounded-[5px]">
                   {ticket.id}
                 </span>
-                <span className={`inline-flex items-center gap-1.5 text-[10.5px] font-semibold px-2 py-0.5 rounded-full ${ticket.statusColor}`}>
+                <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${ticket.statusColor}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${ticket.dotColor}`} />
                   {ticket.status}
                 </span>
               </div>
-              <p className="text-[13px] font-semibold text-gray-900 mb-1">{ticket.cafe}</p>
-              <p className="text-[11.5px] text-gray-500 leading-relaxed mb-2">{ticket.desc}</p>
-              <div className="flex items-center justify-between text-[10.5px] text-gray-400 pt-1 border-t border-gray-50">
-                <span>Verifikator: {ticket.verifier}</span>
+              <p className="text-xs font-bold text-gray-900 leading-snug">{ticket.cafe}</p>
+              <p className="text-[11px] text-gray-500 leading-relaxed">{ticket.desc}</p>
+              <div className="flex items-center justify-between text-[10px] text-gray-400 pt-1.5 border-t border-gray-100">
+                <span>Oleh: {ticket.verifier}</span>
                 <span>{ticket.time}</span>
               </div>
             </div>

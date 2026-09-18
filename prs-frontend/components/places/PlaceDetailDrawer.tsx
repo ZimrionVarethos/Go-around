@@ -10,11 +10,17 @@ import {
   Navigation,
   Share2,
   AlertTriangle,
+  Wifi,
+  Zap,
+  Volume2,
+  Armchair,
 } from 'lucide-react';
 import { formatNugasScore, formatRupiah } from '@/lib/utils';
 import Link from 'next/link';
 import { useState } from 'react';
 import type { ToastType } from '@/hooks/useToast';
+
+import { FIGMA_PLACES } from '@/lib/figma-places';
 
 export interface PlaceDetailDrawerProps {
   slug: string | null;
@@ -24,41 +30,62 @@ export interface PlaceDetailDrawerProps {
   onToast?: (msg: string, type?: ToastType) => void;
 }
 
-export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false, onToast }: PlaceDetailDrawerProps) {
-  const { data: response } = usePlaceDetail(slug);
+export function PlaceDetailDrawer({
+  slug,
+  onClose,
+  isMobileSheet = false,
+  onToast,
+}: PlaceDetailDrawerProps) {
+  const { data: placeResponse } = usePlaceDetail(slug);
   const [copied, setCopied] = useState(false);
 
   if (!slug) return null;
 
-  const place = response?.data;
+  const place = placeResponse?.data;
+  const fallbackPlace = FIGMA_PLACES.find((p) => p.slug === slug) ?? FIGMA_PLACES[0];
 
-  // Fallback / standard values matching Figma Anthology design when loading or for selected item
-  const name = place?.name ?? 'Anthology Coffee & Tea';
-  const priceRange = place?.economics?.price_min_drink
-    ? `${formatRupiah(place.economics.price_min_drink)} - 32k · Ramah Kantong`
+  const name = place?.name ?? fallbackPlace?.name ?? 'Detail Tempat Nugas';
+  const priceMin = place?.economics?.price_min_drink ?? fallbackPlace?.price_min_drink;
+  const priceMax = place?.economics?.price_max_drink ?? fallbackPlace?.price_max_drink;
+  const priceRange = priceMin
+    ? `${formatRupiah(priceMin)} - ${priceMax ? `${Math.round(priceMax / 1000)}k` : '32k'} · Ramah Kantong`
     : 'Rp 18k - 32k · Ramah Kantong';
   const imageUrl =
     place?.media?.image_url ||
+    fallbackPlace?.image_url ||
     'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&auto=format&fit=crop&q=80';
   const address =
-    place?.location?.address ?? 'Jl. Danau Teratai, Kompleks Baranangsiang Indah';
-  const distanceInfo =
-    '4 menit (850 m) dari Kampus IPB Baranangsiang · Parkir Motor Rp2.000';
+    place?.location?.address ?? fallbackPlace?.address ?? 'Jl. Pajajaran, Kota Bogor';
   const mapsUrl =
-    place?.location?.google_maps_url || 'https://maps.google.com';
+    place?.location?.google_maps_url || fallbackPlace?.google_maps_url || 'https://maps.google.com';
+  
+  const distanceKm = fallbackPlace?.id === 991 ? 0.85 : 1.2;
+  const distanceInfo = `${Math.round(distanceKm * 4)} menit (${Math.round(distanceKm * 1000)} m) dari Kampus IPB Baranangsiang · Parkir Motor Rp2.000`;
+
+  const wifiSpeed = place?.nugas_metrics?.wifi_speed_mbps ?? fallbackPlace?.wifi_speed_mbps ?? 92;
+  const plugAvailability = place?.nugas_metrics?.plug_availability ?? fallbackPlace?.plug_availability;
+  const plugPercent = plugAvailability === 'abundant' ? '95%' : plugAvailability === 'moderate' ? '70%' : '50%';
+  const noiseLevel = place?.nugas_metrics?.noise_level ?? fallbackPlace?.noise_level;
+  const noiseDb = noiseLevel === 'quiet' ? '42 dB' : noiseLevel === 'moderate' ? '50 dB' : '62 dB';
+  const noiseLabel = noiseLevel === 'quiet' ? 'Sangat Kondusif' : noiseLevel === 'moderate' ? 'Cukup Kondusif' : 'Ramai';
+  
+  const rawScore = place?.nugas_metrics?.nugas_score ?? fallbackPlace?.nugas_score ?? 97;
+  const displayScore = formatNugasScore(rawScore);
+  const description = fallbackPlace?.description ?? 'Area nyaman dan sangat kondusif untuk nugas mahasiswa IPB University.';
 
   const handleShare = () => {
     if (typeof window !== 'undefined') {
       const shareUrl = `${window.location.origin}/peta?place=${slug}`;
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-        onToast?.('Tautan lokasi disalin ke clipboard! 📎', 'success');
-        // TODO [BACKEND]: Log share click:
-        //   POST /api/v1/places/:slug/events { event: 'share_click' }
-      }).catch(() => {
-        onToast?.('Gagal menyalin tautan', 'error');
-      });
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+          onToast?.('Tautan lokasi disalin ke clipboard! 📎', 'success');
+        })
+        .catch(() => {
+          onToast?.('Gagal menyalin tautan', 'error');
+        });
     }
   };
 
@@ -77,26 +104,28 @@ export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false, onToas
           alt={name}
           className="w-full h-full object-cover"
         />
-        {/* Dark gradient for text legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/40" />
 
-        {/* Top-Left Price Badge */}
-        <div className="absolute top-3 left-3 bg-[#005B54]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-xs">
-          {priceRange}
+        {/* Gradient Overlay for Text Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+
+        {/* Top Badges & Close Button */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+          <span className="bg-black/60 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-1 rounded-full border border-white/20 shadow-xs">
+            {priceRange}
+          </span>
+          <button
+            onClick={onClose}
+            type="button"
+            className="w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex items-center justify-center transition-colors cursor-pointer border border-white/20 shadow-xs"
+            title="Tutup Detail"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        {/* Top-Right Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xs text-white hover:bg-black/60 flex items-center justify-center transition-all cursor-pointer"
-          title="Tutup"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
-        {/* Bottom Title & Verified Pill */}
-        <div className="absolute bottom-3 left-3 right-3 flex flex-col gap-1 text-white">
-          <h2 className="text-xl font-extrabold tracking-tight leading-tight drop-shadow-xs">
+        {/* Name & Sub-badge overlaid on bottom of photo */}
+        <div className="absolute bottom-3 left-3 right-3 text-white">
+          <h2 className="text-lg font-bold tracking-tight drop-shadow-sm leading-tight mb-1 truncate">
             {name}
           </h2>
           <div className="flex items-center gap-1.5">
@@ -110,34 +139,42 @@ export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false, onToas
 
       {/* Scrollable Detail Body */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3.5 no-scrollbar">
-        {/* 2. 4-Metric Grid Cards */}
+        {/* 2. 4-Metric Grid Cards (Clean SVG Icons) */}
         <div className="grid grid-cols-4 gap-2">
           {/* WiFi */}
-          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2.5 text-center flex flex-col items-center justify-center">
-            <span className="text-lg">📶</span>
-            <span className="font-extrabold text-xs text-gray-900 mt-1">92 Mbps</span>
-            <span className="text-[10px] text-gray-400 font-medium">Kencang Stabil</span>
+          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2 text-center flex flex-col items-center justify-center">
+            <div className="w-6 h-6 rounded-lg bg-teal-50 flex items-center justify-center text-[#005B54] mb-1">
+              <Wifi className="w-3.5 h-3.5" />
+            </div>
+            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{wifiSpeed} Mbps</span>
+            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">Kencang Stabil</span>
           </div>
 
           {/* Colokan */}
-          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2.5 text-center flex flex-col items-center justify-center">
-            <span className="text-lg">⚡</span>
-            <span className="font-extrabold text-xs text-gray-900 mt-1">95%</span>
-            <span className="text-[10px] text-gray-400 font-medium">Tiap Meja Ada</span>
+          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2 text-center flex flex-col items-center justify-center">
+            <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 mb-1">
+              <Zap className="w-3.5 h-3.5" />
+            </div>
+            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{plugPercent}</span>
+            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">Tiap Meja Ada</span>
           </div>
 
           {/* Akustik */}
-          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2.5 text-center flex flex-col items-center justify-center">
-            <span className="text-lg">🎧</span>
-            <span className="font-extrabold text-xs text-gray-900 mt-1">42 dB</span>
-            <span className="text-[10px] text-gray-400 font-medium">Sangat Kondusif</span>
+          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2 text-center flex flex-col items-center justify-center">
+            <div className="w-6 h-6 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 mb-1">
+              <Volume2 className="w-3.5 h-3.5" />
+            </div>
+            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{noiseDb}</span>
+            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">{noiseLabel}</span>
           </div>
 
           {/* Kursi */}
-          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2.5 text-center flex flex-col items-center justify-center">
-            <span className="text-lg">🪑</span>
-            <span className="font-extrabold text-xs text-gray-900 mt-1">Ergonomis</span>
-            <span className="text-[10px] text-gray-400 font-medium">Busa + Sandaran</span>
+          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2 text-center flex flex-col items-center justify-center">
+            <div className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 mb-1">
+              <Armchair className="w-3.5 h-3.5" />
+            </div>
+            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">Ergonomis</span>
+            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">Busa + Sandaran</span>
           </div>
         </div>
 
@@ -150,7 +187,7 @@ export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false, onToas
             <div className="flex-1">
               <p className="font-bold text-gray-900">Rekomendasi Nugas Mahasiswa:</p>
               <p className="mt-0.5 text-gray-600 text-[11.5px] leading-relaxed">
-                Area indoor lantai 2 sangat cocok untuk meeting zoom &amp; fokus skripsi. Disarankan datang sebelum pukul 13:00 untuk dapat meja sudut dekat jendela.
+                {description}
               </p>
             </div>
           </div>
@@ -161,14 +198,14 @@ export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false, onToas
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-600 font-medium">Skor Nugas Total</span>
             <span className="font-extrabold text-[#005B54] text-sm">
-              ★ {formatNugasScore(place?.nugas_metrics?.nugas_score ?? 9.7)} / 10
+              ★ {displayScore} / 10
             </span>
           </div>
 
           <div className="space-y-1.5 pt-1">
             {/* Fasilitas */}
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-gray-500">Kelengkapan Fasilitas & Colokan</span>
+              <span className="text-gray-500">Kelengkapan Fasilitas &amp; Colokan</span>
               <span className="font-bold text-gray-800">9.8</span>
             </div>
             <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
@@ -214,7 +251,7 @@ export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false, onToas
           href={mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 bg-[#005B54] hover:bg-[#004741] text-white text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+          className="flex-1 bg-[#005B54] hover:bg-[#004741] active:scale-[0.99] text-white text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
         >
           <Navigation className="w-3.5 h-3.5 fill-white" />
           <span>Petunjuk Arah (Maps)</span>
@@ -223,7 +260,7 @@ export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false, onToas
         {/* Share CTA */}
         <button
           onClick={handleShare}
-          className="w-10 h-10 border border-gray-200 hover:bg-gray-50 rounded-xl flex items-center justify-center text-gray-600 transition-colors cursor-pointer relative"
+          className="w-10 h-10 border border-gray-200 hover:bg-gray-50 active:bg-gray-100 rounded-xl flex items-center justify-center text-gray-600 transition-colors cursor-pointer relative"
           title="Bagikan Tautan"
         >
           <Share2 className="w-4 h-4" />
@@ -234,15 +271,16 @@ export function PlaceDetailDrawer({ slug, onClose, isMobileSheet = false, onToas
           )}
         </button>
 
-        {/* Report Link */}
+        {/* Report Link - neutral subtle style instead of screaming red */}
         <Link
           href={`/lapor-fasilitas?place=${slug}`}
-          className="w-10 h-10 border border-red-200 bg-red-50 hover:bg-red-100 rounded-xl flex items-center justify-center text-red-600 transition-colors cursor-pointer"
+          className="w-10 h-10 border border-gray-200 hover:border-amber-300 hover:bg-amber-50/50 rounded-xl flex items-center justify-center text-gray-500 hover:text-amber-600 transition-colors cursor-pointer"
           title="Lapor Perubahan Fasilitas"
         >
           <AlertTriangle className="w-4 h-4" />
         </Link>
       </div>
     </aside>
+
   );
 }
