@@ -133,7 +133,7 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
         {/* Left: Brand Wordmark */}
         <Link
           href="/"
-          className="shrink-0 flex flex-col justify-center w-auto md:w-[191.525px] h-[45.273px] select-none"
+          className="shrink-0 flex flex-col justify-center w-auto h-[45.273px] select-none"
         >
           <span
             className="font-brand text-[21px] sm:text-[24px] font-medium text-[#0F172A] leading-normal tracking-[-0.724px]"
@@ -288,7 +288,7 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
           {/* Search Input (Tablet & Desktop) */}
           <form
             onSubmit={handleRegularSearchSubmit}
-            className="hidden md:block relative w-[160px] lg:w-[210px] xl:w-[240px] h-[40px] shrink-0"
+            className="hidden md:block relative w-[120px] lg:w-[170px] xl:w-[220px] h-[40px] shrink-0"
           >
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             <input
@@ -315,8 +315,8 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
               className={cn(
                 'h-[40px] flex items-center gap-1.5 px-2.5 md:px-3 rounded-[12px] transition-all bg-gradient-to-r from-[#EAFBF7] to-[#F0FAF7] border',
                 isAiFocused
-                  ? 'border-[#005B54] ring-2 ring-[#005B54]/15 bg-white w-[240px] lg:w-[320px] shadow-sm'
-                  : 'border-[#A7F3D0] hover:border-[#6EE7B7] w-[180px] lg:w-[270px]'
+                  ? 'border-[#005B54] ring-2 ring-[#005B54]/15 bg-white w-[180px] lg:w-[260px] xl:w-[300px] shadow-sm'
+                  : 'border-[#A7F3D0] hover:border-[#6EE7B7] w-[125px] lg:w-[180px] xl:w-[240px]'
               )}
             >
               <Sparkles className="w-3.5 h-3.5 text-[#005B54] shrink-0" />
@@ -331,7 +331,7 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleAiSearchSubmit();
                 }}
-                placeholder="Cari kebutuhan AI..."
+                placeholder="Cari AI..."
                 className="w-full bg-transparent text-xs text-gray-900 placeholder:text-[#005B54]/75 focus:outline-none placeholder:truncate"
               />
               {aiQuery ? (
@@ -620,20 +620,21 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
           {/* Tambah Tempat CTA */}
           <Link
             href="/tambah-tempat"
-            className="hidden md:flex h-[40px] items-center gap-1.5 px-3.5 text-xs font-semibold rounded-[12px] bg-[#005B54] text-white hover:bg-[#004741] transition-all shadow-xs cursor-pointer shrink-0"
+            className="hidden md:flex h-[40px] items-center gap-1.5 px-2.5 lg:px-3.5 text-xs font-semibold rounded-[12px] bg-[#005B54] text-white hover:bg-[#004741] transition-all shadow-xs cursor-pointer shrink-0"
           >
             <MapPinPlus className="w-4 h-4 stroke-[2.2]" />
-            <span className="hidden lg:inline">Tambah Tempat</span>
-            <span className="inline lg:hidden">Tambah</span>
+            <span className="hidden xl:inline">Tambah Tempat</span>
+            <span className="inline xl:hidden">Tambah</span>
           </Link>
 
           {/* Lapor Fasilitas CTA */}
           <Link
             href="/lapor-fasilitas"
-            className="hidden xl:flex h-[40px] items-center gap-1.5 px-3.5 text-xs font-semibold rounded-[12px] bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] hover:bg-[#fee2e2] transition-all cursor-pointer shrink-0"
+            className="hidden md:flex h-[40px] items-center gap-1.5 px-2.5 lg:px-3.5 text-xs font-semibold rounded-[12px] bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] hover:bg-[#fee2e2] transition-all cursor-pointer shrink-0"
           >
-            <AlertTriangle className="w-4 h-4 text-[#DC2626] stroke-[2.2]" />
-            <span>Lapor Fasilitas</span>
+            <AlertTriangle className="w-4 h-4 text-[#DC2626] stroke-[2.2] shrink-0" />
+            <span className="hidden xl:inline">Lapor Fasilitas</span>
+            <span className="inline xl:hidden">Lapor</span>
           </Link>
 
           {/* Mobile Hamburger Menu Toggle */}
