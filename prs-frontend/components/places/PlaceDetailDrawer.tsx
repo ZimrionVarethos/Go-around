@@ -4,7 +4,6 @@
 import { usePlaceDetail } from '@/hooks/usePlacesQuery';
 import {
   X,
-  Check,
   Sparkles,
   MapPin,
   Navigation,
@@ -13,14 +12,15 @@ import {
   Wifi,
   Zap,
   Volume2,
-  Armchair,
+  Star,
+  LoaderCircle,
+  RefreshCw,
+  ImageOff,
 } from 'lucide-react';
 import { formatNugasScore, formatRupiah } from '@/lib/utils';
 import Link from 'next/link';
 import { useState } from 'react';
 import type { ToastType } from '@/hooks/useToast';
-
-import { FIGMA_PLACES } from '@/lib/figma-places';
 
 export interface PlaceDetailDrawerProps {
   slug: string | null;
@@ -36,42 +36,101 @@ export function PlaceDetailDrawer({
   isMobileSheet = false,
   onToast,
 }: PlaceDetailDrawerProps) {
-  const { data: placeResponse } = usePlaceDetail(slug);
+  const {
+    data: placeResponse,
+    isLoading,
+    isError,
+    refetch,
+  } = usePlaceDetail(slug);
   const [copied, setCopied] = useState(false);
 
   if (!slug) return null;
 
   const place = placeResponse?.data;
-  const fallbackPlace = FIGMA_PLACES.find((p) => p.slug === slug) ?? FIGMA_PLACES[0];
 
-  const name = place?.name ?? fallbackPlace?.name ?? 'Detail Tempat Nugas';
-  const priceMin = place?.economics?.price_min_drink ?? fallbackPlace?.price_min_drink;
-  const priceMax = place?.economics?.price_max_drink ?? fallbackPlace?.price_max_drink;
-  const priceRange = priceMin
-    ? `${formatRupiah(priceMin)} - ${priceMax ? `${Math.round(priceMax / 1000)}k` : '32k'} · Ramah Kantong`
-    : 'Rp 18k - 32k · Ramah Kantong';
-  const imageUrl =
-    place?.media?.image_url ||
-    fallbackPlace?.image_url ||
-    'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&auto=format&fit=crop&q=80';
-  const address =
-    place?.location?.address ?? fallbackPlace?.address ?? 'Jl. Pajajaran, Kota Bogor';
-  const mapsUrl =
-    place?.location?.google_maps_url || fallbackPlace?.google_maps_url || 'https://maps.google.com';
-  
-  const distanceKm = fallbackPlace?.id === 991 ? 0.85 : 1.2;
-  const distanceInfo = `${Math.round(distanceKm * 4)} menit (${Math.round(distanceKm * 1000)} m) dari Kampus IPB Baranangsiang · Parkir Motor Rp2.000`;
+  if (isLoading) {
+    return (
+      <DrawerShell isMobileSheet={isMobileSheet}>
+        <div className="flex min-h-64 flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
+          <LoaderCircle className="h-6 w-6 animate-spin text-[#005B54]" />
+          <p className="text-sm font-semibold text-gray-800">Memuat detail tempat…</p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-xs font-medium text-gray-500 hover:text-gray-800"
+          >
+            Tutup
+          </button>
+        </div>
+      </DrawerShell>
+    );
+  }
 
-  const wifiSpeed = place?.nugas_metrics?.wifi_speed_mbps ?? fallbackPlace?.wifi_speed_mbps ?? 92;
-  const plugAvailability = place?.nugas_metrics?.plug_availability ?? fallbackPlace?.plug_availability;
-  const plugPercent = plugAvailability === 'abundant' ? '95%' : plugAvailability === 'moderate' ? '70%' : '50%';
-  const noiseLevel = place?.nugas_metrics?.noise_level ?? fallbackPlace?.noise_level;
-  const noiseDb = noiseLevel === 'quiet' ? '42 dB' : noiseLevel === 'moderate' ? '50 dB' : '62 dB';
-  const noiseLabel = noiseLevel === 'quiet' ? 'Sangat Kondusif' : noiseLevel === 'moderate' ? 'Cukup Kondusif' : 'Ramai';
-  
-  const rawScore = place?.nugas_metrics?.nugas_score ?? fallbackPlace?.nugas_score ?? 97;
-  const displayScore = formatNugasScore(rawScore);
-  const description = fallbackPlace?.description ?? 'Area nyaman dan sangat kondusif untuk nugas mahasiswa IPB University.';
+  if (isError || !place) {
+    return (
+      <DrawerShell isMobileSheet={isMobileSheet}>
+        <div className="flex min-h-64 flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
+          <AlertTriangle className="h-6 w-6 text-amber-500" />
+          <div>
+            <p className="text-sm font-semibold text-gray-900">Detail belum dapat dimuat</p>
+            <p className="mt-1 text-xs leading-relaxed text-gray-500">
+              Kami tidak mengganti data API yang gagal dengan data contoh.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#005B54] px-3 py-2 text-xs font-semibold text-white hover:bg-[#004741]"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Coba lagi
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      </DrawerShell>
+    );
+  }
+
+  const priceParts = [
+    place.economics.price_min_drink > 0
+      ? formatRupiah(place.economics.price_min_drink)
+      : null,
+    place.economics.price_max_drink > 0
+      ? formatRupiah(place.economics.price_max_drink)
+      : null,
+  ].filter(Boolean);
+  const priceRange = priceParts.length > 0
+    ? `${priceParts.join(' – ')} · ${place.economics.price_tier_label}`
+    : 'Harga belum tersedia';
+  const mapsUrl = place.location.navigation_url || place.location.google_maps_url;
+  const wifiValue = place.nugas_metrics.wifi_speed_mbps === null
+    ? 'Belum ada'
+    : `${place.nugas_metrics.wifi_speed_mbps} Mbps`;
+  const wifiLabel = place.nugas_metrics.wifi_speed_mbps === null
+    ? 'Data belum tersedia'
+    : `Kualitas ${place.nugas_metrics.wifi_quality}`;
+  const description = place.description || 'Deskripsi tempat belum tersedia.';
+  const displayScore = formatNugasScore(place.nugas_metrics.nugas_score);
+  const scoreBreakdown = [
+    {
+      label: 'Kelengkapan fasilitas',
+      value: place.nugas_metrics.facility_score,
+      color: 'bg-[#005B54]',
+    },
+    {
+      label: 'Kesesuaian budget',
+      value: place.nugas_metrics.budget_score,
+      color: 'bg-amber-500',
+    },
+  ];
 
   const handleShare = () => {
     if (typeof window !== 'undefined') {
@@ -90,20 +149,20 @@ export function PlaceDetailDrawer({
   };
 
   return (
-    <aside
-      className={
-        isMobileSheet
-          ? 'w-full bg-white rounded-t-2xl shadow-2xl border-t border-gray-100/90 overflow-hidden flex flex-col z-[400] select-none max-h-[52vh] animate-in fade-in slide-in-from-bottom-4 duration-200'
-          : 'w-[420px] bg-white rounded-2xl shadow-2xl border border-gray-100/90 overflow-hidden flex flex-col z-[400] select-none max-h-[calc(100vh-140px)] animate-in fade-in slide-in-from-right-4 duration-200'
-      }
-    >
+    <DrawerShell isMobileSheet={isMobileSheet}>
       {/* 1. Hero Image Header */}
       <div className={`relative w-full bg-gray-900 shrink-0 ${isMobileSheet ? 'h-28' : 'h-48'}`}>
-        <img
-          src={imageUrl}
-          alt={name}
-          className="w-full h-full object-cover"
-        />
+        {place.media.image_url ? (
+          <img
+            src={place.media.image_url}
+            alt={place.name}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#005B54] to-[#0b766d] text-white/75">
+            <ImageOff className="h-8 w-8" />
+          </div>
+        )}
 
         {/* Gradient Overlay for Text Legibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
@@ -126,12 +185,11 @@ export function PlaceDetailDrawer({
         {/* Name & Sub-badge overlaid on bottom of photo */}
         <div className="absolute bottom-3 left-3 right-3 text-white">
           <h2 className="text-lg font-bold tracking-tight drop-shadow-sm leading-tight mb-1 truncate">
-            {name}
+            {place.name}
           </h2>
           <div className="flex items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 bg-[#005B54] text-white text-[10.5px] font-medium px-2 py-0.5 rounded-md shadow-xs">
-              <Check className="w-3 h-3 stroke-[3]" />
-              <span>Terverifikasi Tim QA SV IPB (Agustus 2026)</span>
+            <span className="inline-flex items-center gap-1 rounded-md bg-[#005B54] px-2 py-0.5 text-[10.5px] font-medium text-white shadow-xs">
+              <span>{place.category?.name ?? 'Tempat nugas'}</span>
             </span>
           </div>
         </div>
@@ -146,8 +204,8 @@ export function PlaceDetailDrawer({
             <div className="w-6 h-6 rounded-lg bg-teal-50 flex items-center justify-center text-[#005B54] mb-1">
               <Wifi className="w-3.5 h-3.5" />
             </div>
-            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{wifiSpeed} Mbps</span>
-            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">Kencang Stabil</span>
+            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{wifiValue}</span>
+            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">{wifiLabel}</span>
           </div>
 
           {/* Colokan */}
@@ -155,8 +213,8 @@ export function PlaceDetailDrawer({
             <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 mb-1">
               <Zap className="w-3.5 h-3.5" />
             </div>
-            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{plugPercent}</span>
-            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">Tiap Meja Ada</span>
+            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{place.nugas_metrics.plug_label}</span>
+            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">Ketersediaan colokan</span>
           </div>
 
           {/* Akustik */}
@@ -164,17 +222,17 @@ export function PlaceDetailDrawer({
             <div className="w-6 h-6 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 mb-1">
               <Volume2 className="w-3.5 h-3.5" />
             </div>
-            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{noiseDb}</span>
-            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">{noiseLabel}</span>
+            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{place.nugas_metrics.noise_label}</span>
+            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">Tingkat keramaian</span>
           </div>
 
-          {/* Kursi */}
+          {/* Rating */}
           <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2 text-center flex flex-col items-center justify-center">
             <div className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 mb-1">
-              <Armchair className="w-3.5 h-3.5" />
+              <Star className="w-3.5 h-3.5" />
             </div>
-            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">Ergonomis</span>
-            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">Busa + Sandaran</span>
+            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{place.ratings.google_rating.toFixed(1)}</span>
+            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">{place.ratings.total_google_reviews} ulasan</span>
           </div>
         </div>
 
@@ -185,7 +243,7 @@ export function PlaceDetailDrawer({
               <Sparkles className="w-3.5 h-3.5" />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-gray-900">Rekomendasi Nugas Mahasiswa:</p>
+              <p className="font-bold text-gray-900">Tentang tempat ini</p>
               <p className="mt-0.5 text-gray-600 text-[11.5px] leading-relaxed">
                 {description}
               </p>
@@ -203,32 +261,24 @@ export function PlaceDetailDrawer({
           </div>
 
           <div className="space-y-1.5 pt-1">
-            {/* Fasilitas */}
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="text-gray-500">Kelengkapan Fasilitas &amp; Colokan</span>
-              <span className="font-bold text-gray-800">9.8</span>
-            </div>
-            <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-[#005B54] h-full rounded-full w-[98%]" />
-            </div>
+            {scoreBreakdown.map((score) => {
+              const normalizedScore = Math.max(0, Math.min(100, score.value));
 
-            {/* Kenyamanan Akustik */}
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="text-gray-500">Kenyamanan &amp; Akustik</span>
-              <span className="font-bold text-gray-800">9.6</span>
-            </div>
-            <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-[#10B981] h-full rounded-full w-[96%]" />
-            </div>
-
-            {/* Ramah Budget */}
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="text-gray-500">Kesesuaian Budget Mahasiswa</span>
-              <span className="font-bold text-gray-800">9.5</span>
-            </div>
-            <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-[#F59E0B] h-full rounded-full w-[95%]" />
-            </div>
+              return (
+                <div key={score.label} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-gray-500">{score.label}</span>
+                    <span className="font-bold text-gray-800">{formatNugasScore(normalizedScore)}</span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+                    <div
+                      className={`h-full rounded-full ${score.color}`}
+                      style={{ width: `${normalizedScore}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -236,10 +286,13 @@ export function PlaceDetailDrawer({
         <div className="text-xs space-y-1 text-gray-600">
           <p className="flex items-start gap-1.5">
             <MapPin className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
-            <span className="font-medium text-gray-800 leading-relaxed">{address}</span>
+            <span className="font-medium text-gray-800 leading-relaxed">{place.location.address}</span>
           </p>
           <p className="pl-5.5 text-gray-500 text-[11px]">
-            {distanceInfo}
+            {place.location.subdistrict}
+            {place.economics.parking_fee_motor > 0
+              ? ` · Parkir motor ${formatRupiah(place.economics.parking_fee_motor)}`
+              : ''}
           </p>
         </div>
       </div>
@@ -247,15 +300,21 @@ export function PlaceDetailDrawer({
       {/* 6. Footer Action CTAs */}
       <div className="border-t border-gray-100 p-3.5 bg-white shrink-0 flex items-center gap-2">
         {/* Route CTA */}
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 bg-[#005B54] hover:bg-[#004741] active:scale-[0.99] text-white text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
-        >
-          <Navigation className="w-3.5 h-3.5 fill-white" />
-          <span>Petunjuk Arah (Maps)</span>
-        </a>
+        {mapsUrl ? (
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 bg-[#005B54] hover:bg-[#004741] active:scale-[0.99] text-white text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
+          >
+            <Navigation className="w-3.5 h-3.5 fill-white" />
+            <span>Petunjuk Arah (Maps)</span>
+          </a>
+        ) : (
+          <div className="flex-1 rounded-xl bg-gray-100 px-3 py-2.5 text-center text-xs font-semibold text-gray-400">
+            Tautan arah belum tersedia
+          </div>
+        )}
 
         {/* Share CTA */}
         <button
@@ -280,7 +339,27 @@ export function PlaceDetailDrawer({
           <AlertTriangle className="w-4 h-4" />
         </Link>
       </div>
-    </aside>
+    </DrawerShell>
 
+  );
+}
+
+function DrawerShell({
+  isMobileSheet,
+  children,
+}: {
+  isMobileSheet: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <aside
+      className={
+        isMobileSheet
+          ? 'w-full bg-white rounded-t-2xl shadow-2xl border-t border-gray-100/90 overflow-hidden flex flex-col z-[400] select-none max-h-[52vh] animate-in fade-in slide-in-from-bottom-4 duration-200'
+          : 'w-[420px] bg-white rounded-2xl shadow-2xl border border-gray-100/90 overflow-hidden flex flex-col z-[400] select-none max-h-[calc(100vh-140px)] animate-in fade-in slide-in-from-right-4 duration-200'
+      }
+    >
+      {children}
+    </aside>
   );
 }

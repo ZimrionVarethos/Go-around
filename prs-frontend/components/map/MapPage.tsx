@@ -1,16 +1,21 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FilterBar } from '@/components/places/FilterBar';
 import { PlaceDetailDrawer } from '@/components/places/PlaceDetailDrawer';
 import { MapControls, MapLegend, type TileLayerType, type SpatialOverlays, DEFAULT_SPATIAL_OVERLAYS } from './MapControls';
 import { RecommendationPanel } from '@/components/places/RecommendationPanel';
-import { usePlaces, useBboxPlaces } from '@/hooks/usePlacesQuery';
+import { useBboxPlaces, useRecommendations } from '@/hooks/usePlacesQuery';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
 import type { PlaceFilters, BboxParams, PlaceGeoJsonFeature } from '@/lib/types';
-import { FIGMA_PLACES } from '@/lib/figma-places';
+import {
+  DEFAULT_RECOMMENDATION_REQUEST,
+  type RecommendationPlace,
+  type RecommendationRequest,
+  type RecommendationSort,
+} from '@/lib/recommendations';
 import { cn } from '@/lib/cn';
 import type L from 'leaflet';
 
@@ -25,22 +30,47 @@ const MapView = dynamic(() => import('./MapView'), {
   ),
 });
 
-// Haversine formula to calculate real-world distance in km
-function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-}
-
 // Centered on Baranangsiang / IPB University district
 const BOGOR_CENTER: [number, number] = [-6.601, 106.806];
+
+function recommendationToGeoJsonFeature(place: RecommendationPlace): PlaceGeoJsonFeature {
+  return {
+    type: 'Feature',
+    id: place.id,
+    geometry: {
+      type: 'Point',
+      coordinates: [place.longitude, place.latitude],
+    },
+    properties: {
+      id: place.id,
+      name: place.name,
+      slug: place.slug,
+      subdistrict: place.subdistrict,
+      address: place.address,
+      price_min_drink: place.price_min_drink,
+      price_max_drink: place.price_max_drink,
+      price_avg_food: null,
+      wifi_speed_mbps: place.wifi_speed_mbps,
+      wifi_quality: place.wifi_quality,
+      plug_availability: place.plug_availability,
+      noise_level: place.noise_level,
+      is_24_hours: null,
+      open_time: null,
+      close_time: null,
+      google_rating: place.google_rating,
+      nugas_score: place.recommendation_score,
+      budget_score: place.score_breakdown.price,
+      facility_score: null,
+      recommendation_score: place.recommendation_score,
+      data_confidence: place.data_confidence,
+      image_url: place.image_url,
+      vibe_tags: place.reasons,
+      google_maps_url: place.google_maps_url,
+      distance_km: place.distance_km,
+      amenities: [],
+    },
+  };
+}
 
 export function MapPage() {
   // Default: clean map without auto-opened drawer, collapsed left panel pill
@@ -52,6 +82,13 @@ export function MapPage() {
   const [tileLayer, setTileLayer] = useState<TileLayerType>('osm');
   const [spatialOverlays, setSpatialOverlays] = useState<SpatialOverlays>(DEFAULT_SPATIAL_OVERLAYS);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [submittedRequest, setSubmittedRequest] = useState<RecommendationRequest>({
+    ...DEFAULT_RECOMMENDATION_REQUEST,
+    location: {
+      latitude: BOGOR_CENTER[0],
+      longitude: BOGOR_CENTER[1],
+    },
+  });
   const { toasts, showToast, dismissToast } = useToast();
 
   const handleToggleOverlay = (key: keyof SpatialOverlays, label: string) => {
@@ -80,10 +117,17 @@ export function MapPage() {
 
   const handleSortChange = (newTab: 'score' | 'nearby' | 'budget') => {
     setSortTab(newTab);
+    const sortBy: RecommendationSort = newTab === 'nearby'
+      ? 'distance'
+      : newTab === 'budget'
+        ? 'price'
+        : 'match';
+    setSubmittedRequest((current) => ({ ...current, sort_by: sortBy }));
+    setSelectedSlug(null);
     const labels = {
-      score: 'Skor Tertinggi ⭐',
-      nearby: 'Jarak Terdekat 📍',
-      budget: 'Paling Hemat ☕',
+      score: 'Kecocokan tertinggi',
+      nearby: 'Jarak terdekat',
+      budget: 'Paling hemat',
     };
     showToast(`Urutan: ${labels[newTab]}`, 'info', 2000);
   };
@@ -101,61 +145,19 @@ export function MapPage() {
     west: 106.78,
   });
 
-  // Query places list based on active filters
-  const queryFilters = useMemo<PlaceFilters>(() => {
-    let sort_by: PlaceFilters['sort_by'] = 'nugas_score';
-    let order: 'asc' | 'desc' = 'desc';
+  const {
+    data: recommendationResponse,
+    isPending: isRecommendationPending,
+    isFetching: isRecommendationFetching,
+    isError: isRecommendationError,
+    refetch: retryRecommendations,
+  } = useRecommendations(submittedRequest);
 
-    if (sortTab === 'score') {
-      sort_by = 'nugas_score';
-      order = 'desc';
-    } else if (sortTab === 'budget') {
-      sort_by = 'price_min_drink';
-      order = 'asc';
-    } else if (sortTab === 'nearby') {
-      sort_by = 'facility_score';
-      order = 'desc';
-    }
-
-    return {
-      ...filters,
-      sort_by,
-      order,
-    };
-  }, [filters, sortTab]);
-
-  const { data: placesResponse } = usePlaces(queryFilters);
-  // Merge Figma showcase places with API places & sort dynamically
-  const places = useMemo(() => {
-    const apiPlaces = placesResponse?.data ?? [];
-    const existingSlugs = new Set(FIGMA_PLACES.map((p) => p.slug));
-    const nonDuplicateApiPlaces = apiPlaces.filter((p) => !existingSlugs.has(p.slug));
-    const combined = [...FIGMA_PLACES, ...nonDuplicateApiPlaces];
-
-    const refPoint = userLocation ?? BOGOR_CENTER;
-
-    return [...combined].sort((a, b) => {
-      if (sortTab === 'score') {
-        // Skor Tertinggi: nugas_score descending
-        return (b.nugas_score ?? 0) - (a.nugas_score ?? 0);
-      }
-      if (sortTab === 'budget') {
-        // Paling Hemat: harga kopi termurah ascending
-        const priceA = a.price_min_drink || 999999;
-        const priceB = b.price_min_drink || 999999;
-        return priceA - priceB;
-      }
-      if (sortTab === 'nearby') {
-        // Paling Dekat: jarak radius kilometer dari IPB Baranangsiang / GPS
-        const distA = getDistanceKm(refPoint[0], refPoint[1], a.latitude, a.longitude);
-        const distB = getDistanceKm(refPoint[0], refPoint[1], b.latitude, b.longitude);
-        return distA - distB;
-      }
-      return 0;
-    });
-  }, [placesResponse?.data, sortTab, userLocation]);
-
-  const totalSpots = placesResponse?.pagination?.total ?? places.length;
+  const places = useMemo(
+    () => recommendationResponse?.data ?? [],
+    [recommendationResponse?.data],
+  );
+  const totalSpots = recommendationResponse?.meta.total ?? places.length;
 
   // Query geojson markers in current map viewport
   const { data: bboxResponse } = useBboxPlaces({
@@ -163,51 +165,33 @@ export function MapPage() {
     ...filters,
   });
 
-  // Map features with fallback to Figma places
+  // Recommendation markers take precedence over matching viewport markers.
   const mapFeatures = useMemo<PlaceGeoJsonFeature[]>(() => {
     const apiMapFeatures = bboxResponse?.features ?? [];
-    const defaultFeatures: PlaceGeoJsonFeature[] = FIGMA_PLACES.map((p) => ({
-      type: 'Feature',
-      id: p.id,
-      geometry: {
-        type: 'Point',
-        coordinates: [p.longitude, p.latitude],
-      },
-      properties: {
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        address: p.address,
-        subdistrict: p.subdistrict,
-        price_min_drink: p.price_min_drink,
-        price_max_drink: p.price_max_drink,
-        price_avg_food: p.price_avg_food,
-        price_tier: p.price_tier,
-        wifi_speed_mbps: p.wifi_speed_mbps,
-        wifi_quality: p.wifi_quality,
-        plug_availability: p.plug_availability,
-        noise_level: p.noise_level,
-        is_24_hours: p.is_24_hours,
-        open_time: p.open_time,
-        close_time: p.close_time,
-        google_rating: p.google_rating,
-        nugas_score: p.nugas_score,
-        budget_score: p.budget_score,
-        facility_score: p.facility_score,
-        image_url: p.image_url,
-        vibe_tags: ['Colokan Melimpah', 'WiFi Kencang', 'Kondusif'],
-        google_maps_url: p.google_maps_url,
-        instagram_handle: p.instagram_handle,
-        distance_km: 0.85,
-        category: p.category ?? undefined,
-        amenities: [],
-      },
-    }));
+    const recommendationFeatures = places.map(recommendationToGeoJsonFeature);
+    const recommendationSlugs = new Set(
+      recommendationFeatures.map((feature) => feature.properties.slug),
+    );
+    const additionalViewportFeatures = apiMapFeatures.filter(
+      (feature) => !recommendationSlugs.has(feature.properties.slug),
+    );
 
-    const existingSlugs = new Set(defaultFeatures.map((f) => f.properties.slug));
-    const extraFeatures = apiMapFeatures.filter((f) => !existingSlugs.has(f.properties.slug));
-    return [...defaultFeatures, ...extraFeatures];
-  }, [bboxResponse?.features]);
+    return [...recommendationFeatures, ...additionalViewportFeatures];
+  }, [bboxResponse?.features, places]);
+
+  useEffect(() => {
+    if (!mapInstance || places.length === 0) return;
+
+    const bounds = places.map(
+      (place) => [place.latitude, place.longitude] as [number, number],
+    );
+    mapInstance.fitBounds(bounds, {
+      padding: [56, 56],
+      maxZoom: 15,
+      animate: true,
+      duration: 0.8,
+    });
+  }, [mapInstance, places]);
 
   // Zoom In
   const handleZoomIn = () => {
@@ -252,11 +236,20 @@ export function MapPage() {
       (pos) => {
         const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setUserLocation(coords);
+        setSubmittedRequest((current) => ({
+          ...current,
+          location: {
+            latitude: coords[0],
+            longitude: coords[1],
+          },
+          sort_by: 'distance',
+        }));
         if (mapInstance) {
           mapInstance.flyTo(coords, 16, { duration: 1.5 });
         }
         setSortTab('nearby');
-        showToast('Lokasi Anda ditemukan! Menampilkan tempat nugas terdekat 📍', 'success', 3500);
+        setSelectedSlug(null);
+        showToast('Lokasi ditemukan. Rekomendasi terdekat sedang diperbarui.', 'success', 3500);
       },
       (err) => {
         console.warn('Geolocation error:', err);
@@ -268,6 +261,23 @@ export function MapPage() {
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
+  };
+
+  const handleRecommendationSubmit = (request: RecommendationRequest) => {
+    setSubmittedRequest({
+      ...request,
+      location: userLocation
+        ? { latitude: userLocation[0], longitude: userLocation[1] }
+        : request.location,
+    });
+    setSortTab(
+      request.sort_by === 'distance'
+        ? 'nearby'
+        : request.sort_by === 'price'
+          ? 'budget'
+          : 'score',
+    );
+    setSelectedSlug(null);
   };
 
   const handleDownloadGeoJson = () => {
@@ -329,12 +339,20 @@ export function MapPage() {
         onToast={showToast}
         showLegend={showLegend}
         onToggleLegend={handleToggleLegend}
+        recommendationRequest={submittedRequest}
+        onSubmitRecommendation={handleRecommendationSubmit}
+        onRequestLocation={handleLocate}
+        isRecommendationLoading={isRecommendationPending || isRecommendationFetching}
+        recommendationError={isRecommendationError}
+        onRetryRecommendation={() => {
+          void retryRecommendations();
+        }}
       />
 
       {/* Floating Right Selected Place Detail Drawer
           - Mobile: bottom sheet full-width above footer
           - Desktop: right side panel */}
-      {selectedSlug && (
+      {selectedSlug && recommendationResponse?.meta.source === 'api' && (
         <>
           {/* Desktop drawer (md+) */}
           <div className="hidden md:block absolute top-[88px] right-6 z-[400] pointer-events-auto">
@@ -369,7 +387,9 @@ export function MapPage() {
         className={cn(
           'absolute bottom-3.5 z-[350] flex items-end gap-3 pointer-events-auto transition-all duration-300',
           // Desktop: shift left when detail drawer is open
-          selectedSlug ? 'right-6 md:right-[456px]' : 'right-6'
+          selectedSlug && recommendationResponse?.meta.source === 'api'
+            ? 'right-6 md:right-[456px]'
+            : 'right-6'
         )}
       >
         {/* Suitability Legend - desktop only (conditional) */}

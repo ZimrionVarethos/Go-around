@@ -46,8 +46,17 @@ const SVG_BUS = `
 `;
 
 // Custom Pins matching Figma
-function createPinIcon(score: number, isSelected: boolean, iconType?: string): L.DivIcon {
-  const displayScore = formatNugasScore(score);
+function createPinIcon(
+  score: number | null,
+  isSelected: boolean,
+  iconType?: string,
+  isRecommendation = false,
+): L.DivIcon {
+  const displayScore = score === null
+    ? '—'
+    : isRecommendation
+      ? `${Math.round(score)}%`
+      : formatNugasScore(score);
 
   if (isSelected) {
     // Figma Selected Pin: ★ 9.7 with dark teal circle & glowing ring
@@ -97,7 +106,7 @@ function createPinIcon(score: number, isSelected: boolean, iconType?: string): L
   }
 
   // Unselected Pin: circle icon matching Figma (Coffee orange or Zap teal)
-  const isCoffee = iconType === 'coffee' || score < 90;
+  const isCoffee = iconType === 'coffee' || score === null || score < 90;
   const bgColor = isCoffee ? '#F97316' : '#005B54';
   const iconSvg = isCoffee ? SVG_COFFEE : SVG_ZAP;
 
@@ -540,15 +549,24 @@ export default function MapView({
 
       {features.map((feature, idx) => {
         const { lat, lng } = latLngFromFeature(feature);
-        const { slug, name, nugas_score, subdistrict, image_url } = feature.properties;
-        const isSelected = slug === selectedSlug || (selectedSlug === null && idx === 0);
+        const {
+          slug,
+          name,
+          nugas_score,
+          recommendation_score,
+          subdistrict,
+          image_url,
+        } = feature.properties;
+        const isSelected = slug === selectedSlug;
+        const isRecommendation = recommendation_score !== undefined;
+        const markerScore = isRecommendation ? recommendation_score ?? null : nugas_score;
         const iconType = idx % 2 === 0 ? 'coffee' : 'zap';
 
         return (
           <Marker
             key={feature.id}
             position={[lat, lng]}
-            icon={createPinIcon(nugas_score, isSelected, iconType)}
+            icon={createPinIcon(markerScore, isSelected, iconType, isRecommendation)}
             eventHandlers={{
               click: () => onMarkerClick(slug),
             }}
@@ -569,9 +587,13 @@ export default function MapView({
                 <p className="text-[11px] text-gray-500 line-clamp-1 mb-1.5">{subdistrict}</p>
                 <div className="flex items-center justify-between pt-1 border-t border-gray-100 text-[11px]">
                   <span className="font-semibold text-[#005B54]">
-                    ★ {formatNugasScore(nugas_score)} / 10
+                    {markerScore === null
+                      ? 'Skor belum tersedia'
+                      : isRecommendation
+                        ? `${Math.round(markerScore)}% cocok`
+                        : `★ ${formatNugasScore(markerScore)} / 10`}
                   </span>
-                  <span className="text-gray-400 font-medium text-[10px]">Detail →</span>
+                  <span className="text-gray-400 font-medium text-[10px]">Pilih</span>
                 </div>
               </div>
             </Popup>
