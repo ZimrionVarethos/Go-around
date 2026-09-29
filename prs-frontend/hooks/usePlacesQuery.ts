@@ -2,8 +2,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { placesApi, categoriesApi, amenitiesApi } from '@/lib/api';
+import { getRecommendations } from '@/lib/recommendations';
 import { queryKeys } from '@/lib/query-keys';
 import type { PlaceFilters, BboxParams, NearbyParams, RecommendParams } from '@/lib/types';
+import type { RecommendationRequest } from '@/lib/recommendations/types';
 
 // ─── Place list ────────────────────────────────────────────────────────────────
 
@@ -45,6 +47,36 @@ export function useRecommendedPlaces(params: RecommendParams = {}, enabled = tru
     queryFn: () => placesApi.recommend(params),
     staleTime: 5 * 60 * 1000,
     enabled,
+  });
+}
+
+/**
+ * New recommendation contract used by the mock/API gateway.
+ * The query stays disabled until the user submits a complete request.
+ */
+export function useRecommendations(
+  request: RecommendationRequest | null,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: request
+      ? queryKeys.recommendations(request)
+      : ['recommendations', 'idle'],
+    queryFn: () => getRecommendations(request!),
+    enabled: enabled && request !== null,
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (previousData) => previousData,
+    retry: (failureCount, error) => {
+      const statusCode = 'statusCode' in error
+        ? Number((error as { statusCode?: unknown }).statusCode)
+        : null;
+
+      if (statusCode !== null && statusCode >= 400 && statusCode < 500) {
+        return false;
+      }
+
+      return failureCount < 2;
+    },
   });
 }
 

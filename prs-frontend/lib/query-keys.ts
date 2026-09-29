@@ -1,4 +1,5 @@
 import type { BboxParams, NearbyParams, RecommendParams, PlaceFilters } from '@/lib/types';
+import type { RecommendationRequest } from '@/lib/recommendations/types';
 
 export const queryKeys = {
   places: {
@@ -11,4 +12,6 @@ export const queryKeys = {
   },
   categories: () => ['categories'] as const,
   amenities: () => ['amenities'] as const,
+  recommendations: (request: RecommendationRequest) =>
+    ['recommendations', request] as const,
 } as const;

@@ -111,21 +111,23 @@ export interface PlaceGeoJsonProperties {
   category?: Category;
   subdistrict: string;
   address: string;
-  price_min_drink: number;
-  price_max_drink?: number;
-  price_avg_food?: number;
+  price_min_drink: number | null;
+  price_max_drink?: number | null;
+  price_avg_food?: number | null;
   price_tier?: number;
   wifi_speed_mbps: number | null;
-  wifi_quality: WifiQuality;
-  plug_availability: PlugAvailability;
-  noise_level: NoiseLevel;
-  is_24_hours: boolean;
+  wifi_quality: WifiQuality | null;
+  plug_availability: PlugAvailability | null;
+  noise_level: NoiseLevel | null;
+  is_24_hours: boolean | null;
   open_time?: string | null;
   close_time?: string | null;
-  google_rating: number;
-  nugas_score: number; // 0–100
-  budget_score: number;
-  facility_score: number;
+  google_rating: number | null;
+  nugas_score: number | null; // 0–100
+  budget_score: number | null;
+  facility_score: number | null;
+  recommendation_score?: number | null;
+  data_confidence?: number | null;
   image_url: string | null;
   vibe_tags: string[]; // already parsed array in GeoJSON resource
   google_maps_url: string | null;
