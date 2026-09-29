@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FilterBar } from '@/components/places/FilterBar';
 import { PlaceDetailDrawer } from '@/components/places/PlaceDetailDrawer';
-import { MapControls, MapLegend, type TileLayerType, type SpatialOverlays, DEFAULT_SPATIAL_OVERLAYS } from './MapControls';
+import { MapControls, MapLegend, type TileLayerType } from './MapControls';
 import { RecommendationPanel } from '@/components/places/RecommendationPanel';
 import { useBboxPlaces, useRecommendations } from '@/hooks/usePlacesQuery';
 import { useToast } from '@/hooks/useToast';
@@ -74,15 +74,15 @@ function recommendationToGeoJsonFeature(place: RecommendationPlace): PlaceGeoJso
 }
 
 export function MapPage() {
-  const { searchIntent } = useSearchContext();
+  const { searchIntent, openCriteriaTrigger } = useSearchContext();
   // Default: clean map without auto-opened drawer, collapsed left panel pill
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [sortTab, setSortTab] = useState<'score' | 'nearby' | 'budget'>('score');
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [panelView, setPanelView] = useState<'results' | 'criteria'>('results');
   const [showLegend, setShowLegend] = useState(false);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
   const [tileLayer, setTileLayer] = useState<TileLayerType>('osm');
-  const [spatialOverlays, setSpatialOverlays] = useState<SpatialOverlays>(DEFAULT_SPATIAL_OVERLAYS);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [submittedRequest, setSubmittedRequest] = useState<RecommendationRequest>({
     ...DEFAULT_RECOMMENDATION_REQUEST,
@@ -92,7 +92,52 @@ export function MapPage() {
     },
   });
   const appliedSearchId = useRef<number | null>(null);
+  const appliedCriteriaId = useRef<number>(0);
+  const hasAutoCentered = useRef(false);
+  const skipNextFitBoundsRef = useRef(false);
   const { toasts, showToast, dismissToast } = useToast();
+
+  // Auto-detect user GPS on initial load
+  useEffect(() => {
+    if (typeof window === 'undefined' || !navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+        setUserLocation(coords);
+        skipNextFitBoundsRef.current = true;
+        setSubmittedRequest((current) => ({
+          ...current,
+          location: {
+            latitude: coords[0],
+            longitude: coords[1],
+          },
+          sort_by: 'distance',
+        }));
+        setSortTab('nearby');
+        showToast('Lokasi GPS Anda terdeteksi. Menampilkan tempat nugas terdekat 📍', 'success', 3000);
+      },
+      () => {
+        // Geolocation denied or unavailable: keep default center silently
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Center map on user location when detected
+  useEffect(() => {
+    if (!mapInstance || !userLocation || hasAutoCentered.current) return;
+    hasAutoCentered.current = true;
+    mapInstance.flyTo(userLocation, 15, { duration: 1.2 });
+  }, [mapInstance, userLocation]);
+
+  useEffect(() => {
+    if (openCriteriaTrigger === 0 || appliedCriteriaId.current === openCriteriaTrigger) return;
+    appliedCriteriaId.current = openCriteriaTrigger;
+    setIsCollapsed(false);
+    setPanelView((prev) => (prev === 'criteria' ? 'results' : 'criteria'));
+  }, [openCriteriaTrigger]);
 
   useEffect(() => {
     if (!searchIntent || appliedSearchId.current === searchIntent.id) return;
@@ -119,17 +164,6 @@ export function MapPage() {
     );
   }, [mapInstance, searchIntent]);
 
-  const handleToggleOverlay = (key: keyof SpatialOverlays, label: string) => {
-    setSpatialOverlays((prev) => {
-      const nextState = !prev[key];
-      showToast(
-        `Lapisan ${label} ${nextState ? 'diaktifkan' : 'dinonaktifkan'} 🗺️`,
-        'info',
-        2500
-      );
-      return { ...prev, [key]: nextState };
-    });
-  };
 
   const handleToggleLegend = () => {
     setShowLegend((prev) => {
@@ -210,6 +244,11 @@ export function MapPage() {
   useEffect(() => {
     if (!mapInstance || places.length === 0) return;
 
+    if (skipNextFitBoundsRef.current) {
+      skipNextFitBoundsRef.current = false;
+      return;
+    }
+
     const bounds = places.map(
       (place) => [place.latitude, place.longitude] as [number, number],
     );
@@ -258,12 +297,20 @@ export function MapPage() {
       return;
     }
 
+    skipNextFitBoundsRef.current = true;
+
+    // Jika koordinat pengguna sudah pernah didapatkan, langsung pusatkan peta seketika
+    if (userLocation && mapInstance) {
+      mapInstance.flyTo(userLocation, 16, { duration: 1.2 });
+    }
+
     showToast('Mencari sinyal GPS Anda... 📡', 'info', 2500);
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setUserLocation(coords);
+        skipNextFitBoundsRef.current = true;
         setSubmittedRequest((current) => ({
           ...current,
           location: {
@@ -273,13 +320,14 @@ export function MapPage() {
           sort_by: 'distance',
         }));
         if (mapInstance) {
-          mapInstance.flyTo(coords, 16, { duration: 1.5 });
+          mapInstance.flyTo(coords, 16, { duration: 1.2 });
         }
         setSortTab('nearby');
         setSelectedSlug(null);
         showToast('Lokasi ditemukan. Rekomendasi terdekat sedang diperbarui.', 'success', 3500);
       },
       (err) => {
+        skipNextFitBoundsRef.current = false;
         console.warn('Geolocation error:', err);
         showToast(
           'Izin lokasi tidak diberikan atau GPS belum aktif di perangkat Anda',
@@ -333,7 +381,6 @@ export function MapPage() {
         tileLayer={tileLayer}
         userLocation={userLocation}
         onMapReady={setMapInstance}
-        spatialOverlays={spatialOverlays}
       />
 
       {/* Floating Filter Bar (Below topbar) */}
@@ -341,6 +388,11 @@ export function MapPage() {
         <FilterBar
           filters={filters}
           onFilterChange={setFilters}
+          recommendationRequest={submittedRequest}
+          onRecommendationRequestChange={(nextRequest) => {
+            setSubmittedRequest(nextRequest);
+            setIsCollapsed(false);
+          }}
           className="max-w-full"
         />
       </div>
@@ -351,6 +403,8 @@ export function MapPage() {
       <RecommendationPanel
         isCollapsed={isCollapsed}
         onToggleCollapse={setIsCollapsed}
+        view={panelView}
+        onViewChange={setPanelView}
         sortTab={sortTab}
         onSortChange={handleSortChange}
         places={places}
@@ -435,8 +489,6 @@ export function MapPage() {
           onResetCompass={handleResetCompass}
           currentLayer={tileLayer}
           onChangeLayer={setTileLayer}
-          overlays={spatialOverlays}
-          onToggleOverlay={handleToggleOverlay}
           onToast={showToast}
         />
       </div>

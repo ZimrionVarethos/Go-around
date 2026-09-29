@@ -8,13 +8,115 @@ import type {
   PriceTier,
 } from '@/lib/types';
 
-// ─── Score display ─────────────────────────────────────────────────────────────
+// ─── Score display & Tier ─────────────────────────────────────────────────────
 
-/** Convert 0–100 or 0–10 backend score to "9.7" display string */
+export interface ScoreTierInfo {
+  tier: 'excellent' | 'good' | 'fair' | 'poor';
+  label: string;
+  color: string;       // Hex for Leaflet markers & SVG
+  bgColor: string;     // Tailwind bg class
+  textColor: string;   // Tailwind text class
+  ringColor: string;   // Tailwind ring/border class
+}
+
+/** Convert 0–100 or 0–10 score to consistent percentage string, e.g. "97%" */
 export function formatNugasScore(score: number): string {
-  if (typeof score !== 'number' || isNaN(score)) return '0.0';
-  const normalized = score > 10 ? score / 10 : score;
-  return normalized.toFixed(1);
+  if (typeof score !== 'number' || isNaN(score)) return '0%';
+  const val = score <= 10 ? score * 10 : score;
+  return `${Math.round(val)}%`;
+}
+
+/** Get standard 4-tier color palette matching the Map Legend */
+export function getScoreTier(score: number | null | undefined): ScoreTierInfo {
+  if (score === null || score === undefined || isNaN(score)) {
+    return {
+      tier: 'poor',
+      label: 'Belum Dinilai',
+      color: '#94A3B8',
+      bgColor: 'bg-slate-50',
+      textColor: 'text-slate-600',
+      ringColor: 'ring-slate-200',
+    };
+  }
+  const val = score <= 10 ? score * 10 : score;
+  if (val >= 85) {
+    return {
+      tier: 'excellent',
+      label: 'Sangat Cocok',
+      color: '#005B54',
+      bgColor: 'bg-teal-50',
+      textColor: 'text-[#005B54]',
+      ringColor: 'ring-teal-200',
+    };
+  }
+  if (val >= 70) {
+    return {
+      tier: 'good',
+      label: 'Bagus / Cocok',
+      color: '#10B981',
+      bgColor: 'bg-emerald-50',
+      textColor: 'text-emerald-800',
+      ringColor: 'ring-emerald-200',
+    };
+  }
+  if (val >= 50) {
+    return {
+      tier: 'fair',
+      label: 'Cukup',
+      color: '#F59E0B',
+      bgColor: 'bg-amber-50',
+      textColor: 'text-amber-800',
+      ringColor: 'ring-amber-200',
+    };
+  }
+  return {
+    tier: 'poor',
+    label: 'Kurang Sesuai',
+    color: '#EF4444',
+    bgColor: 'bg-rose-50',
+    textColor: 'text-rose-800',
+    ringColor: 'ring-rose-200',
+  };
+}
+
+/** Format operational hours string into clean student-friendly format */
+export function formatOperationalHours(
+  openTime?: string | null,
+  closeTime?: string | null,
+  is24Hours?: boolean | null,
+): { label: string; shortLabel: string; isOpen24h: boolean } {
+  if (is24Hours) {
+    return {
+      label: 'Buka 24 Jam Nonstop',
+      shortLabel: 'Buka 24 jam',
+      isOpen24h: true,
+    };
+  }
+
+  const open = openTime ? openTime.slice(0, 5) : null;
+  const close = closeTime ? closeTime.slice(0, 5) : null;
+
+  if (open && close) {
+    return {
+      label: `${open} – ${close} WIB`,
+      shortLabel: `${open} – ${close} WIB`,
+      isOpen24h: false,
+    };
+  }
+
+  if (close) {
+    return {
+      label: `Tutup pukul ${close} WIB`,
+      shortLabel: `Tutup ${close} WIB`,
+      isOpen24h: false,
+    };
+  }
+
+  return {
+    label: 'Jam operasional belum tersedia',
+    shortLabel: 'Jam buka belum ada',
+    isOpen24h: false,
+  };
 }
 
 // ─── GeoJSON coordinate extraction ────────────────────────────────────────────

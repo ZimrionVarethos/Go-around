@@ -6,6 +6,7 @@ import {
   X,
   Sparkles,
   MapPin,
+  Clock,
   Navigation,
   Share2,
   AlertTriangle,
@@ -17,7 +18,8 @@ import {
   RefreshCw,
   ImageOff,
 } from 'lucide-react';
-import { formatNugasScore, formatRupiah } from '@/lib/utils';
+import { formatNugasScore, formatRupiah, getScoreTier, formatOperationalHours } from '@/lib/utils';
+import { cn } from '@/lib/cn';
 import Link from 'next/link';
 import { useState } from 'react';
 import type { ToastType } from '@/hooks/useToast';
@@ -118,7 +120,14 @@ export function PlaceDetailDrawer({
     ? 'Data belum tersedia'
     : `Kualitas ${place.nugas_metrics.wifi_quality}`;
   const description = place.description || 'Deskripsi tempat belum tersedia.';
-  const displayScore = formatNugasScore(place.nugas_metrics.nugas_score);
+  const numericNugasScore = place.nugas_metrics.nugas_score;
+  const nugasTier = getScoreTier(numericNugasScore);
+  const displayScore = formatNugasScore(numericNugasScore);
+  const operationalInfo = formatOperationalHours(
+    place.operational.open_time,
+    place.operational.close_time,
+    place.operational.is_24_hours,
+  );
   const scoreBreakdown = [
     {
       label: 'Kelengkapan fasilitas',
@@ -254,26 +263,30 @@ export function PlaceDetailDrawer({
         {/* 4. Score Summary Breakdown */}
         <div className="bg-[#F9FAFB] rounded-xl p-3 space-y-2 border border-gray-100">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-600 font-medium">Skor Nugas Total</span>
-            <span className="font-extrabold text-[#005B54] text-sm">
-              ★ {displayScore} / 10
+            <span className="text-gray-600 font-semibold">Indeks Kesesuaian Nugas</span>
+            <span className={cn('font-extrabold text-sm', nugasTier.textColor)}>
+              {displayScore}
             </span>
           </div>
 
           <div className="space-y-1.5 pt-1">
             {scoreBreakdown.map((score) => {
               const normalizedScore = Math.max(0, Math.min(100, score.value));
+              const tier = getScoreTier(normalizedScore);
 
               return (
                 <div key={score.label} className="space-y-1.5">
                   <div className="flex items-center justify-between text-[11px]">
                     <span className="text-gray-500">{score.label}</span>
-                    <span className="font-bold text-gray-800">{formatNugasScore(normalizedScore)}</span>
+                    <span className={cn('font-bold', tier.textColor)}>{Math.round(normalizedScore)}%</span>
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
                     <div
-                      className={`h-full rounded-full ${score.color}`}
-                      style={{ width: `${normalizedScore}%` }}
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{
+                        width: `${normalizedScore}%`,
+                        backgroundColor: tier.color,
+                      }}
                     />
                   </div>
                 </div>
@@ -282,18 +295,48 @@ export function PlaceDetailDrawer({
           </div>
         </div>
 
-        {/* 5. Address & Proximity */}
-        <div className="text-xs space-y-1 text-gray-600">
-          <p className="flex items-start gap-1.5">
+        {/* 5. Operational Hours & Location */}
+        <div className="space-y-2.5 rounded-xl border border-gray-100 bg-[#F8FAFC] p-3 text-xs text-gray-600">
+          {/* Operational Hours */}
+          <div className="flex items-start gap-2">
+            <Clock className="w-4 h-4 text-[#005B54] shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-gray-900">{operationalInfo.label}</span>
+                <span
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-[9.5px] font-bold tracking-tight',
+                    operationalInfo.isOpen24h
+                      ? 'bg-teal-100 text-[#005B54]'
+                      : 'bg-emerald-100 text-emerald-800',
+                  )}
+                >
+                  {operationalInfo.isOpen24h ? '24 Jam' : 'Buka'}
+                </span>
+              </div>
+              <p className="text-[10.5px] text-gray-400 mt-0.5">
+                {operationalInfo.isOpen24h
+                  ? 'Siap melayani nugas semalam suntuk'
+                  : 'Jam operasional kafe hari ini'}
+              </p>
+            </div>
+          </div>
+
+          <div className="h-px bg-gray-200/60" />
+
+          {/* Address */}
+          <div className="flex items-start gap-2">
             <MapPin className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
-            <span className="font-medium text-gray-800 leading-relaxed">{place.location.address}</span>
-          </p>
-          <p className="pl-5.5 text-gray-500 text-[11px]">
-            {place.location.subdistrict}
-            {place.economics.parking_fee_motor > 0
-              ? ` · Parkir motor ${formatRupiah(place.economics.parking_fee_motor)}`
-              : ''}
-          </p>
+            <div className="flex-1 leading-relaxed">
+              <span className="font-medium text-gray-800">{place.location.address}</span>
+              <p className="text-gray-500 text-[11px] mt-0.5">
+                {place.location.subdistrict}
+                {place.economics.parking_fee_motor > 0
+                  ? ` · Parkir motor ${formatRupiah(place.economics.parking_fee_motor)}`
+                  : ''}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

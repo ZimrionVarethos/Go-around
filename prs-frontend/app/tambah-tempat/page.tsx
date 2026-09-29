@@ -18,30 +18,26 @@ import { dispatchNewPublicPlace } from '@/lib/admin-store';
 export default function TambahTempatPage() {
   // Form state - Basic Info
   const [name, setName] = useState('');
-  const [category, setCategory] = useState<'coffee_shop' | 'coworking' | 'library' | 'creative_hub'>('coffee_shop');
+  const [category, setCategory] = useState<'coffee_shop' | 'coworking' | 'library' | 'creative_hub' | null>(null);
+  const [studyVibe, setStudyVibe] = useState<string | null>(null);
   const [subdistrict, setSubdistrict] = useState('Bogor Tengah');
-  const [campusAccess, setCampusAccess] = useState('Dekat Kampus IPB Baranangsiang (< 1.5 km)');
+  const [campusAccess, setCampusAccess] = useState('Sekolah Vokasi IPB (Kampus Cilibende / Kumbang)');
   const [address, setAddress] = useState('');
 
   // Facilities state
-  const [plugAvailability, setPlugAvailability] = useState<'abundant' | 'moderate' | 'limited'>('abundant');
-  const [wifiDownload, setWifiDownload] = useState('65');
-  const [wifiUpload, setWifiUpload] = useState('40');
-  const [wifiStable, setWifiStable] = useState(true);
-  const [noiseLevel, setNoiseLevel] = useState<'quiet' | 'moderate' | 'lively'>('quiet');
+  const [plugAvailability, setPlugAvailability] = useState<'abundant' | 'moderate' | 'limited' | null>(null);
+  const [wifiDownload, setWifiDownload] = useState('');
+  const [wifiUpload, setWifiUpload] = useState('');
+  const [wifiStable, setWifiStable] = useState(false);
+  const [noiseLevel, setNoiseLevel] = useState<'quiet' | 'moderate' | 'lively' | null>(null);
 
   // Amenities checklist
-  const [amenities, setAmenities] = useState<string[]>([
-    'musholla',
-    'ac',
-    'parkir_motor',
-    'kursi_ergonomis',
-  ]);
+  const [amenities, setAmenities] = useState<string[]>([]);
 
   // Budget & Parking state
-  const [priceMinDrink, setPriceMinDrink] = useState('18.000');
+  const [priceMinDrink, setPriceMinDrink] = useState('');
   const [priceAvgTier, setPriceAvgTier] = useState('Rp 25.000 - Rp 35.000');
-  const [parkingFeeMotor, setParkingFeeMotor] = useState('2.000');
+  const [parkingFeeMotor, setParkingFeeMotor] = useState('');
 
   // Photos state (Data URLs or preview URLs)
   const [photoMain, setPhotoMain] = useState<string | null>(null);
@@ -51,9 +47,10 @@ export default function TambahTempatPage() {
   // Submitter state
   const [submitterEmail, setSubmitterEmail] = useState('');
 
-  // GIS Coordinates (Default near Taman Kencana / Pajajaran Bogor)
+  // GIS Coordinates (Default center near SV IPB / Bogor Tengah, but unpinned initially)
   const [lat, setLat] = useState(-6.5898);
   const [lng, setLng] = useState(106.7995);
+  const [isLocationSet, setIsLocationSet] = useState(false);
 
   // Status state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,8 +85,32 @@ export default function TambahTempatPage() {
       setErrorMessage('Mohon isi nama tempat/kafe.');
       return;
     }
+    if (!category) {
+      setErrorMessage('Mohon pilih tipe ruang belajar.');
+      return;
+    }
     if (!address.trim()) {
       setErrorMessage('Mohon isi alamat lengkap atau patokan di Bogor.');
+      return;
+    }
+    if (!plugAvailability) {
+      setErrorMessage('Mohon tentukan ketersediaan stopkontak / colokan listrik.');
+      return;
+    }
+    if (!wifiDownload.trim()) {
+      setErrorMessage('Mohon isi perkiraan kecepatan download Wi-Fi.');
+      return;
+    }
+    if (!noiseLevel) {
+      setErrorMessage('Mohon tentukan tingkat kebisingan / ambien suasana.');
+      return;
+    }
+    if (!priceMinDrink.trim()) {
+      setErrorMessage('Mohon isi estimasi harga minuman termurah.');
+      return;
+    }
+    if (!isLocationSet) {
+      setErrorMessage('Mohon sematkan koordinat lokasi di peta atau klik tombol GPS.');
       return;
     }
 
@@ -106,7 +127,7 @@ export default function TambahTempatPage() {
       plug_availability: plugAvailability,
       noise_level: noiseLevel,
       is_24_hours: amenities.includes('24jam'),
-      notes: `Kategori: ${category} | Akses Kampus: ${campusAccess} | Upload: ${wifiUpload} Mbps | Parkir: ${parkingFeeMotor}`,
+      notes: `Kategori: ${category} | Vibe: ${studyVibe || '-'} | Akses Kampus: ${campusAccess} | Upload: ${wifiUpload || '-'} Mbps | Parkir: ${parkingFeeMotor || '-'}`,
       submitter_name: 'Mahasiswa / Kontributor Anonim',
       submitter_email: submitterEmail.trim() || undefined,
     };
@@ -136,6 +157,37 @@ export default function TambahTempatPage() {
     }
   };
 
+  // 8 Required items to reach 100%
+  const item1Name = name.trim().length > 0;
+  const item2Category = category !== null;
+  const item3Address = address.trim().length > 0;
+  const item4Plug = plugAvailability !== null;
+  const item5Wifi = wifiDownload.trim().length > 0;
+  const item6Noise = noiseLevel !== null;
+  const item7Price = priceMinDrink.trim().length > 0;
+  const item8Location = isLocationSet;
+
+  const requiredItems = [
+    item1Name,
+    item2Category,
+    item3Address,
+    item4Plug,
+    item5Wifi,
+    item6Noise,
+    item7Price,
+    item8Location,
+  ];
+
+  const completedCount = requiredItems.filter(Boolean).length;
+  const progressPercent = Math.round((completedCount / requiredItems.length) * 100);
+
+  let progressSummary = 'Formulir masih kosong';
+  if (progressPercent === 100) {
+    progressSummary = 'Semua data wajib lengkap, siap dikirim!';
+  } else if (completedCount > 0) {
+    progressSummary = `${completedCount} dari ${requiredItems.length} data wajib terisi`;
+  }
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col select-none">
       {/* Sticky back-button header */}
@@ -144,20 +196,20 @@ export default function TambahTempatPage() {
           <div className="flex items-center gap-3 min-w-0">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:text-[#005B54] bg-gray-50 hover:bg-teal-50/60 rounded-[10px] border border-gray-200 transition-all active:scale-[0.98] cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#005B54] bg-gray-50 hover:bg-teal-50/60 rounded-xl border border-gray-200 transition-all active:scale-[0.98] cursor-pointer shrink-0"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Kembali ke Peta</span>
             </Link>
             <div className="h-4 w-px bg-gray-200" />
-            <span className="text-xs font-bold text-gray-900 truncate">
-              Tambah Tempat Nugas
+            <span className="text-sm font-bold text-gray-900 truncate">
+              Tambah Rekomendasi Spot Nugas
             </span>
           </div>
 
           <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs text-gray-500 font-medium">
-              Kontribusi Publik &amp; Terbuka
+            <span className="text-xs sm:text-sm text-[#005B54] font-bold bg-[#E0F3EE] px-3 py-1 rounded-full border border-teal-200/60">
+              Formulir Kontribusi Komunitas
             </span>
           </div>
         </div>
@@ -168,11 +220,34 @@ export default function TambahTempatPage() {
         {/* Page Title */}
         <div className="mb-7 space-y-2">
           <h1 className="text-[26px] sm:text-[32px] font-extrabold text-[#005B54] leading-[34px] sm:leading-[40px] tracking-[-0.03em]">
-            Tambah &amp; Rekomendasikan Tempat Nugas Baru
+            Tambah Rekomendasi Spot Nugas Baru
           </h1>
-          <p className="text-gray-600 text-xs sm:text-sm max-w-3xl leading-relaxed">
-            Bantu sesama mahasiswa Bogor memetakan kafe, working space, dan spot belajar ramah kantong dengan kecepatan Wi-Fi dan colokan terverifikasi. Tidak perlu login akun.
+          <p className="text-gray-600 text-sm max-w-3xl leading-relaxed">
+            Bantu sesama mahasiswa Bogor memetakan kafe, working space, dan spot belajar ramah kantong dengan kecepatan Wi-Fi dan colokan terverifikasi. Tidak perlu registrasi akun.
           </p>
+        </div>
+
+        {/* Progress Tracker Bar */}
+        <div className="bg-white border border-gray-200/90 rounded-2xl p-4 sm:p-5 mb-8 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Kelengkapan Usulan
+              </span>
+              <span className="text-xs font-extrabold text-[#005B54] bg-[#E0F3EE] px-2.5 py-0.5 rounded-full">
+                {progressPercent}% Siap
+              </span>
+            </div>
+            <span className="text-xs text-gray-500 font-medium">
+              {progressSummary}
+            </span>
+          </div>
+          <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#005B54] rounded-full transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
 
         {/* Success Alert Banner */}
@@ -184,13 +259,13 @@ export default function TambahTempatPage() {
             <h2 className="text-xl font-bold text-gray-900">
               Usulan Tempat Nugas Berhasil Dikirim!
             </h2>
-            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+            <p className="text-sm text-gray-600 leading-relaxed">
               Terima kasih atas kontribusimu! Tempat nugas <strong>&quot;{name}&quot;</strong> telah masuk ke antrean kurasi dan verifikasi lapangan oleh relawan mahasiswa IPB University.
             </p>
             <div className="pt-4 flex items-center justify-center gap-3">
               <Link
                 href="/"
-                className="px-5 py-2.5 bg-[#005B54] hover:bg-[#004741] text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-[#005B54] hover:bg-[#004741] text-white font-semibold text-sm rounded-xl shadow-xs transition-all flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Kembali ke Peta WebGIS</span>
@@ -199,9 +274,24 @@ export default function TambahTempatPage() {
                 onClick={() => {
                   setIsSuccess(false);
                   setName('');
+                  setCategory(null);
+                  setStudyVibe(null);
                   setAddress('');
+                  setPlugAvailability(null);
+                  setWifiDownload('');
+                  setWifiUpload('');
+                  setWifiStable(false);
+                  setNoiseLevel(null);
+                  setAmenities([]);
+                  setPriceMinDrink('');
+                  setParkingFeeMotor('');
+                  setPhotoMain(null);
+                  setPhotoSpeedtest(null);
+                  setPhotoMenu(null);
+                  setSubmitterEmail('');
+                  setIsLocationSet(false);
                 }}
-                className="px-5 py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-xs rounded-xl transition-all cursor-pointer"
+                className="px-6 py-3 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-sm rounded-xl transition-all cursor-pointer"
               >
                 Tambah Tempat Lainnya
               </button>
@@ -213,7 +303,7 @@ export default function TambahTempatPage() {
             <div className="flex-1 w-full space-y-6">
               {/* Error Callout */}
               {errorMessage && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs flex items-center gap-2">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
@@ -225,6 +315,8 @@ export default function TambahTempatPage() {
                 onNameChange={setName}
                 category={category}
                 onCategoryChange={setCategory}
+                studyVibe={studyVibe}
+                onStudyVibeChange={setStudyVibe}
                 subdistrict={subdistrict}
                 onSubdistrictChange={setSubdistrict}
                 campusAccess={campusAccess}
@@ -282,9 +374,16 @@ export default function TambahTempatPage() {
             <GisGuideSidebar
               lat={lat}
               lng={lng}
+              isLocationSet={isLocationSet}
               onLocationChange={(newLat, newLng) => {
                 setLat(newLat);
                 setLng(newLng);
+                setIsLocationSet(true);
+              }}
+              onAddressDetected={(detectedAddress) => {
+                if (!address.trim()) {
+                  setAddress(detectedAddress);
+                }
               }}
             />
           </form>

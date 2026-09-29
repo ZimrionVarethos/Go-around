@@ -80,6 +80,9 @@ export interface RecommendationPlace {
 
   image_url: string | null;
   is_open_now: boolean | null;
+  is_24_hours?: boolean | null;
+  open_time?: string | null;
+  close_time?: string | null;
   last_verified_at: string | null;
 
   score_breakdown: RecommendationScoreBreakdown;

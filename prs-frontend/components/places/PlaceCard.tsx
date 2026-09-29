@@ -20,10 +20,12 @@ import {
 import {
   formatNugasScore,
   formatRupiah,
+  getScoreTier,
   noiseLevelLabel,
   plugAvailabilityLabel,
   wifiQualityLabel,
 } from '@/lib/utils';
+import { cn } from '@/lib/cn';
 
 export type PlaceCardPlace = PlaceListItem | RecommendationPlace;
 
@@ -55,14 +57,21 @@ function formatPriceRange(minimum: number | null, maximum: number | null): strin
 }
 
 function getOperationalLabel(place: PlaceCardPlace): string | null {
+  if (place.is_24_hours) return 'Buka 24 jam';
+
+  if (place.open_time && place.close_time) {
+    return `${place.open_time.slice(0, 5)} – ${place.close_time.slice(0, 5)} WIB`;
+  }
+
+  if (place.close_time) {
+    return `Tutup ${place.close_time.slice(0, 5)} WIB`;
+  }
+
   if (isRecommendationPlace(place)) {
     if (place.is_open_now === true) return 'Buka sekarang';
     if (place.is_open_now === false) return 'Sedang tutup';
-    return null;
   }
 
-  if (place.is_24_hours) return 'Buka 24 jam';
-  if (place.close_time) return `Tutup ${place.close_time.slice(0, 5)}`;
   return null;
 }
 
@@ -107,10 +116,14 @@ export function PlaceCard({
   onToast,
 }: PlaceCardProps) {
   const recommendation = isRecommendationPlace(place) ? place : null;
-  const score = isRecommendationPlace(place)
-    ? `${Math.round(place.recommendation_score)}%`
-    : formatNugasScore(place.nugas_score);
+  const numericScore = recommendation
+    ? recommendation.recommendation_score
+    : (place as PlaceListItem).nugas_score;
+  const score = recommendation
+    ? `${Math.round(recommendation.recommendation_score)}%`
+    : formatNugasScore((place as PlaceListItem).nugas_score);
   const scoreLabel = recommendation ? 'cocok' : 'skor';
+  const tier = getScoreTier(numericScore);
   const distance = formatDistance(recommendation?.distance_km ?? null);
   const operationalLabel = getOperationalLabel(place);
   const metrics = metricCopy(place);
@@ -173,9 +186,14 @@ export function PlaceCard({
             <h3 className={`${isSelected ? 'text-[15px]' : 'text-sm'} min-w-0 truncate font-extrabold leading-snug tracking-tight text-slate-900`}>
               {place.name}
             </h3>
-            <span className={isSelected
-              ? 'inline-flex shrink-0 items-baseline gap-1 rounded-lg bg-[#005B54] px-2.5 py-1 text-xs font-extrabold tabular-nums text-white'
-              : 'inline-flex shrink-0 items-baseline gap-1 rounded-lg bg-amber-50 px-2 py-1 text-xs font-extrabold tabular-nums text-amber-900 ring-1 ring-amber-200'}>
+            <span
+              className={cn(
+                'inline-flex shrink-0 items-baseline gap-1 rounded-lg px-2 py-1 text-xs font-extrabold tabular-nums transition-colors',
+                isSelected
+                  ? 'bg-[#005B54] text-white shadow-xs'
+                  : `${tier.bgColor} ${tier.textColor} ring-1 ${tier.ringColor}`,
+              )}
+            >
               {score}
               <span className="text-[9px] font-semibold opacity-80">{scoreLabel}</span>
             </span>
@@ -186,9 +204,17 @@ export function PlaceCard({
             <span className="truncate">{place.subdistrict}{distance ? ` · ${distance}` : ''}</span>
           </p>
 
-          <p className="mt-1 truncate text-[11px] font-semibold text-[#005B54]">
-            {price}{operationalLabel ? ` · ${operationalLabel}` : ''}
-          </p>
+          <div className="mt-1 flex items-center gap-1.5 truncate text-[11px]">
+            <span className="font-semibold text-[#005B54]">{price}</span>
+            {operationalLabel && (
+              <>
+                <span className="text-slate-300">·</span>
+                <span className="font-medium text-slate-600 truncate">
+                  {operationalLabel}
+                </span>
+              </>
+            )}
+          </div>
 
           {place.google_rating !== null && (
             <p className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600">
@@ -245,7 +271,7 @@ export function PlaceCard({
 
           <details className="rounded-xl bg-slate-50 px-3 py-2 ring-1 ring-slate-200">
             <summary className="cursor-pointer text-[11px] font-bold text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54]">
-              Lihat rincian skor
+              Lihat rincian skor kecocokan (%)
             </summary>
             <div className="pt-3">
               <RecommendationScoreBreakdown value={recommendation.score_breakdown} />

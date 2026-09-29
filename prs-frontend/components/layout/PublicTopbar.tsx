@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import {
   MapPinPlus,
@@ -10,11 +10,6 @@ import {
   Sparkles,
   Menu,
   X,
-  Check,
-  RotateCcw,
-  Wifi,
-  Zap,
-  Coffee,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useToast, type ToastType } from '@/hooks/useToast';
@@ -27,6 +22,9 @@ export interface PublicTopbarProps {
   onSearch?: (query: string) => void;
   onAiSearch?: (aiQuery: string) => void;
   onPlaceSelect?: (place: PlaceSearchSuggestion) => void;
+  onOpenCriteria?: () => void;
+  isCriteriaOpen?: boolean;
+  activeFilterCount?: number;
 }
 
 export function PublicTopbar({
@@ -34,6 +32,9 @@ export function PublicTopbar({
   onSearch,
   onAiSearch,
   onPlaceSelect,
+  onOpenCriteria,
+  isCriteriaOpen = false,
+  activeFilterCount = 0,
 }: PublicTopbarProps) {
   const { toasts, showToast, dismissToast } = useToast();
   const triggerToast = onToast || showToast;
@@ -46,43 +47,6 @@ export function PublicTopbar({
   // Search States
   const [regularQuery, setRegularQuery] = useState('');
   const [aiQuery, setAiQuery] = useState('');
-
-  // Popover States
-  const [filterOpen, setFilterOpen] = useState(false);
-
-  // Filter States
-  const [minScore, setMinScore] = useState<string>('all');
-  const [plugPref, setPlugPref] = useState<string>('abundant');
-  const [wifiPref, setWifiPref] = useState<string>('all');
-  const [ambiancePref, setAmbiancePref] = useState<string>('all');
-  const [extraFacilities, setExtraFacilities] = useState<Record<string, boolean>>({
-    open24h: false,
-    musholla: true,
-    carParking: false,
-    acArea: true,
-  });
-
-  // Count active filters
-  const activeFilterCount =
-    (minScore !== 'all' ? 1 : 0) +
-    (plugPref !== 'all' ? 1 : 0) +
-    (wifiPref !== 'all' ? 1 : 0) +
-    (ambiancePref !== 'all' ? 1 : 0) +
-    Object.values(extraFacilities).filter(Boolean).length;
-
-  // Outside click handler references
-  const filterRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
-        setFilterOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   // Handlers for Search
   const handleRegularSearchSubmit = (query: string) => {
@@ -105,26 +69,6 @@ export function PublicTopbar({
     setMobileSearchOpen(false);
     onAiSearch?.(query);
     triggerToast(`Mencari spot sesuai kebutuhan "${query}"...`, 'info', 3000);
-  };
-
-  const resetFilters = () => {
-    setMinScore('all');
-    setPlugPref('all');
-    setWifiPref('all');
-    setAmbiancePref('all');
-    setExtraFacilities({
-      open24h: false,
-      musholla: false,
-      carParking: false,
-      acArea: false,
-    });
-    triggerToast('Semua filter dikembalikan ke default', 'info');
-  };
-
-  const applyFilters = () => {
-    setFilterOpen(false);
-    // TODO [BACKEND]: Connect to GET /api/v1/places with filter params
-    triggerToast(`Filter diterapkan (${activeFilterCount} kriteria aktif)`, 'success');
   };
 
   return (
@@ -273,214 +217,28 @@ export function PublicTopbar({
 
           {/* Interactive GIS Control Group (Filter & Preferences) */}
           <div className="hidden sm:flex items-center gap-1 shrink-0">
-            {/* Filter & GIS Button */}
-            <div className="relative" ref={filterRef}>
-              <button
-                type="button"
-                onClick={() => {
-                  setFilterOpen(!filterOpen);
-                }}
-                title="Pengaturan GIS & Filter"
-                className={cn(
-                  'w-9 h-9 flex items-center justify-center rounded-[10px] border transition-all cursor-pointer relative',
-                  filterOpen
-                    ? 'bg-[#005B54] text-white border-[#005B54] shadow-xs'
-                    : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'
-                )}
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                {activeFilterCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#005B54] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Filter Popover */}
-              {filterOpen && (
-                <div className="fixed sm:absolute inset-x-3 sm:inset-x-auto top-20 sm:top-[48px] sm:right-0 w-auto sm:w-[360px] max-w-[calc(100vw-24px)] bg-white rounded-2xl border border-gray-200 shadow-2xl p-4 flex flex-col gap-3.5 z-50 max-h-[82vh] overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-150">
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-                    <div>
-                      <h4 className="text-xs font-bold text-gray-900">Pengaturan GIS & Filter</h4>
-                      <p className="text-[11px] text-gray-500">Sesuaikan kriteria spot nugas</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setFilterOpen(false)}
-                      className="text-gray-400 hover:text-gray-600 p-1 rounded-md"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {/* 1. Skor Nugas Minimum */}
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[11px] font-bold text-gray-600">MINIMUM SKOR NUGAS</span>
-                    <div className="grid grid-cols-4 gap-1 text-[11px]">
-                      {[
-                        { id: 'all', label: 'Semua' },
-                        { id: '8', label: '★ ≥ 8.0' },
-                        { id: '9', label: '★ ≥ 9.0' },
-                        { id: '9.5', label: '★ ≥ 9.5' },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setMinScore(item.id)}
-                          className={cn(
-                            'py-1.5 rounded-lg border font-semibold transition-colors cursor-pointer',
-                            minScore === item.id
-                              ? 'bg-[#005B54] text-white border-[#005B54]'
-                              : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                          )}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 2. Colokan Meja */}
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[11px] font-bold text-gray-600 flex items-center gap-1">
-                      <Zap className="w-3 h-3 text-amber-500" />
-                      <span>KETERSEDIAAN COLOKAN</span>
-                    </span>
-                    <div className="grid grid-cols-3 gap-1 text-[11px]">
-                      {[
-                        { id: 'all', label: 'Bebas' },
-                        { id: 'moderate', label: 'Cukup' },
-                        { id: 'abundant', label: 'Tiap Meja' },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setPlugPref(item.id)}
-                          className={cn(
-                            'py-1.5 rounded-lg border font-semibold transition-colors cursor-pointer',
-                            plugPref === item.id
-                              ? 'bg-[#005B54] text-white border-[#005B54]'
-                              : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                          )}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 3. Kecepatan WiFi */}
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[11px] font-bold text-gray-600 flex items-center gap-1">
-                      <Wifi className="w-3 h-3 text-[#005B54]" />
-                      <span>KECEPATAN WIFI</span>
-                    </span>
-                    <div className="grid grid-cols-4 gap-1 text-[10.5px]">
-                      {[
-                        { id: 'all', label: 'Bebas' },
-                        { id: '30', label: '>30 Mbps' },
-                        { id: '50', label: '>50 Mbps' },
-                        { id: '100', label: '>100 Mbps' },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setWifiPref(item.id)}
-                          className={cn(
-                            'py-1.5 rounded-lg border font-semibold transition-colors cursor-pointer',
-                            wifiPref === item.id
-                              ? 'bg-[#005B54] text-white border-[#005B54]'
-                              : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                          )}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 4. Suasana / Akustik */}
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[11px] font-bold text-gray-600 flex items-center gap-1">
-                      <Coffee className="w-3 h-3 text-[#005B54]" />
-                      <span>SUASANA & AKUSTIK</span>
-                    </span>
-                    <div className="grid grid-cols-3 gap-1 text-[11px]">
-                      {[
-                        { id: 'all', label: 'Semua' },
-                        { id: 'quiet', label: 'Tenang' },
-                        { id: 'moderate', label: 'Kondusif' },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setAmbiancePref(item.id)}
-                          className={cn(
-                            'py-1.5 rounded-lg border font-semibold transition-colors cursor-pointer',
-                            ambiancePref === item.id
-                              ? 'bg-[#005B54] text-white border-[#005B54]'
-                              : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                          )}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 5. Fasilitas Tambahan Checkbox */}
-                  <div className="flex flex-col gap-2 pt-1 border-t border-gray-100">
-                    <span className="text-[11px] font-bold text-gray-600">FASILITAS WAJIB</span>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      {[
-                        { key: 'musholla', label: 'Musholla' },
-                        { key: 'acArea', label: 'Area Ber-AC' },
-                        { key: 'carParking', label: 'Parkir Mobil' },
-                        { key: 'open24h', label: 'Buka 24 Jam' },
-                      ].map((facility) => (
-                        <label
-                          key={facility.key}
-                          className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-50 cursor-pointer select-none"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={extraFacilities[facility.key]}
-                            onChange={(e) =>
-                              setExtraFacilities((prev) => ({
-                                ...prev,
-                                [facility.key]: e.target.checked,
-                              }))
-                            }
-                            className="rounded text-[#005B54] focus:ring-[#005B54]"
-                          />
-                          <span className="text-gray-700 font-medium">{facility.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
-                    <button
-                      type="button"
-                      onClick={resetFilters}
-                      className="flex items-center justify-center gap-1 py-2 px-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold cursor-pointer"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Reset</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={applyFilters}
-                      className="flex-1 py-2 px-3 rounded-xl bg-[#005B54] hover:bg-[#004741] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1"
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Terapkan ({activeFilterCount})</span>
-                    </button>
-                  </div>
-                </div>
+            {/* Filter & GIS Button -> Opens Sidebar Recommendation Criteria */}
+            <button
+              type="button"
+              onClick={() => {
+                onOpenCriteria?.();
+              }}
+              title="Atur Kriteria & Parameter Nugas"
+              aria-label="Buka pengaturan kriteria nugas"
+              className={cn(
+                'w-9 h-9 flex items-center justify-center rounded-[10px] border transition-all cursor-pointer relative',
+                isCriteriaOpen
+                  ? 'bg-[#005B54] text-white border-[#005B54] shadow-xs ring-2 ring-[#005B54]/20'
+                  : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'
               )}
-            </div>
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#005B54] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
           </div>
 
           {/* Divider */}
@@ -524,7 +282,7 @@ export function PublicTopbar({
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  setFilterOpen(true);
+                  onOpenCriteria?.();
                 }}
                 title="Filter & Preferensi GIS"
                 className="w-full flex items-center justify-between text-xs text-gray-700 p-2.5 rounded-xl hover:bg-gray-50 border border-gray-100 transition-colors"

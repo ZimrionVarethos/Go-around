@@ -6,6 +6,8 @@ import type { PlaceSearchSuggestion, SearchIntent } from '@/lib/search';
 
 interface SearchContextValue {
   searchIntent: SearchIntent | null;
+  openCriteriaTrigger: number;
+  openCriteria: () => void;
   searchByKeyword: (query: string, place?: PlaceSearchSuggestion) => void;
   searchByNeed: (query: string) => void;
 }
@@ -14,10 +16,17 @@ const SearchContext = createContext<SearchContextValue | null>(null);
 
 export function SearchProvider({ children }: { children: React.ReactNode }) {
   const searchSequence = useRef(0);
+  const criteriaSequence = useRef(0);
   const [searchIntent, setSearchIntent] = useState<SearchIntent | null>(null);
+  const [openCriteriaTrigger, setOpenCriteriaTrigger] = useState(0);
 
   const value = useMemo<SearchContextValue>(() => ({
     searchIntent,
+    openCriteriaTrigger,
+    openCriteria: () => {
+      criteriaSequence.current += 1;
+      setOpenCriteriaTrigger(criteriaSequence.current);
+    },
     searchByKeyword: (query, place) => {
       searchSequence.current += 1;
       setSearchIntent({
@@ -35,7 +44,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         query,
       });
     },
-  }), [searchIntent]);
+  }), [searchIntent, openCriteriaTrigger]);
 
   return (
     <SearchContext.Provider value={value}>
@@ -53,13 +62,14 @@ export function useSearchContext(): SearchContextValue {
 }
 
 export function SearchConnectedTopbar() {
-  const { searchByKeyword, searchByNeed } = useSearchContext();
+  const { searchByKeyword, searchByNeed, openCriteria } = useSearchContext();
 
   return (
     <PublicTopbar
       onSearch={(query) => searchByKeyword(query)}
       onPlaceSelect={(place) => searchByKeyword(place.name, place)}
       onAiSearch={searchByNeed}
+      onOpenCriteria={openCriteria}
     />
   );
 }

@@ -147,10 +147,10 @@ export function SearchAutocomplete({
     >
       <div
         className={cn(
-          'flex h-full items-center rounded-xl bg-white ring-1 transition-shadow focus-within:ring-2 focus-within:ring-[#005B54]',
+          'flex h-full items-center rounded-xl bg-white border transition-all',
           tone === 'need'
-            ? 'bg-[#F2F8F6] ring-teal-200'
-            : 'ring-slate-200',
+            ? 'bg-[#F4FAF8] border-[#005B54]/25 hover:border-[#005B54]/50 focus-within:border-[#005B54] focus-within:ring-2 focus-within:ring-[#005B54]/15 focus-within:bg-white'
+            : 'border-slate-200/90 hover:border-slate-300 focus-within:border-[#005B54] focus-within:ring-2 focus-within:ring-[#005B54]/15',
         )}
       >
         {tone === 'need' ? (

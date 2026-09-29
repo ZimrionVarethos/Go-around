@@ -18,17 +18,19 @@ export default function LaporFasilitasPage() {
           <div className="flex items-center gap-3 min-w-0">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:text-[#005B54] bg-gray-50 hover:bg-teal-50/60 rounded-[10px] border border-gray-200 transition-all active:scale-[0.98] cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#005B54] bg-gray-50 hover:bg-teal-50/60 rounded-xl border border-gray-200 transition-all active:scale-[0.98] cursor-pointer shrink-0"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Kembali ke Peta</span>
             </Link>
             <div className="h-4 w-px bg-gray-200" />
-            <span className="text-xs font-bold text-gray-900 truncate">Lapor Fasilitas</span>
+            <span className="text-sm font-bold text-gray-900 truncate">
+              Lapor &amp; Koreksi Fasilitas
+            </span>
           </div>
 
           <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs text-gray-500 font-medium">
+            <span className="text-xs sm:text-sm text-[#005B54] font-bold bg-[#E0F3EE] px-3 py-1 rounded-full border border-teal-200/60">
               Laporan Publik &amp; Anonim
             </span>
           </div>
@@ -42,7 +44,7 @@ export default function LaporFasilitasPage() {
           <h1 className="text-[26px] sm:text-[32px] font-extrabold text-[#005B54] leading-[34px] sm:leading-[40px] tracking-[-0.03em]">
             Lapor &amp; Koreksi Fasilitas Tempat Nugas
           </h1>
-          <p className="text-gray-600 text-xs sm:text-sm max-w-3xl leading-relaxed">
+          <p className="text-gray-600 text-sm max-w-3xl leading-relaxed">
             Temukan colokan mati, Wi-Fi lambat, lonjakan harga, atau perubahan jam operasional? Laporkan kendala secara anonim agar kurator mahasiswa SV IPB segera memvalidasi dan memperbarui data spasial peta.
           </p>
         </div>

@@ -3,58 +3,143 @@
 import { Zap, Headphones, Banknote, Clock, SlidersHorizontal, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import type { PlaceFilters } from '@/lib/types';
+import {
+  DEFAULT_RECOMMENDATION_REQUEST,
+  normalizeRecommendationWeights,
+  type RecommendationRequest,
+} from '@/lib/recommendations';
 
 export interface FilterBarProps {
-  filters: PlaceFilters;
-  onFilterChange: (newFilters: PlaceFilters) => void;
+  filters?: PlaceFilters;
+  onFilterChange?: (newFilters: PlaceFilters) => void;
+  recommendationRequest?: RecommendationRequest;
+  onRecommendationRequestChange?: (newRequest: RecommendationRequest) => void;
   className?: string;
 }
 
 export function FilterBar({
   filters,
   onFilterChange,
+  recommendationRequest,
+  onRecommendationRequestChange,
   className,
 }: FilterBarProps) {
-  // Check active states
-  const isPlugActive = filters.plug_availability === 'abundant';
-  const isQuietActive = filters.noise_level === 'quiet';
-  const isBudgetActive = (filters.max_price ?? 0) === 25000;
-  const is24HoursActive = !!filters.is_24_hours;
+  // Check active states directly from recommendationRequest if available, else fallback to filters
+  const isPlugActive = recommendationRequest
+    ? recommendationRequest.must_have.includes('plug')
+    : filters?.plug_availability === 'abundant';
+
+  const isQuietActive = recommendationRequest
+    ? (recommendationRequest.weights.quiet >= 0.25 || recommendationRequest.preset === 'quiet')
+    : filters?.noise_level === 'quiet';
+
+  const isBudgetActive = recommendationRequest
+    ? (recommendationRequest.max_price !== null && recommendationRequest.max_price <= 25000)
+    : (filters?.max_price ?? 0) === 25000;
+
+  const is24HoursActive = recommendationRequest
+    ? !!recommendationRequest.open_now
+    : !!filters?.is_24_hours;
 
   const togglePlug = () => {
-    onFilterChange({
-      ...filters,
-      plug_availability: isPlugActive ? undefined : 'abundant',
-    });
+    if (recommendationRequest && onRecommendationRequestChange) {
+      const willBeActive = !isPlugActive;
+      const mustHave = new Set(recommendationRequest.must_have);
+      const weights = { ...recommendationRequest.weights };
+      if (willBeActive) {
+        mustHave.add('plug');
+        weights.plug = Math.max(weights.plug, 0.3);
+      } else {
+        mustHave.delete('plug');
+      }
+      onRecommendationRequestChange({
+        ...recommendationRequest,
+        must_have: [...mustHave],
+        weights: normalizeRecommendationWeights(weights),
+      });
+    }
+
+    if (filters && onFilterChange) {
+      onFilterChange({
+        ...filters,
+        plug_availability: isPlugActive ? undefined : 'abundant',
+      });
+    }
   };
 
   const toggleQuiet = () => {
-    onFilterChange({
-      ...filters,
-      noise_level: isQuietActive ? undefined : 'quiet',
-    });
+    if (recommendationRequest && onRecommendationRequestChange) {
+      const willBeActive = !isQuietActive;
+      const weights = { ...recommendationRequest.weights };
+      weights.quiet = willBeActive ? 0.35 : 0.15;
+      onRecommendationRequestChange({
+        ...recommendationRequest,
+        preset: willBeActive ? 'quiet' : 'balanced',
+        weights: normalizeRecommendationWeights(weights),
+      });
+    }
+
+    if (filters && onFilterChange) {
+      onFilterChange({
+        ...filters,
+        noise_level: isQuietActive ? undefined : 'quiet',
+      });
+    }
   };
 
   const toggleBudget = () => {
-    onFilterChange({
-      ...filters,
-      max_price: isBudgetActive ? undefined : 25000,
-    });
+    if (recommendationRequest && onRecommendationRequestChange) {
+      const willBeActive = !isBudgetActive;
+      const weights = { ...recommendationRequest.weights };
+      if (willBeActive) {
+        weights.price = Math.max(weights.price, 0.3);
+      }
+      onRecommendationRequestChange({
+        ...recommendationRequest,
+        max_price: willBeActive ? 25000 : null,
+        weights: normalizeRecommendationWeights(weights),
+      });
+    }
+
+    if (filters && onFilterChange) {
+      onFilterChange({
+        ...filters,
+        max_price: isBudgetActive ? undefined : 25000,
+      });
+    }
   };
 
   const toggle24Hours = () => {
-    onFilterChange({
-      ...filters,
-      is_24_hours: is24HoursActive ? undefined : true,
-    });
+    if (recommendationRequest && onRecommendationRequestChange) {
+      onRecommendationRequestChange({
+        ...recommendationRequest,
+        open_now: !is24HoursActive,
+      });
+    }
+
+    if (filters && onFilterChange) {
+      onFilterChange({
+        ...filters,
+        is_24_hours: is24HoursActive ? undefined : true,
+      });
+    }
   };
 
   const resetFilters = () => {
-    onFilterChange({
-      search: filters.search,
-      sort_by: filters.sort_by,
-      order: filters.order,
-    });
+    if (recommendationRequest && onRecommendationRequestChange) {
+      onRecommendationRequestChange({
+        ...DEFAULT_RECOMMENDATION_REQUEST,
+        location: recommendationRequest.location,
+      });
+    }
+
+    if (filters && onFilterChange) {
+      onFilterChange({
+        search: filters.search,
+        sort_by: filters.sort_by,
+        order: filters.order,
+      });
+    }
   };
 
   return (

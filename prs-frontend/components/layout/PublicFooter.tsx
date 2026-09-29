@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Coffee } from 'lucide-react';
+import Image from 'next/image';
+import { ExternalLink } from 'lucide-react';
 
 export function PublicFooter() {
   return (
@@ -18,20 +19,21 @@ export function PublicFooter() {
             Go Around Bogor © 2026 · SV IPB
           </span>
         </div>
-        {/* Row 2: coffee button + tentang riset */}
-        <div className="flex items-center justify-between px-3 h-9 gap-2 border-t border-gray-100">
+        {/* Row 2: saweria button + tentang riset */}
+        <div className="flex items-center justify-between px-3 h-10 gap-2 border-t border-gray-100">
           <a
-            href="https://buymeacoffee.com"
+            href="https://saweria.co/goaround"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 px-2.5 py-1 font-bold bg-[#FFDD00] hover:bg-[#FACC15] text-gray-900 rounded-full border border-black/10 transition-colors text-[10px]"
+            className="inline-flex items-center gap-1.5 px-3 py-1 font-bold bg-[#FAAE2B] hover:bg-[#F59E0B] text-gray-900 rounded-full border border-black/10 transition-colors text-xs shadow-2xs"
           >
-            <Coffee className="w-3 h-3 fill-gray-900" />
-            <span>Buy me a coffee</span>
+            <Image src="/saweria.png" alt="Saweria" width={18} height={18} className="w-4.5 h-4.5 object-contain" />
+            <span>Dukung Riset</span>
+            <ExternalLink className="w-3.5 h-3.5 opacity-70" />
           </a>
           <Link
             href="/tentang-riset"
-            className="text-gray-400 hover:text-gray-700 font-medium transition-colors text-[10px]"
+            className="text-gray-400 hover:text-gray-700 font-medium transition-colors text-[11px]"
           >
             Tentang Riset
           </Link>
@@ -39,7 +41,7 @@ export function PublicFooter() {
       </div>
 
       {/* ── Desktop layout: single row (sm+) ── */}
-      <div className="hidden sm:flex items-center justify-between px-6 h-10 gap-4">
+      <div className="hidden sm:flex items-center justify-between px-6 h-11 gap-4">
         {/* Left */}
         <div className="flex items-center gap-3 min-w-0">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#D1FAE5] text-[#005B54] font-semibold text-[11px] shrink-0">
@@ -51,17 +53,17 @@ export function PublicFooter() {
           </span>
         </div>
 
-        {/* Center */}
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-gray-500 font-medium hidden md:inline">❤️ Support Riset :</span>
+        {/* Center: Dukung Riset button */}
+        <div className="flex items-center shrink-0">
           <a
-            href="https://buymeacoffee.com"
+            href="https://saweria.co/goaround"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-0.5 font-bold bg-[#FFDD00] hover:bg-[#FACC15] text-gray-900 rounded-full border border-black/10 shadow-2xs transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-1.5 font-bold bg-[#FAAE2B] hover:bg-[#F59E0B] text-gray-900 rounded-full border border-black/10 shadow-2xs hover:shadow-xs transition-all text-xs"
           >
-            <Coffee className="w-3.5 h-3.5 fill-gray-900" />
-            <span>Buy me a coffee</span>
+            <Image src="/saweria.png" alt="Saweria" width={20} height={20} className="w-5 h-5 object-contain" />
+            <span>Dukung Riset</span>
+            <ExternalLink className="w-3.5 h-3.5 opacity-80" />
           </a>
         </div>
 

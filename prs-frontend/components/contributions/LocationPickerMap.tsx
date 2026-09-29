@@ -1,9 +1,9 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Circle, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Circle, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 // Fix Leaflet default icon path
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
@@ -12,6 +12,19 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
+
+function MapViewController({ lat, lng }: { lat: number; lng: number }) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.flyTo([lat, lng], 17, {
+      animate: true,
+      duration: 1.2,
+    });
+  }, [lat, lng, map]);
+
+  return null;
+}
 
 function createDraggablePin(): L.DivIcon {
   return L.divIcon({
@@ -101,6 +114,9 @@ export default function LocationPickerMap({ lat, lng, onChange }: LocationPicker
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+
+      {/* Dynamic View Controller for flyTo */}
+      <MapViewController lat={lat} lng={lng} />
 
       {/* Radius / Buffer Circle */}
       <Circle

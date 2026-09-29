@@ -26,64 +26,64 @@ export function PhotoUploadSection({
   onImageUpload,
 }: PhotoUploadSectionProps) {
   return (
-    <section className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-5 sm:p-7 space-y-5">
+    <section className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-6 sm:p-8 space-y-6">
       {/* Header with Step 4 Circle */}
-      <div className="flex items-start gap-3">
-        <div className="w-7 h-7 rounded-lg bg-[#005B54] text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+      <div className="flex items-start gap-3.5 pb-4 border-b border-gray-100">
+        <div className="w-8 h-8 rounded-xl bg-[#005B54] text-white font-bold text-sm flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
           4
         </div>
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="text-sm sm:text-base font-bold text-gray-900">
-              Lampirkan Foto Lapangan
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">
+              Lampirkan Bukti Lapangan
             </h2>
-            <span className="text-xs text-gray-500 font-normal">
-              (Opsional)
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">
+              Opsional
             </span>
           </div>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Unggah bukti foto fisik fasilitas &amp; jaringan untuk mempercepat verifikasi relawan dan meningkatkan skor validasi spot nugas.
+          <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+            Unggah foto suasana, hasil uji kecepatan internet, atau foto menu untuk mempermudah verifikasi relawan.
           </p>
         </div>
       </div>
 
       {/* 3 Upload Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: Foto Suasana */}
-        <div className="border border-gray-200/90 rounded-[14px] p-3.5 flex flex-col justify-between space-y-3 bg-gray-50/50 hover:bg-white transition-colors">
+        <div className="border border-gray-200 rounded-xl p-4 flex flex-col justify-between space-y-3 bg-gray-50/40 hover:bg-white transition-colors">
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <ImageIcon className="w-4 h-4 text-[#005B54]" />
-              <span className="text-[10px] font-bold bg-[#E0F3EE] text-[#005B54] px-1.5 py-0.5 rounded-md">
-                SPOT UTAMA
+            <div className="flex items-center justify-between mb-1.5">
+              <ImageIcon className="w-4.5 h-4.5 text-[#005B54]" />
+              <span className="text-xs font-bold bg-[#E0F3EE] text-[#005B54] px-2 py-0.5 rounded-md">
+                Spot Utama
               </span>
             </div>
-            <p className="text-xs font-bold text-gray-900 leading-snug">
-              Foto Suasana &amp; Meja Kerja
+            <p className="text-sm font-bold text-gray-900 leading-snug">
+              Foto Suasana &amp; Meja
             </p>
-            <p className="text-[10.5px] text-gray-400 mt-0.5 leading-tight">
-              Keterangan stopkontak per meja, tata letak kursi &amp; pencahayaan.
+            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+              Keterangan stopkontak tiap meja, kenyamanan kursi &amp; pencahayaan.
             </p>
           </div>
 
           {photoMain ? (
-            <div className="relative w-full h-24 rounded-[10px] overflow-hidden border border-gray-200 group">
+            <div className="relative w-full h-28 rounded-xl overflow-hidden border border-gray-200 group">
               <img src={photoMain} alt="Preview Suasana" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => onPhotoMainChange(null)}
-                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center text-xs transition-colors cursor-pointer"
+                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <label className="border border-dashed border-gray-300 hover:border-[#005B54] hover:bg-teal-50/20 rounded-[10px] p-3 text-center cursor-pointer transition-all bg-white flex flex-col items-center justify-center gap-1.5 active:scale-[0.98]">
-              <Upload className="w-4 h-4 text-gray-400" />
-              <span className="text-[10px] font-semibold bg-[#005B54] text-white px-3 py-1 rounded-[8px] shadow-2xs">
-                Pilih File
+            <label className="border border-dashed border-gray-300 hover:border-[#005B54] hover:bg-teal-50/30 rounded-xl p-4 text-center cursor-pointer transition-all bg-white flex flex-col items-center justify-center gap-2 active:scale-[0.98]">
+              <Upload className="w-5 h-5 text-gray-400" />
+              <span className="text-xs font-bold bg-[#005B54] text-white px-3 py-1.5 rounded-lg shadow-2xs">
+                Pilih File Foto
               </span>
-              <span className="text-[9.5px] text-gray-400">JPG, PNG, WebP · Maks 5MB</span>
+              <span className="text-xs text-gray-400">JPG, PNG · Maks 5MB</span>
               <input
                 type="file"
                 accept="image/*"
@@ -95,40 +95,40 @@ export function PhotoUploadSection({
         </div>
 
         {/* Card 2: Screenshot Speedtest */}
-        <div className="border border-gray-200/90 rounded-[14px] p-3.5 flex flex-col justify-between space-y-3 bg-gray-50/50 hover:bg-white transition-colors">
+        <div className="border border-gray-200 rounded-xl p-4 flex flex-col justify-between space-y-3 bg-gray-50/40 hover:bg-white transition-colors">
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <Wifi className="w-4 h-4 text-[#005B54]" />
-              <span className="text-[10px] font-bold bg-[#E0F3EE] text-[#005B54] px-1.5 py-0.5 rounded-md">
-                MIN. 25 MBPS
+            <div className="flex items-center justify-between mb-1.5">
+              <Wifi className="w-4.5 h-4.5 text-[#005B54]" />
+              <span className="text-xs font-bold bg-[#E0F3EE] text-[#005B54] px-2 py-0.5 rounded-md">
+                Min. 25 Mbps
               </span>
             </div>
-            <p className="text-xs font-bold text-gray-900 leading-snug">
+            <p className="text-sm font-bold text-gray-900 leading-snug">
               Screenshot Speedtest Wi-Fi
             </p>
-            <p className="text-[10.5px] text-gray-400 mt-0.5 leading-tight">
-              Hasil speedtest via Ookla / Fast.com / wifi lab min. 25 Mbps.
+            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+              Tangkapan layar uji kecepatan Ookla / Fast.com saat kamu nugas.
             </p>
           </div>
 
           {photoSpeedtest ? (
-            <div className="relative w-full h-24 rounded-[10px] overflow-hidden border border-gray-200 group">
+            <div className="relative w-full h-28 rounded-xl overflow-hidden border border-gray-200 group">
               <img src={photoSpeedtest} alt="Preview Speedtest" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => onPhotoSpeedtestChange(null)}
-                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center text-xs transition-colors cursor-pointer"
+                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <label className="border border-dashed border-gray-300 hover:border-[#005B54] hover:bg-teal-50/20 rounded-[10px] p-3 text-center cursor-pointer transition-all bg-white flex flex-col items-center justify-center gap-1.5 active:scale-[0.98]">
-              <Upload className="w-4 h-4 text-gray-400" />
-              <span className="text-[10px] font-semibold bg-[#005B54] text-white px-3 py-1 rounded-[8px] shadow-2xs">
-                Upload SS
+            <label className="border border-dashed border-gray-300 hover:border-[#005B54] hover:bg-teal-50/30 rounded-xl p-4 text-center cursor-pointer transition-all bg-white flex flex-col items-center justify-center gap-2 active:scale-[0.98]">
+              <Upload className="w-5 h-5 text-gray-400" />
+              <span className="text-xs font-bold bg-[#005B54] text-white px-3 py-1.5 rounded-lg shadow-2xs">
+                Upload Bukti Uji
               </span>
-              <span className="text-[9.5px] text-gray-400">PNG, JPG · Bukti riil</span>
+              <span className="text-xs text-gray-400">PNG, JPG · Bukti riil</span>
               <input
                 type="file"
                 accept="image/*"
@@ -140,40 +140,40 @@ export function PhotoUploadSection({
         </div>
 
         {/* Card 3: Foto Daftar Menu & Harga */}
-        <div className="border border-gray-200/90 rounded-[14px] p-3.5 flex flex-col justify-between space-y-3 bg-gray-50/50 hover:bg-white transition-colors">
+        <div className="border border-gray-200 rounded-xl p-4 flex flex-col justify-between space-y-3 bg-gray-50/40 hover:bg-white transition-colors">
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <Coffee className="w-4 h-4 text-[#005B54]" />
-              <span className="text-[10px] font-bold bg-[#E0F3EE] text-[#005B54] px-1.5 py-0.5 rounded-md">
-                MENU &amp; HARGA
+            <div className="flex items-center justify-between mb-1.5">
+              <Coffee className="w-4.5 h-4.5 text-[#005B54]" />
+              <span className="text-xs font-bold bg-[#E0F3EE] text-[#005B54] px-2 py-0.5 rounded-md">
+                Menu &amp; Harga
               </span>
             </div>
-            <p className="text-xs font-bold text-gray-900 leading-snug">
-              Foto Daftar Menu &amp; Harga
+            <p className="text-sm font-bold text-gray-900 leading-snug">
+              Foto Daftar Menu &amp; Kasir
             </p>
-            <p className="text-[10.5px] text-gray-400 mt-0.5 leading-tight">
-              Foto papan kasir / buku menu untuk verifikasi harga ramah mahasiswa.
+            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+              Foto papan menu untuk verifikasi harga makanan &amp; minuman mahasiswa.
             </p>
           </div>
 
           {photoMenu ? (
-            <div className="relative w-full h-24 rounded-[10px] overflow-hidden border border-gray-200 group">
+            <div className="relative w-full h-28 rounded-xl overflow-hidden border border-gray-200 group">
               <img src={photoMenu} alt="Preview Menu" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => onPhotoMenuChange(null)}
-                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center text-xs transition-colors cursor-pointer"
+                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <label className="border border-dashed border-gray-300 hover:border-[#005B54] hover:bg-teal-50/20 rounded-[10px] p-3 text-center cursor-pointer transition-all bg-white flex flex-col items-center justify-center gap-1.5 active:scale-[0.98]">
-              <Upload className="w-4 h-4 text-gray-400" />
-              <span className="text-[10px] font-semibold bg-[#005B54] text-white px-3 py-1 rounded-[8px] shadow-2xs">
-                Pilih File
+            <label className="border border-dashed border-gray-300 hover:border-[#005B54] hover:bg-teal-50/30 rounded-xl p-4 text-center cursor-pointer transition-all bg-white flex flex-col items-center justify-center gap-2 active:scale-[0.98]">
+              <Upload className="w-5 h-5 text-gray-400" />
+              <span className="text-xs font-bold bg-[#005B54] text-white px-3 py-1.5 rounded-lg shadow-2xs">
+                Pilih Foto Menu
               </span>
-              <span className="text-[9.5px] text-gray-400">JPG, PNG, WebP · Papan kasir</span>
+              <span className="text-xs text-gray-400">JPG, PNG · Papan kasir</span>
               <input
                 type="file"
                 accept="image/*"

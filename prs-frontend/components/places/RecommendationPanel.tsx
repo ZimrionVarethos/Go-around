@@ -46,6 +46,8 @@ export interface RecommendationPanelProps {
   isRecommendationLoading?: boolean;
   recommendationError?: boolean;
   onRetryRecommendation?: () => void;
+  view?: 'results' | 'criteria';
+  onViewChange?: (view: 'results' | 'criteria') => void;
   className?: string;
 }
 
@@ -68,9 +70,13 @@ export function RecommendationPanel({
   isRecommendationLoading = false,
   recommendationError = false,
   onRetryRecommendation,
+  view: controlledView,
+  onViewChange: controlledOnViewChange,
   className,
 }: RecommendationPanelProps) {
-  const [view, setView] = useState<'results' | 'criteria'>('results');
+  const [internalView, setInternalView] = useState<'results' | 'criteria'>('results');
+  const view = controlledView ?? internalView;
+  const setView = controlledOnViewChange ?? setInternalView;
   const [localRequest, setLocalRequest] = useState<RecommendationRequest>(
     DEFAULT_RECOMMENDATION_REQUEST,
   );
@@ -216,6 +222,7 @@ export function RecommendationPanel({
               request={activeRequest}
               totalCount={spotCount}
               topPlaceName={places[0]?.name ?? null}
+              topMatchScore={places[0] && 'recommendation_score' in places[0] ? Math.round(places[0].recommendation_score) : null}
               onChangeFilter={() => setView('criteria')}
             />
 
