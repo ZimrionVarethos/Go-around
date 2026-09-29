@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FilterBar } from '@/components/places/FilterBar';
 import { PlaceDetailDrawer } from '@/components/places/PlaceDetailDrawer';
 import { MapControls, MapLegend, type TileLayerType, type SpatialOverlays, DEFAULT_SPATIAL_OVERLAYS } from './MapControls';
@@ -17,6 +17,7 @@ import {
   type RecommendationSort,
 } from '@/lib/recommendations';
 import { cn } from '@/lib/cn';
+import { useSearchContext } from '@/components/search/SearchProvider';
 import type L from 'leaflet';
 
 // Dynamic import for Leaflet MapView (client-only, SSR false)
@@ -73,6 +74,7 @@ function recommendationToGeoJsonFeature(place: RecommendationPlace): PlaceGeoJso
 }
 
 export function MapPage() {
+  const { searchIntent } = useSearchContext();
   // Default: clean map without auto-opened drawer, collapsed left panel pill
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [sortTab, setSortTab] = useState<'score' | 'nearby' | 'budget'>('score');
@@ -89,7 +91,33 @@ export function MapPage() {
       longitude: BOGOR_CENTER[1],
     },
   });
+  const appliedSearchId = useRef<number | null>(null);
   const { toasts, showToast, dismissToast } = useToast();
+
+  useEffect(() => {
+    if (!searchIntent || appliedSearchId.current === searchIntent.id) return;
+
+    appliedSearchId.current = searchIntent.id;
+    setSubmittedRequest((current) => ({
+      ...current,
+      search_query: searchIntent.mode === 'keyword' ? searchIntent.query : null,
+      natural_language_query: searchIntent.mode === 'need' ? searchIntent.query : null,
+    }));
+    setSelectedSlug(searchIntent.mode === 'keyword' && searchIntent.place
+      ? searchIntent.place.slug
+      : null);
+    setIsCollapsed(false);
+  }, [searchIntent]);
+
+  useEffect(() => {
+    if (!mapInstance || searchIntent?.mode !== 'keyword' || !searchIntent.place) return;
+
+    mapInstance.flyTo(
+      [searchIntent.place.latitude, searchIntent.place.longitude],
+      16,
+      { duration: 0.8 },
+    );
+  }, [mapInstance, searchIntent]);
 
   const handleToggleOverlay = (key: keyof SpatialOverlays, label: string) => {
     setSpatialOverlays((prev) => {

@@ -12,7 +12,6 @@ import {
   X,
   Check,
   RotateCcw,
-  ArrowRight,
   Wifi,
   Zap,
   Coffee,
@@ -20,21 +19,22 @@ import {
 import { cn } from '@/lib/cn';
 import { useToast, type ToastType } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
+import { SearchAutocomplete } from '@/components/search/SearchAutocomplete';
+import type { PlaceSearchSuggestion } from '@/lib/search';
 
 export interface PublicTopbarProps {
   onToast?: (msg: string, type?: ToastType, durationMs?: number) => void;
   onSearch?: (query: string) => void;
   onAiSearch?: (aiQuery: string) => void;
+  onPlaceSelect?: (place: PlaceSearchSuggestion) => void;
 }
 
-const AI_PROMPT_SUGGESTIONS = [
-  'colokan tiap meja, wifi kenceng, es kopi murah dekat SV IPB',
-  'cafe tenang & hening untuk nugas malam',
-  'es kopi murah < 20rb dengan area outdoor sejuk',
-  'buka 24 jam dengan parkir mobil luas',
-];
-
-export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProps) {
+export function PublicTopbar({
+  onToast,
+  onSearch,
+  onAiSearch,
+  onPlaceSelect,
+}: PublicTopbarProps) {
   const { toasts, showToast, dismissToast } = useToast();
   const triggerToast = onToast || showToast;
 
@@ -46,7 +46,6 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
   // Search States
   const [regularQuery, setRegularQuery] = useState('');
   const [aiQuery, setAiQuery] = useState('');
-  const [isAiFocused, setIsAiFocused] = useState(false);
 
   // Popover States
   const [filterOpen, setFilterOpen] = useState(false);
@@ -72,14 +71,10 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
     Object.values(extraFacilities).filter(Boolean).length;
 
   // Outside click handler references
-  const aiSearchRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (aiSearchRef.current && !aiSearchRef.current.contains(event.target as Node)) {
-        setIsAiFocused(false);
-      }
       if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
         setFilterOpen(false);
       }
@@ -90,21 +85,26 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
   }, []);
 
   // Handlers for Search
-  const handleRegularSearchSubmit = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!regularQuery.trim()) return;
-    onSearch?.(regularQuery.trim());
-    triggerToast(`Mencari "${regularQuery.trim()}" di peta...`, 'info');
+  const handleRegularSearchSubmit = (query: string) => {
+    if (!query.trim()) return;
+    setMobileSearchOpen(false);
+    onSearch?.(query.trim());
+    triggerToast(`Mencari "${query.trim()}" di peta...`, 'info');
+  };
+
+  const handlePlaceSuggestionSelect = (place: PlaceSearchSuggestion) => {
+    setRegularQuery(place.name);
+    setMobileSearchOpen(false);
+    onPlaceSelect?.(place);
+    triggerToast(`Menampilkan ${place.name} di peta.`, 'success', 2500);
   };
 
   const handleAiSearchSubmit = (queryToSearch?: string) => {
     const query = (queryToSearch ?? aiQuery).trim();
     if (!query) return;
-    setIsAiFocused(false);
     setMobileSearchOpen(false);
     onAiSearch?.(query);
-    // TODO [BACKEND]: POST /api/v1/ai/spatial-search { prompt: query }
-    triggerToast(`✨ AI Spatial Match: Menganalisis spot dengan kriteria "${query}"...`, 'success', 4000);
+    triggerToast(`Mencari spot sesuai kebutuhan "${query}"...`, 'info', 3000);
   };
 
   const resetFilters = () => {
@@ -190,63 +190,27 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
 
             {/* Input Row */}
             {mobileSearchMode === 'ai' ? (
-              <div className="flex flex-col gap-2">
-                <div className="relative w-full h-[42px] flex items-center bg-[#F4FAF8] border border-[#A7F3D0] rounded-[12px] px-3">
-                  <Sparkles className="w-4 h-4 text-[#005B54] shrink-0" />
-                  <input
-                    type="text"
-                    autoFocus
-                    value={aiQuery}
-                    onChange={(e) => setAiQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleAiSearchSubmit();
-                    }}
-                    placeholder="Tulis kriteria cafe yang Anda inginkan..."
-                    className="w-full bg-transparent text-xs text-gray-900 placeholder:text-gray-400 pl-2 focus:outline-none"
-                  />
-                  {aiQuery && (
-                    <button
-                      type="button"
-                      onClick={() => handleAiSearchSubmit()}
-                      className="shrink-0 bg-[#005B54] text-white p-1 rounded-md text-[11px] font-bold"
-                    >
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Suggestions Chips */}
-                <div className="flex flex-col gap-1 pt-1">
-                  <span className="text-[11px] font-semibold text-gray-400">Contoh Prompt:</span>
-                  <div className="flex flex-wrap gap-1">
-                    {AI_PROMPT_SUGGESTIONS.map((prompt, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          setAiQuery(prompt);
-                          handleAiSearchSubmit(prompt);
-                        }}
-                        className="text-left text-[11px] bg-gray-50 border border-gray-200/80 hover:bg-[#EAFBF7] hover:border-[#A7F3D0] text-gray-700 hover:text-[#005B54] px-2 py-1 rounded-lg transition-colors cursor-pointer"
-                      >
-                        ✨ {prompt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <SearchAutocomplete
+                mode="need"
+                value={aiQuery}
+                onChange={setAiQuery}
+                onSubmit={handleAiSearchSubmit}
+                placeholder="Contoh: murah, tenang, banyak colokan…"
+                autoFocus
+                tone="need"
+                className="h-[42px] w-full"
+              />
             ) : (
-              <form onSubmit={handleRegularSearchSubmit} className="relative w-full h-[42px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                <input
-                  type="text"
-                  autoFocus
-                  value={regularQuery}
-                  onChange={(e) => setRegularQuery(e.target.value)}
-                  placeholder="Cari cafe, jalan, atau area Bogor..."
-                  className="w-full h-full pl-9 pr-3 text-xs bg-white border border-gray-200 rounded-[10px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#005B54] focus:border-[#005B54]"
-                />
-              </form>
+              <SearchAutocomplete
+                mode="place"
+                value={regularQuery}
+                onChange={setRegularQuery}
+                onSubmit={handleRegularSearchSubmit}
+                onPlaceSelect={handlePlaceSuggestionSelect}
+                placeholder="Cari coffee shop, jalan, atau area…"
+                autoFocus
+                className="h-[42px] w-full"
+              />
             )}
           </div>
         )}
@@ -286,120 +250,26 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
           </div>
 
           {/* Search Input (Tablet & Desktop) */}
-          <form
+          <SearchAutocomplete
+            mode="place"
+            value={regularQuery}
+            onChange={setRegularQuery}
             onSubmit={handleRegularSearchSubmit}
-            className="hidden md:block relative w-[120px] lg:w-[170px] xl:w-[220px] h-[40px] shrink-0"
-          >
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-            <input
-              type="text"
-              value={regularQuery}
-              onChange={(e) => setRegularQuery(e.target.value)}
-              placeholder="Cari cafe, jalan..."
-              className="w-full h-full pl-9 pr-7 text-xs bg-white border border-gray-200 rounded-[12px] text-gray-900 placeholder:text-gray-400 transition-all focus:outline-none focus:ring-1 focus:ring-[#005B54] focus:border-[#005B54]"
-            />
-            {regularQuery && (
-              <button
-                type="button"
-                onClick={() => setRegularQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            )}
-          </form>
+            onPlaceSelect={handlePlaceSuggestionSelect}
+            placeholder="Cari coffee shop…"
+            className="hidden w-[150px] shrink-0 md:block lg:w-[190px] xl:w-[230px]"
+          />
 
           {/* Interactive AI Search Input Bar (Tablet & Desktop) */}
-          <div className="hidden md:block relative shrink-0" ref={aiSearchRef}>
-            <div
-              className={cn(
-                'h-[40px] flex items-center gap-1.5 px-2.5 md:px-3 rounded-[12px] transition-all bg-gradient-to-r from-[#EAFBF7] to-[#F0FAF7] border',
-                isAiFocused
-                  ? 'border-[#005B54] ring-2 ring-[#005B54]/15 bg-white w-[180px] lg:w-[260px] xl:w-[300px] shadow-sm'
-                  : 'border-[#A7F3D0] hover:border-[#6EE7B7] w-[125px] lg:w-[180px] xl:w-[240px]'
-              )}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#005B54] shrink-0" />
-              <input
-                type="text"
-                value={aiQuery}
-                onChange={(e) => setAiQuery(e.target.value)}
-                onFocus={() => {
-                  setIsAiFocused(true);
-                  setFilterOpen(false);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleAiSearchSubmit();
-                }}
-                placeholder="Cari AI..."
-                className="w-full bg-transparent text-xs text-gray-900 placeholder:text-[#005B54]/75 focus:outline-none placeholder:truncate"
-              />
-              {aiQuery ? (
-                <button
-                  type="button"
-                  onClick={() => setAiQuery('')}
-                  className="text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer shrink-0"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              ) : null}
-              {aiQuery ? (
-                <button
-                  type="button"
-                  onClick={() => handleAiSearchSubmit()}
-                  title="Kirim Prompt AI"
-                  className="bg-[#005B54] hover:bg-[#004741] text-white p-1 rounded-md shrink-0 transition-colors cursor-pointer"
-                >
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-              ) : (
-                <span className="text-[10px] font-bold bg-[#005B54] text-white px-1.5 py-0.5 rounded-[4px] shrink-0">
-                  AI
-                </span>
-              )}
-            </div>
-
-            {/* AI Prompt Suggestions Popover */}
-            {isAiFocused && (
-              <div className="absolute top-[48px] right-0 w-[300px] sm:w-[360px] bg-white rounded-2xl border border-gray-200 shadow-xl p-3.5 flex flex-col gap-2.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-gray-900">
-                    <Sparkles className="w-3.5 h-3.5 text-[#005B54]" />
-                    <span>Inspirasi Kebutuhan Spasial AI</span>
-                  </div>
-                  <span className="text-[10px] text-gray-400">Tekan Enter</span>
-                </div>
-
-                <div className="flex flex-col gap-1.5 pt-0.5">
-                  {AI_PROMPT_SUGGESTIONS.map((prompt, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setAiQuery(prompt);
-                        handleAiSearchSubmit(prompt);
-                      }}
-                      className="text-left text-xs bg-gray-50/80 hover:bg-[#EAFBF7] border border-gray-100 hover:border-[#A7F3D0] text-gray-700 hover:text-[#005B54] p-2 rounded-xl transition-all flex items-start gap-2 cursor-pointer group"
-                    >
-                      <span className="text-gray-400 group-hover:text-[#005B54] mt-0.5">•</span>
-                      <span className="flex-1 line-clamp-2">{prompt}</span>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="pt-1 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
-                  <span>Ketik prompt bebas dalam bahasa santai</span>
-                  <button
-                    type="button"
-                    onClick={() => setIsAiFocused(false)}
-                    className="text-[#005B54] font-semibold hover:underline"
-                  >
-                    Tutup
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <SearchAutocomplete
+            mode="need"
+            value={aiQuery}
+            onChange={setAiQuery}
+            onSubmit={handleAiSearchSubmit}
+            placeholder="Tulis kebutuhan…"
+            tone="need"
+            className="hidden w-[150px] shrink-0 md:block lg:w-[220px] xl:w-[280px]"
+          />
 
           {/* Interactive GIS Control Group (Filter & Preferences) */}
           <div className="hidden sm:flex items-center gap-1 shrink-0">
@@ -409,7 +279,6 @@ export function PublicTopbar({ onToast, onSearch, onAiSearch }: PublicTopbarProp
                 type="button"
                 onClick={() => {
                   setFilterOpen(!filterOpen);
-                  setIsAiFocused(false);
                 }}
                 title="Pengaturan GIS & Filter"
                 className={cn(
