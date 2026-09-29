@@ -39,6 +39,7 @@ export interface RecommendationRequest {
   weights: RecommendationWeights;
   open_now: boolean;
   sort_by?: RecommendationSort;
+  search_query?: string | null;
   natural_language_query?: string | null;
   limit: number;
 }

@@ -1,5 +1,8 @@
 import { MOCK_RECOMMENDATION_PLACES } from './mock-data';
-import { normalizeRecommendationRequest } from './presets';
+import {
+  normalizeRecommendationRequest,
+  normalizeRecommendationWeights,
+} from './presets';
 import type {
   RecommendationFacility,
   RecommendationGateway,
@@ -10,6 +13,70 @@ import type {
 } from './types';
 
 const EARTH_RADIUS_KM = 6371;
+
+function normalizeText(value: string): string {
+  return value.toLocaleLowerCase('id-ID').trim();
+}
+
+function matchesKeyword(place: RecommendationPlace, query: string | null | undefined): boolean {
+  if (!query) return true;
+
+  const tokens = normalizeText(query).split(/\s+/).filter(Boolean);
+  const searchableText = normalizeText([
+    place.name,
+    place.address,
+    place.subdistrict,
+    ...place.amenities,
+  ].join(' '));
+
+  return tokens.every((token) => searchableText.includes(token));
+}
+
+function inferNaturalLanguagePreferences(
+  request: RecommendationRequest,
+): RecommendationRequest {
+  const query = normalizeText(request.natural_language_query ?? '');
+  if (!query) return request;
+
+  const mustHave = new Set(request.must_have);
+  const weights = { ...request.weights };
+  const hasAny = (terms: string[]) => terms.some((term) => query.includes(term));
+
+  if (hasAny(['colokan', 'stop kontak', 'charger'])) {
+    mustHave.add('plug');
+    weights.plug += 0.3;
+  }
+  if (hasAny(['wifi', 'wi-fi', 'internet', 'online'])) {
+    mustHave.add('wifi');
+    weights.wifi += 0.3;
+  }
+  if (hasAny(['tenang', 'hening', 'fokus', 'kondusif'])) {
+    weights.quiet += 0.35;
+  }
+  if (hasAny(['murah', 'hemat', 'budget', 'kantong'])) {
+    weights.price += 0.35;
+  }
+  if (hasAny(['dekat', 'terdekat', 'jalan kaki'])) {
+    weights.distance += 0.35;
+  }
+  if (hasAny(['rating', 'ulasan', 'bagus'])) {
+    weights.rating += 0.25;
+  }
+  if (hasAny(['musholla', 'musala'])) mustHave.add('musholla');
+  if (hasAny(['parkir'])) mustHave.add('parking');
+  if (hasAny(['ac', 'air conditioner', 'dingin'])) mustHave.add('air_conditioning');
+
+  const explicitBudget = query.match(/(?:di bawah|maks(?:imal)?|kurang dari|<)?\s*(\d{1,3})\s*(?:rb|ribu|k)\b/);
+  const parsedBudget = explicitBudget ? Number(explicitBudget[1]) * 1000 : null;
+
+  return {
+    ...request,
+    preset: 'custom',
+    max_price: parsedBudget ?? request.max_price,
+    must_have: [...mustHave],
+    weights: normalizeRecommendationWeights(weights),
+  };
+}
 
 function toRadians(value: number): number {
   return (value * Math.PI) / 180;
@@ -144,7 +211,7 @@ function getScenario(): RecommendationMockScenario {
 }
 
 async function wait(milliseconds: number): Promise<void> {
-  await new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+  await new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 export const mockRecommendationGateway: RecommendationGateway = {
@@ -170,12 +237,15 @@ export const mockRecommendationGateway: RecommendationGateway = {
       };
     }
 
-    const request = normalizeRecommendationRequest(input);
+    const request = inferNaturalLanguagePreferences(
+      normalizeRecommendationRequest(input),
+    );
     const source = scenario === 'partial'
       ? MOCK_RECOMMENDATION_PLACES.filter((place) => place.data_confidence !== null && place.data_confidence < 70)
       : MOCK_RECOMMENDATION_PLACES;
 
     const data = source
+      .filter((place) => matchesKeyword(place, request.search_query))
       .map((place) => scorePlace(place, request))
       .filter((place) => (place.distance_km ?? Number.POSITIVE_INFINITY) <= request.radius_km)
       .filter((place) => (

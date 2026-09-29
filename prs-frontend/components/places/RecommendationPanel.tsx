@@ -224,7 +224,10 @@ export function RecommendationPanel({
             ) : recommendationError ? (
               <RecommendationErrorState onRetry={onRetryRecommendation} />
             ) : places.length === 0 ? (
-              <RecommendationEmptyState onChangeCriteria={() => setView('criteria')} />
+              <RecommendationEmptyState
+                query={activeRequest.search_query ?? activeRequest.natural_language_query}
+                onChangeCriteria={() => setView('criteria')}
+              />
             ) : (
               <div className="space-y-3 pb-2">
                 {places.map((place, index) => (

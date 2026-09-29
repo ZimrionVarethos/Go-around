@@ -67,6 +67,7 @@ export const DEFAULT_RECOMMENDATION_REQUEST: RecommendationRequest = {
   weights: RECOMMENDATION_PRESET_WEIGHTS.balanced,
   open_now: false,
   sort_by: 'match',
+  search_query: null,
   natural_language_query: null,
   limit: 20,
 };
@@ -104,6 +105,7 @@ export function normalizeRecommendationRequest(
     weights: normalizeRecommendationWeights(weights),
     must_have: [...new Set(request.must_have)],
     sort_by: request.sort_by ?? 'match',
+    search_query: request.search_query?.trim() || null,
     natural_language_query: request.natural_language_query?.trim() || null,
     limit: Math.max(1, Math.min(50, Math.round(Number(request.limit) || 20))),
   };

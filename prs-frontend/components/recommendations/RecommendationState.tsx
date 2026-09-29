@@ -10,13 +10,21 @@ export function RecommendationLoadingState() {
   );
 }
 
-export function RecommendationEmptyState({ onChangeCriteria }: { onChangeCriteria: () => void }) {
+export function RecommendationEmptyState({
+  onChangeCriteria,
+  query,
+}: {
+  onChangeCriteria: () => void;
+  query?: string | null;
+}) {
   return (
     <div className="flex flex-col items-center px-5 py-9 text-center">
       <SearchX className="h-7 w-7 text-slate-400" aria-hidden="true" />
       <h3 className="mt-3 text-sm font-bold text-slate-900">Belum ada tempat yang cocok</h3>
       <p className="mt-1 max-w-64 text-xs leading-relaxed text-slate-500">
-        Coba tambah radius, naikkan budget, atau kurangi fasilitas wajib.
+        {query
+          ? `Tidak ada hasil untuk “${query}”. Coba kata yang lebih singkat atau longgarkan kriterianya.`
+          : 'Coba tambah radius, naikkan budget, atau kurangi fasilitas wajib.'}
       </p>
       <button
         type="button"

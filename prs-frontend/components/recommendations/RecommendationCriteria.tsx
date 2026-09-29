@@ -156,9 +156,9 @@ export function RecommendationCriteria({
           <div className="flex items-start gap-2.5">
             <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#005B54]" aria-hidden="true" />
             <div>
-              <p className="text-xs font-bold text-slate-800">Pencarian dengan kalimat segera hadir</p>
+              <p className="text-xs font-bold text-slate-800">Pencarian dari kolom atas</p>
               <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
-                Nanti kamu bisa menulis “dekat, murah, dan banyak colokan”. Untuk sekarang gunakan kriteria manual.
+                Kamu bisa mencari nama coffee shop atau menulis kebutuhan seperti “dekat, murah, dan banyak colokan”. Kriteria manual di sini tetap bisa digunakan untuk menyempurnakan hasil.
               </p>
             </div>
           </div>
