@@ -1,16 +1,101 @@
 'use client';
 
-import { MapPin, Navigation, Share2, Wifi, Zap, Volume2 } from 'lucide-react';
+import {
+  CircleHelp,
+  Image as ImageIcon,
+  MapPin,
+  Navigation,
+  Share2,
+  Star,
+  Volume2,
+  Wifi,
+  Zap,
+} from 'lucide-react';
 import type { PlaceListItem } from '@/lib/types';
-import { formatNugasScore, formatRupiah } from '@/lib/utils';
+import type { RecommendationPlace } from '@/lib/recommendations';
+import {
+  DataConfidenceBadge,
+  RecommendationScoreBreakdown,
+} from '@/components/recommendations';
+import {
+  formatNugasScore,
+  formatRupiah,
+  noiseLevelLabel,
+  plugAvailabilityLabel,
+  wifiQualityLabel,
+} from '@/lib/utils';
+
+export type PlaceCardPlace = PlaceListItem | RecommendationPlace;
 
 export interface PlaceCardProps {
-  place: PlaceListItem;
+  place: PlaceCardPlace;
   rank?: number;
   isSelected?: boolean;
   onSelect: (slug: string) => void;
-  onRoute?: (place: PlaceListItem) => void;
+  onRoute?: (place: PlaceCardPlace) => void;
   onToast?: (msg: string, type?: 'success' | 'info' | 'error' | 'warning') => void;
+}
+
+function isRecommendationPlace(place: PlaceCardPlace): place is RecommendationPlace {
+  return 'recommendation_score' in place;
+}
+
+function formatDistance(distance: number | null): string | null {
+  if (distance === null) return null;
+  if (distance < 1) return `${Math.round(distance * 1000)} m`;
+  return `${distance.toLocaleString('id-ID', { maximumFractionDigits: 1 })} km`;
+}
+
+function formatPriceRange(minimum: number | null, maximum: number | null): string {
+  if (minimum === null && maximum === null) return 'Harga belum tersedia';
+  if (minimum !== null && maximum !== null) {
+    return `${formatRupiah(minimum)}–${formatRupiah(maximum)}`;
+  }
+  return minimum !== null ? `Mulai ${formatRupiah(minimum)}` : `Hingga ${formatRupiah(maximum!)}`;
+}
+
+function getOperationalLabel(place: PlaceCardPlace): string | null {
+  if (isRecommendationPlace(place)) {
+    if (place.is_open_now === true) return 'Buka sekarang';
+    if (place.is_open_now === false) return 'Sedang tutup';
+    return null;
+  }
+
+  if (place.is_24_hours) return 'Buka 24 jam';
+  if (place.close_time) return `Tutup ${place.close_time.slice(0, 5)}`;
+  return null;
+}
+
+function metricCopy(place: PlaceCardPlace) {
+  return {
+    wifi: place.wifi_speed_mbps !== null
+      ? {
+          value: `${place.wifi_speed_mbps} Mbps`,
+          detail: place.wifi_quality ? wifiQualityLabel(place.wifi_quality) : 'Kecepatan terukur',
+        }
+      : {
+          value: 'Belum diketahui',
+          detail: 'Wi-Fi belum diverifikasi',
+        },
+    plug: place.plug_availability !== null
+      ? {
+          value: plugAvailabilityLabel(place.plug_availability),
+          detail: 'Ketersediaan colokan',
+        }
+      : {
+          value: 'Belum diketahui',
+          detail: 'Colokan belum diverifikasi',
+        },
+    quiet: place.noise_level !== null
+      ? {
+          value: noiseLevelLabel(place.noise_level),
+          detail: 'Tingkat keramaian',
+        }
+      : {
+          value: 'Belum diketahui',
+          detail: 'Suasana belum diverifikasi',
+        },
+  };
 }
 
 export function PlaceCard({
@@ -21,206 +106,181 @@ export function PlaceCard({
   onRoute,
   onToast,
 }: PlaceCardProps) {
-  const displayScore = formatNugasScore(place.nugas_score);
+  const recommendation = isRecommendationPlace(place) ? place : null;
+  const score = isRecommendationPlace(place)
+    ? `${Math.round(place.recommendation_score)}%`
+    : formatNugasScore(place.nugas_score);
+  const scoreLabel = recommendation ? 'cocok' : 'skor';
+  const distance = formatDistance(recommendation?.distance_km ?? null);
+  const operationalLabel = getOperationalLabel(place);
+  const metrics = metricCopy(place);
+  const price = formatPriceRange(place.price_min_drink, place.price_max_drink);
 
-  // ── Handlers ─────────────────────────────────────────────────────────────
+  const selectPlace = () => onSelect(place.slug);
 
-  const handleRoute = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleRoute = (event: React.MouseEvent) => {
+    event.stopPropagation();
     if (onRoute) {
       onRoute(place);
     } else if (place.google_maps_url) {
-      window.open(place.google_maps_url, '_blank');
-    } else if (place.latitude && place.longitude) {
+      window.open(place.google_maps_url, '_blank', 'noopener,noreferrer');
+    } else {
       window.open(
         `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`,
-        '_blank'
+        '_blank',
+        'noopener,noreferrer',
       );
     }
-    // TODO [BACKEND]: Log route click:
-    //   POST /api/v1/places/:slug/events { event: 'route_click' }
     onToast?.(`Membuka navigasi ke ${place.name}…`, 'info');
   };
 
-  const handleShare = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const shareUrl = typeof window !== 'undefined'
-      ? `${window.location.origin}/peta?place=${place.slug}`
-      : `https://go-around.vercel.app/peta?place=${place.slug}`;
+  const handleShare = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    const shareUrl = `${window.location.origin}/?place=${place.slug}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
-      onToast?.('Tautan lokasi disalin ke clipboard! 📎', 'success');
-      // TODO [BACKEND]: Log share click:
-      //   POST /api/v1/places/:slug/events { event: 'share_click' }
+      onToast?.('Tautan lokasi berhasil disalin.', 'success');
     }).catch(() => {
-      onToast?.('Gagal menyalin tautan', 'error');
+      onToast?.('Tautan belum bisa disalin.', 'error');
     });
   };
 
-  const handleDetail = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onSelect(place.slug);
-  };
-
-  // ── Selected / Expanded Card ──────────────────────────────────────────────
-  if (isSelected) {
-    return (
-      <div
-        onClick={() => onSelect(place.slug)}
-        className="bg-white ring-2 ring-[#005B54] rounded-2xl p-3.5 shadow-[0_12px_28px_-4px_rgba(0,91,84,0.2)] flex flex-col gap-3 transition-all duration-200 cursor-pointer select-none tactile-press"
-      >
-        {/* Top Profile Section */}
-        <div className="flex gap-3.5 items-start">
-          {/* Thumbnail with #1 TOP overlay */}
-          <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-slate-100 shadow-xs">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={place.image_url || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&auto=format&fit=crop&q=80'}
-              alt={place.name}
-              className="w-full h-full object-cover"
-            />
-            <span className="absolute bottom-1 left-1 bg-slate-950/85 backdrop-blur-xs text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border border-white/20 shadow-xs">
-              #{rank} TOP
-            </span>
-          </div>
-
-          {/* Place Identity */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-1.5">
-              <h3 className="text-[15px] font-extrabold text-slate-900 leading-snug tracking-tight truncate">
-                {place.name}
-              </h3>
-              {/* Green Score Badge with Glow */}
-              <div className="bg-[#005B54] text-white text-xs font-extrabold px-2.5 py-0.5 rounded-lg flex items-center gap-1 shrink-0 shadow-[0_2px_8px_rgba(0,91,84,0.3)]">
-                <span className="text-amber-300">★</span>
-                <span>{displayScore}</span>
-              </div>
-            </div>
-
-            <p className="text-xs text-slate-600 flex items-center gap-1 mt-0.5 font-medium">
-              <MapPin className="w-3.5 h-3.5 text-[#005B54] shrink-0" />
-              <span className="truncate">{place.subdistrict} · 850m dari SV IPB</span>
-            </p>
-
-            <p className="text-[11.5px] font-bold text-[#005B54] mt-1">
-              {formatRupiah(place.price_min_drink)} - 32k · <span className="font-semibold text-emerald-800">Sangat Ramah Kantong</span>
-            </p>
-          </div>
-        </div>
-
-        {/* 3-Metric Clean SVG Container */}
-        <div className="bg-slate-50/90 rounded-xl p-2.5 grid grid-cols-3 divide-x divide-slate-200 border border-slate-100 text-center">
-          <div className="px-1 flex flex-col items-center">
-            <div className="flex items-center justify-center gap-1 font-extrabold text-xs text-slate-900 leading-tight">
-              <Wifi className="w-3.5 h-3.5 text-[#005B54] shrink-0" />
-              <span>{place.wifi_speed_mbps ?? 92} Mbps</span>
-            </div>
-            <p className="text-[10px] text-slate-600 mt-0.5 font-medium">Kencang Stabil</p>
-          </div>
-          <div className="px-1 flex flex-col items-center">
-            <div className="flex items-center justify-center gap-1 font-extrabold text-xs text-slate-900 leading-tight">
-              <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>95% Meja</span>
-            </div>
-            <p className="text-[10px] text-slate-600 mt-0.5 font-medium">Ada Colokan</p>
-          </div>
-          <div className="px-1 flex flex-col items-center">
-            <div className="flex items-center justify-center gap-1 font-extrabold text-xs text-slate-900 leading-tight">
-              <Volume2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-              <span>42 dB</span>
-            </div>
-            <p className="text-[10px] text-slate-600 mt-0.5 font-medium">Tenang Nugas</p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 pt-0.5">
-          <button
-            type="button"
-            onClick={handleRoute}
-            className="flex-1 bg-[#005B54] hover:bg-[#004741] active:scale-[0.98] text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
-          >
-            <Navigation className="w-3.5 h-3.5 fill-white" />
-            <span>Buka Rute Maps</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleDetail}
-            className="border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-slate-700 text-xs font-semibold py-2 px-3.5 rounded-xl transition-colors cursor-pointer"
-          >
-            Detail Fasilitas
-          </button>
-          <button
-            type="button"
-            onClick={handleShare}
-            title="Bagikan Lokasi"
-            className="w-8 h-8 border border-slate-200 hover:bg-slate-50 active:bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 hover:text-[#005B54] transition-colors cursor-pointer"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Standard / Unselected Card ────────────────────────────────────────────
   return (
-    <div
-      onClick={() => onSelect(place.slug)}
-      className="bg-white border border-slate-200/90 hover:border-[#005B54]/50 rounded-2xl p-3 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer select-none flex flex-col gap-2.5 tactile-press"
+    <article
+      className={isSelected
+        ? 'flex select-none flex-col gap-3 rounded-2xl bg-white p-3.5 ring-2 ring-[#005B54] shadow-[0_12px_28px_-10px_rgba(0,91,84,0.45)] transition-shadow'
+        : 'flex select-none flex-col gap-2.5 rounded-2xl bg-white p-3 ring-1 ring-slate-200 transition-shadow hover:shadow-[0_8px_20px_-14px_rgba(15,23,42,0.6)]'}
     >
-      <div className="flex gap-3 items-start">
-        {/* Thumbnail */}
-        <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-slate-100 shadow-2xs">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={place.image_url || 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&auto=format&fit=crop&q=80'}
-            alt={place.name}
-            className="w-full h-full object-cover"
-          />
-          <span className="absolute bottom-0.5 left-0.5 bg-slate-950/85 backdrop-blur-xs text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded shadow-xs border border-white/20">
+      <button
+        type="button"
+        onClick={selectPlace}
+        aria-pressed={isSelected}
+        className="flex w-full items-start gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54] focus-visible:ring-offset-2"
+      >
+        <div className={`${isSelected ? 'h-16 w-16' : 'h-14 w-14'} relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 text-slate-400`}>
+          {place.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={place.image_url} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <ImageIcon className="h-5 w-5" aria-hidden="true" />
+          )}
+          <span className="absolute bottom-1 left-1 rounded-md bg-slate-950/85 px-1.5 py-0.5 text-[9px] font-extrabold text-white">
             #{rank}
           </span>
         </div>
 
-        {/* Identity */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-1.5">
-            <h4 className="text-sm font-bold text-slate-900 tracking-tight truncate">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className={`${isSelected ? 'text-[15px]' : 'text-sm'} min-w-0 truncate font-extrabold leading-snug tracking-tight text-slate-900`}>
               {place.name}
-            </h4>
-            {/* Amber/Yellow Score Badge */}
-            <div className="border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shrink-0">
-              <span className="text-amber-500">★</span>
-              <span>{displayScore}</span>
-            </div>
+            </h3>
+            <span className={isSelected
+              ? 'inline-flex shrink-0 items-baseline gap-1 rounded-lg bg-[#005B54] px-2.5 py-1 text-xs font-extrabold tabular-nums text-white'
+              : 'inline-flex shrink-0 items-baseline gap-1 rounded-lg bg-amber-50 px-2 py-1 text-xs font-extrabold tabular-nums text-amber-900 ring-1 ring-amber-200'}>
+              {score}
+              <span className="text-[9px] font-semibold opacity-80">{scoreLabel}</span>
+            </span>
           </div>
 
-          <p className="text-xs text-slate-500 font-medium mt-0.5 truncate flex items-center gap-1">
-            <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
-            <span>{place.subdistrict} · 1.{rank} Km</span>
+          <p className="mt-1 flex items-center gap-1 truncate text-xs font-medium text-slate-500">
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-[#005B54]" aria-hidden="true" />
+            <span className="truncate">{place.subdistrict}{distance ? ` · ${distance}` : ''}</span>
           </p>
 
-          <p className="text-[11px] text-[#005B54] font-semibold mt-0.5">
-            {formatRupiah(place.price_min_drink)} - 28k · {place.is_24_hours ? 'Buka 24 Jam' : 'Buka sd 23:00'}
+          <p className="mt-1 truncate text-[11px] font-semibold text-[#005B54]">
+            {price}{operationalLabel ? ` · ${operationalLabel}` : ''}
           </p>
+
+          {place.google_rating !== null && (
+            <p className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600">
+              <Star className="h-3 w-3 fill-amber-400 text-amber-500" aria-hidden="true" />
+              {place.google_rating.toFixed(1)}
+              {place.total_google_reviews !== null && (
+                <span className="font-medium text-slate-400">({place.total_google_reviews.toLocaleString('id-ID')})</span>
+              )}
+            </p>
+          )}
         </div>
+      </button>
+
+      <div className={isSelected
+        ? 'grid grid-cols-3 divide-x divide-slate-200 rounded-xl bg-slate-50 px-1 py-2.5'
+        : 'flex items-center gap-2 overflow-hidden border-t border-slate-100 pt-2 text-[11px]'}>
+        {[
+          { key: 'wifi', icon: Wifi, copy: metrics.wifi },
+          { key: 'plug', icon: Zap, copy: metrics.plug },
+          { key: 'quiet', icon: Volume2, copy: metrics.quiet },
+        ].map((metric) => {
+          const Icon = metric.icon;
+          return isSelected ? (
+            <div key={metric.key} className="min-w-0 px-1 text-center">
+              <p className="flex items-center justify-center gap-1 text-[11px] font-extrabold text-slate-900">
+                <Icon className="h-3.5 w-3.5 shrink-0 text-[#005B54]" aria-hidden="true" />
+                <span className="truncate">{metric.copy.value}</span>
+              </p>
+              <p className="mt-0.5 truncate text-[9px] font-medium text-slate-500">{metric.copy.detail}</p>
+            </div>
+          ) : (
+            <span key={metric.key} className="inline-flex shrink-0 items-center gap-1 font-medium text-slate-600">
+              <Icon className="h-3 w-3 text-[#005B54]" aria-hidden="true" />
+              {metric.copy.value}
+            </span>
+          );
+        })}
       </div>
 
-      {/* Bottom Inline Metrics Line */}
-      <div className="pt-2 border-t border-slate-100 flex items-center text-[11px] text-slate-600 gap-2 overflow-hidden">
-        <span className="inline-flex items-center gap-1 shrink-0 font-medium">
-          <Wifi className="w-3 h-3 text-[#005B54]" />
-          <span>{place.wifi_speed_mbps ?? 78} Mbps</span>
-        </span>
-        <span className="text-slate-300">•</span>
-        <span className="inline-flex items-center gap-1 shrink-0 font-medium">
-          <Zap className="w-3 h-3 text-amber-500" />
-          <span>Colokan Tersebar</span>
-        </span>
-        <span className="text-slate-300">•</span>
-        <span className="truncate text-teal-800 font-semibold">Outdoor Adem</span>
-      </div>
-    </div>
+      {isSelected && recommendation && (
+        <div className="space-y-3 border-t border-slate-100 pt-3">
+          <DataConfidenceBadge value={recommendation.data_confidence} />
+
+          {recommendation.reasons.length > 0 && (
+            <ul className="space-y-1.5">
+              {recommendation.reasons.map((reason) => (
+                <li key={reason} className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-600">
+                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#005B54]" aria-hidden="true" />
+                  {reason}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <details className="rounded-xl bg-slate-50 px-3 py-2 ring-1 ring-slate-200">
+            <summary className="cursor-pointer text-[11px] font-bold text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54]">
+              Lihat rincian skor
+            </summary>
+            <div className="pt-3">
+              <RecommendationScoreBreakdown value={recommendation.score_breakdown} />
+            </div>
+          </details>
+
+          {recommendation.warnings.map((warning) => (
+            <p key={warning} className="flex items-start gap-1.5 text-[10px] leading-relaxed text-amber-800">
+              <CircleHelp className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
+              {warning}
+            </p>
+          ))}
+        </div>
+      )}
+
+      {isSelected && (
+        <div className="flex items-center gap-2 pt-0.5">
+          <button
+            type="button"
+            onClick={handleRoute}
+            className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#005B54] px-3 text-xs font-bold text-white transition-colors hover:bg-[#004741] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54] focus-visible:ring-offset-2"
+          >
+            <Navigation className="h-3.5 w-3.5" aria-hidden="true" />
+            Buka rute
+          </button>
+          <button
+            type="button"
+            onClick={handleShare}
+            aria-label={`Bagikan ${place.name}`}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 ring-1 ring-slate-200 transition-colors hover:bg-slate-50 hover:text-[#005B54] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54]"
+          >
+            <Share2 className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+      )}
+    </article>
   );
 }
-
