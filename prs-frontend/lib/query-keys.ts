@@ -1,5 +1,6 @@
 import type { BboxParams, NearbyParams, RecommendParams, PlaceFilters } from '@/lib/types';
 import type { RecommendationRequest } from '@/lib/recommendations/types';
+import type { SearchSuggestionMode } from '@/lib/search/types';
 
 export const queryKeys = {
   places: {
@@ -14,4 +15,6 @@ export const queryKeys = {
   amenities: () => ['amenities'] as const,
   recommendations: (request: RecommendationRequest) =>
     ['recommendations', request] as const,
+  searchSuggestions: (mode: SearchSuggestionMode, query: string) =>
+    ['search-suggestions', mode, query] as const,
 } as const;
