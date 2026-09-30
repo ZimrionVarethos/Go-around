@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Onest, JetBrains_Mono } from 'next/font/google';
+import { Suspense } from 'react';
+import { NavigationFeedback } from '@/components/loading/NavigationFeedback';
 import { QueryProvider } from '@/providers/QueryProvider';
 import './globals.css';
 
@@ -41,7 +43,12 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${onest.variable} ${mono.variable}`}
     >
       <body className="min-h-full flex flex-col font-sans antialiased bg-surface-white text-text-900">
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          {children}
+          <Suspense fallback={null}>
+            <NavigationFeedback />
+          </Suspense>
+        </QueryProvider>
       </body>
     </html>
   );

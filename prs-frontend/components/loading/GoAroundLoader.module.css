@@ -1,0 +1,115 @@
+.page,
+.map {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  overflow: hidden;
+  color: #073d38;
+  background: var(--color-canvas-map);
+}
+
+.page { min-height: 100dvh; }
+.map { height: 100%; min-height: 280px; }
+
+.content {
+  --loader-width: min(78vw, 320px);
+  display: flex;
+  width: var(--loader-width);
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.brand {
+  margin: 0;
+  color: var(--color-primary-900);
+  font-family: var(--font-brand);
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.brand > span {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-inline-start: 4px;
+  border-radius: 50%;
+  background: #ecc457;
+}
+
+.route {
+  position: relative;
+  width: 100%;
+  height: 28px;
+}
+
+.route::before {
+  content: '';
+  position: absolute;
+  inset-inline: 7px;
+  top: 13px;
+  height: 2px;
+  background: #cbd9cb;
+}
+
+.start,
+.destination,
+.traveler {
+  position: absolute;
+  top: 7px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.start {
+  inset-inline-start: 0;
+  background: var(--color-primary-900);
+}
+
+.destination {
+  inset-inline-end: 0;
+  border: 3px solid var(--color-primary-900);
+  background: #ecc457;
+}
+
+.traveler {
+  inset-inline-start: 0;
+  z-index: 1;
+  border: 3px solid var(--color-canvas-map);
+  background: var(--color-primary-900);
+  box-shadow: 0 4px 10px rgba(0, 91, 84, 0.18);
+  animation: travel 1.15s cubic-bezier(0.65, 0, 0.35, 1) infinite alternate;
+}
+
+.label {
+  margin: 0;
+  color: #42625a;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.map .content { --loader-width: min(68vw, 260px); gap: 14px; }
+.map .brand { font-size: clamp(24px, 4vw, 34px); }
+.map .label { font-size: 12px; }
+
+@keyframes travel {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(var(--loader-width) - 14px)); }
+}
+
+@media (max-width: 420px) {
+  .content { --loader-width: min(82vw, 290px); }
+  .map .content { --loader-width: min(74vw, 250px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .traveler {
+    inset-inline-start: calc(50% - 7px);
+    animation: none;
+  }
+}

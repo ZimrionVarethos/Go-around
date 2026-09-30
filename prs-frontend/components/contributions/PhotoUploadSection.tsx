@@ -25,6 +25,8 @@ export function PhotoUploadSection({
   onPhotoMenuChange,
   onImageUpload,
 }: PhotoUploadSectionProps) {
+  const hasEvidence = Boolean(photoMain || photoSpeedtest || photoMenu);
+
   return (
     <section className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-6 sm:p-8 space-y-6">
       {/* Header with Step 4 Circle */}
@@ -35,14 +37,20 @@ export function PhotoUploadSection({
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-base sm:text-lg font-bold text-gray-900">
-              Lampirkan Bukti Lapangan
+              Lampirkan Bukti Lapangan <span className="text-red-500">*</span>
             </h2>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">
-              Opsional
-            </span>
+            {hasEvidence ? (
+              <span className="text-xs font-bold text-[#005B54] bg-[#E0F3EE] px-2.5 py-0.5 rounded-full border border-teal-200/60">
+                ✓ Minimal 1 Bukti Terlampir
+              </span>
+            ) : (
+              <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
+                Wajib Minimal 1 Bukti
+              </span>
+            )}
           </div>
           <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-            Unggah foto suasana, hasil uji kecepatan internet, atau foto menu untuk mempermudah verifikasi relawan.
+            Unggah minimal salah satu bukti: foto suasana/meja kerja, screenshot uji kecepatan Wi-Fi, atau foto daftar menu/kasir. Bukti ini wajib untuk verifikasi kurator relawan sebelum titik nugas tayang di WebGIS.
           </p>
         </div>
       </div>

@@ -114,6 +114,12 @@ export default function TambahTempatPage() {
       return;
     }
 
+    const hasEvidence = Boolean(photoMain || photoSpeedtest || photoMenu);
+    if (!hasEvidence) {
+      setErrorMessage('Wajib melampirkan minimal 1 bukti foto lapangan (foto suasana/meja, screenshot speedtest, atau foto menu).');
+      return;
+    }
+
     setIsSubmitting(true);
 
     const payload = {
@@ -157,7 +163,7 @@ export default function TambahTempatPage() {
     }
   };
 
-  // 8 Required items to reach 100%
+  // 9 Required items to reach 100%
   const item1Name = name.trim().length > 0;
   const item2Category = category !== null;
   const item3Address = address.trim().length > 0;
@@ -166,6 +172,7 @@ export default function TambahTempatPage() {
   const item6Noise = noiseLevel !== null;
   const item7Price = priceMinDrink.trim().length > 0;
   const item8Location = isLocationSet;
+  const item9Evidence = Boolean(photoMain || photoSpeedtest || photoMenu);
 
   const requiredItems = [
     item1Name,
@@ -176,6 +183,7 @@ export default function TambahTempatPage() {
     item6Noise,
     item7Price,
     item8Location,
+    item9Evidence,
   ];
 
   const completedCount = requiredItems.filter(Boolean).length;

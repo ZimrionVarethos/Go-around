@@ -18,17 +18,13 @@ import {
 } from '@/lib/recommendations';
 import { cn } from '@/lib/cn';
 import { useSearchContext } from '@/components/search/SearchProvider';
+import { GoAroundLoader } from '@/components/loading/GoAroundLoader';
 import type L from 'leaflet';
 
 // Dynamic import for Leaflet MapView (client-only, SSR false)
 const MapView = dynamic(() => import('./MapView'), {
   ssr: false,
-  loading: () => (
-    <div className="w-full h-full bg-[#F6F4ED] flex flex-col items-center justify-center gap-3">
-      <div className="w-10 h-10 rounded-full border-3 border-[#005B54] border-t-transparent animate-spin" />
-      <span className="text-xs font-semibold text-slate-700">Memuat Peta Spasial Bogor...</span>
-    </div>
-  ),
+  loading: () => <GoAroundLoader mode="map" label="Memuat peta Bogor…" />,
 });
 
 // Centered on Baranangsiang / IPB University district
@@ -73,7 +69,7 @@ function recommendationToGeoJsonFeature(place: RecommendationPlace): PlaceGeoJso
   };
 }
 
-export function MapPage() {
+export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean }) {
   const { searchIntent, openCriteriaTrigger } = useSearchContext();
   // Default: clean map without auto-opened drawer, collapsed left panel pill
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
@@ -97,9 +93,9 @@ export function MapPage() {
   const skipNextFitBoundsRef = useRef(false);
   const { toasts, showToast, dismissToast } = useToast();
 
-  // Auto-detect user GPS on initial load
+  // Let the opening animation finish before showing the browser's GPS prompt.
   useEffect(() => {
-    if (typeof window === 'undefined' || !navigator.geolocation) return;
+    if (!locationEnabled || typeof window === 'undefined' || !navigator.geolocation) return;
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -123,7 +119,7 @@ export function MapPage() {
       { enableHighAccuracy: true, timeout: 8000 }
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [locationEnabled]);
 
   // Center map on user location when detected
   useEffect(() => {
