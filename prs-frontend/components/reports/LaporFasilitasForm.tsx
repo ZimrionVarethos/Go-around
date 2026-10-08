@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Send, Check, X, AlertCircle } from 'lucide-react';
+import {
+  PaperPlaneRightIcon,
+  CheckIcon,
+  XIcon,
+  WarningCircleIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import { dispatchNewPublicTicket } from '@/lib/admin-store';
 import { FIGMA_PLACES } from '@/lib/figma-places';
@@ -227,7 +232,7 @@ export function LaporFasilitasForm({ onToast }: LaporFasilitasFormProps = {}) {
       {/* ── Validation Error Banner ── */}
       {validationError && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3 shadow-xs animate-in fade-in">
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          <WarningCircleIcon size={20} weight="fill" className="text-red-600 shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-red-900">Perhatian: Formulir Belum Lengkap</p>
             <p className="text-xs text-red-700 mt-0.5 leading-relaxed">{validationError}</p>
@@ -297,9 +302,9 @@ export function LaporFasilitasForm({ onToast }: LaporFasilitasFormProps = {}) {
           </div>
         </div>
 
-        <div className="bg-[#F0FAF7] border border-[#A7F3D0] rounded-xl p-4 flex items-start gap-3">
+        <div className="bg-[#F0FAF7] border border-[#005B54] rounded-xl p-4 flex items-start gap-3">
           <div className="w-5 h-5 rounded-full bg-[#005B54] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-            <Check className="w-3 h-3 stroke-[3]" />
+            <CheckIcon size={12} weight="bold" />
           </div>
           <div>
             <p className="text-xs sm:text-sm font-bold text-gray-900">
@@ -317,7 +322,7 @@ export function LaporFasilitasForm({ onToast }: LaporFasilitasFormProps = {}) {
             disabled={isSubmitting}
             className="w-full sm:w-auto h-12 px-8 bg-[#005B54] hover:bg-[#004741] text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
           >
-            <Send className="w-4 h-4" />
+            <PaperPlaneRightIcon size={16} weight="fill" />
             <span>{isSubmitting ? 'Mengirim Data...' : 'Kirim Laporan Fasilitas'}</span>
           </button>
 
@@ -325,7 +330,7 @@ export function LaporFasilitasForm({ onToast }: LaporFasilitasFormProps = {}) {
             href="/"
             className="w-full sm:w-auto h-12 px-6 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
           >
-            <X className="w-4 h-4 text-gray-400" />
+            <XIcon size={16} weight="bold" className="text-gray-400" />
             <span>Batal &amp; Kembali ke Peta</span>
           </Link>
         </div>

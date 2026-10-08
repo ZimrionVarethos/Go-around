@@ -1,6 +1,14 @@
 'use client';
 
-import { PlugZap, Plug, Unplug, Wifi, Headphones, Volume2, VolumeX, Check, Sparkles } from 'lucide-react';
+import {
+  PlugChargingIcon,
+  PlugIcon,
+  WifiHighIcon,
+  HeadphonesIcon,
+  SpeakerSimpleLowIcon,
+  SpeakerSimpleHighIcon,
+  CheckIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 
 export interface FacilitiesSectionProps {
@@ -70,13 +78,13 @@ export function FacilitiesSection({
             className={cn(
               'p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between gap-2 active:scale-[0.98] select-none',
               plugAvailability === 'abundant'
-                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
                 : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-bold text-gray-900">
-                <PlugZap className="w-4.5 h-4.5 text-[#005B54]" />
+                <PlugChargingIcon size={20} weight="duotone" className="text-[#005B54]" />
                 <span>Banyak Meja (&gt;70%)</span>
               </div>
               {plugAvailability === 'abundant' && (
@@ -94,13 +102,13 @@ export function FacilitiesSection({
             className={cn(
               'p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between gap-2 active:scale-[0.98] select-none',
               plugAvailability === 'moderate'
-                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
                 : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-bold text-gray-900">
-                <Plug className="w-4.5 h-4.5 text-amber-500" />
+                <PlugChargingIcon size={20} weight="duotone" className="text-amber-500" />
                 <span>Meja Tertentu (~50%)</span>
               </div>
               {plugAvailability === 'moderate' && (
@@ -118,13 +126,13 @@ export function FacilitiesSection({
             className={cn(
               'p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between gap-2 active:scale-[0.98] select-none',
               plugAvailability === 'limited'
-                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
                 : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-bold text-gray-900">
-                <Unplug className="w-4.5 h-4.5 text-gray-400" />
+                <PlugIcon size={20} weight="regular" className="text-gray-400" />
                 <span>Minim Colokan (&lt;30%)</span>
               </div>
               {plugAvailability === 'limited' && (
@@ -138,18 +146,16 @@ export function FacilitiesSection({
         </div>
       </div>
 
-      {/* Card: Kecepatan Wi-Fi Rata-rata */}
-      <div className="bg-[#F0FAF7] border border-[#A7F3D0] rounded-2xl p-5 space-y-4">
+      {/* Field: Kecepatan Wi-Fi Rata-rata */}
+      <div className="space-y-3.5 pt-2 border-t border-gray-100">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#005B54] text-white flex items-center justify-center">
-              <Wifi className="w-4 h-4" />
-            </div>
+          <div className="flex items-center gap-2">
+            <WifiHighIcon size={20} weight="bold" className="text-[#005B54] shrink-0" />
             <span className="text-sm font-bold text-gray-900">
               Kecepatan &amp; Kestabilan Wi-Fi Mahasiswa
             </span>
           </div>
-          <span className="bg-[#005B54] text-white text-xs font-bold px-2.5 py-1 rounded-full">
+          <span className="bg-[#E0F3EE] text-[#005B54] text-xs font-bold px-2.5 py-1 rounded-full border border-[#005B54]">
             Target &gt; 25 Mbps
           </span>
         </div>
@@ -165,7 +171,7 @@ export function FacilitiesSection({
                 value={wifiDownload}
                 onChange={(e) => onWifiDownloadChange(e.target.value)}
                 placeholder="Cth: 45"
-                className="w-full h-11 pl-4 pr-14 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54]"
+                className="w-full h-11 pl-4 pr-14 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-[#005B54]"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-bold">
                 Mbps
@@ -183,7 +189,7 @@ export function FacilitiesSection({
                 value={wifiUpload}
                 onChange={(e) => onWifiUploadChange(e.target.value)}
                 placeholder="Cth: 20"
-                className="w-full h-11 pl-4 pr-14 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54]"
+                className="w-full h-11 pl-4 pr-14 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-[#005B54]"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-bold">
                 Mbps
@@ -206,7 +212,7 @@ export function FacilitiesSection({
       </div>
 
       {/* Field: Tingkat Kebisingan / Ambien Suasana */}
-      <div className="space-y-2.5">
+      <div className="space-y-2.5 pt-2 border-t border-gray-100">
         <label className="text-sm font-bold text-gray-900 block">
           Tingkat Kebisingan / Ambien Suasana <span className="text-red-500">*</span>
         </label>
@@ -217,14 +223,12 @@ export function FacilitiesSection({
             className={cn(
               'p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between active:scale-[0.99] select-none',
               noiseLevel === 'quiet'
-                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
                 : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-[#005B54]">
-                <Headphones className="w-5 h-5" />
-              </div>
+            <div className="flex items-center gap-3">
+              <HeadphonesIcon size={22} weight="duotone" className="text-[#005B54] shrink-0" />
               <div>
                 <p className="text-sm font-bold text-gray-900">
                   Zona Hening / Deep Work (&lt; 50 dB)
@@ -248,14 +252,12 @@ export function FacilitiesSection({
             className={cn(
               'p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between active:scale-[0.99] select-none',
               noiseLevel === 'moderate'
-                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
                 : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-teal-700">
-                <Volume2 className="w-5 h-5" />
-              </div>
+            <div className="flex items-center gap-3">
+              <SpeakerSimpleLowIcon size={22} weight="duotone" className="text-teal-700 shrink-0" />
               <div>
                 <p className="text-sm font-bold text-gray-900">
                   Sedang / Musik Instrumental Santai (50–65 dB)
@@ -279,14 +281,12 @@ export function FacilitiesSection({
             className={cn(
               'p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between active:scale-[0.99] select-none',
               noiseLevel === 'lively'
-                ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
                 : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
             )}
           >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
-                <VolumeX className="w-5 h-5" />
-              </div>
+            <div className="flex items-center gap-3">
+              <SpeakerSimpleHighIcon size={22} weight="duotone" className="text-amber-600 shrink-0" />
               <div>
                 <p className="text-sm font-bold text-gray-900">
                   Ramai / Social Hub (&gt; 65 dB)
@@ -321,7 +321,7 @@ export function FacilitiesSection({
                 className={cn(
                   'p-3.5 rounded-xl border text-sm font-medium cursor-pointer transition-all flex items-center gap-2.5 select-none active:scale-[0.98]',
                   isChecked
-                    ? 'bg-[#F0FAF7] border-[#005B54] text-[#005B54] font-bold ring-1 ring-[#005B54]/20 shadow-2xs'
+                    ? 'bg-[#F0FAF7] border-[#005B54] text-[#005B54] font-bold shadow-2xs'
                     : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50/50'
                 )}
               >
@@ -331,7 +331,7 @@ export function FacilitiesSection({
                     isChecked ? 'bg-[#005B54] text-white' : 'border-2 border-gray-300 bg-white'
                   )}
                 >
-                  {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  {isChecked && <CheckIcon size={14} weight="bold" />}
                 </div>
                 <span className="truncate text-xs sm:text-sm">{item.label}</span>
               </label>

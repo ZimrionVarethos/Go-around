@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  Unplug,
-  WifiOff,
-  Volume2,
-  TrendingUp,
-  Clock,
-  Sparkles,
-  Check,
-} from 'lucide-react';
+  PlugIcon,
+  WifiSlashIcon,
+  SpeakerSimpleHighIcon,
+  TrendUpIcon,
+  ClockIcon,
+  SparkleIcon,
+  CheckIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 
 export type IssueType =
@@ -26,37 +26,37 @@ const ISSUE_OPTIONS = [
     id: 'colokan_rusak' as const,
     title: 'Colokan Rusak / Mati',
     desc: 'Stopkontak mati di meja, tidak ada arus listrik, atau berkurang drastis.',
-    icon: Unplug,
+    icon: PlugIcon,
   },
   {
     id: 'wifi_lambat' as const,
     title: 'WiFi Lambat / Putus',
     desc: 'Speedtest < 10 Mbps, portal login macet, atau sering terputus saat nugas.',
-    icon: WifiOff,
+    icon: WifiSlashIcon,
   },
   {
     id: 'kebisingan_tinggi' as const,
     title: 'Kebisingan Tinggi',
     desc: 'BGM terlalu kencang, bising renovasi/jalan, tidak kondusif untuk fokus.',
-    icon: Volume2,
+    icon: SpeakerSimpleHighIcon,
   },
   {
     id: 'harga_naik' as const,
     title: 'Harga Naik / Min. Order',
     desc: 'Menu melonjak drastis tidak ramah kantong, ada syarat minimal beli per jam.',
-    icon: TrendingUp,
+    icon: TrendUpIcon,
   },
   {
     id: 'jam_operasional' as const,
     title: 'Jam Operasional / Tutup',
     desc: 'Tidak lagi buka 24 jam, tutup lebih awal, atau sedang tutup renovasi total.',
-    icon: Clock,
+    icon: ClockIcon,
   },
   {
     id: 'fasilitas_baru' as const,
     title: 'Fasilitas Baru / Saran',
     desc: 'Spot meja kerja baru, musholla diperluas, AC baru dipasang, atau saran.',
-    icon: Sparkles,
+    icon: SparkleIcon,
   },
 ];
 
@@ -118,7 +118,7 @@ export function IssueSelectionSection({
                 className={cn(
                   'p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 select-none active:scale-[0.98]',
                   isSelected
-                    ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                    ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
                     : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
                 )}
               >
@@ -128,7 +128,7 @@ export function IssueSelectionSection({
                     isSelected ? 'bg-[#005B54] text-white shadow-2xs' : 'bg-gray-100 text-gray-600'
                   )}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon size={16} weight="duotone" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-1">
@@ -139,7 +139,7 @@ export function IssueSelectionSection({
                         isSelected ? 'bg-[#005B54] text-white' : 'border border-gray-300 bg-white'
                       )}
                     >
-                      {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                      {isSelected && <CheckIcon size={12} weight="bold" />}
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 leading-relaxed mt-0.5">{item.desc}</p>
@@ -175,7 +175,7 @@ export function IssueSelectionSection({
             onChange={(e) => onDetailChange(e.target.value)}
             rows={4}
             placeholder="Contoh: Stopkontak di 3 meja lantai 2 area semi-outdoor dekat jendela samping mati sejak kemarin siang. Meja tengah tidak ada aliran listrik."
-            className="w-full p-3.5 text-xs sm:text-sm bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] transition-all resize-none shadow-2xs"
+            className="w-full p-3.5 text-xs sm:text-sm bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#005B54] transition-all resize-none shadow-2xs"
           />
         </div>
 

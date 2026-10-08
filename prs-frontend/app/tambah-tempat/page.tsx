@@ -11,7 +11,7 @@ import {
   SubmitSection,
   GisGuideSidebar,
 } from '@/components/contributions';
-import { Check, AlertCircle, ArrowLeft } from 'lucide-react';
+import { CheckIcon, WarningCircleIcon, ArrowLeftIcon } from '@phosphor-icons/react';
 import { contributionsApi } from '@/lib/api';
 import { dispatchNewPublicPlace } from '@/lib/admin-store';
 
@@ -206,7 +206,7 @@ export default function TambahTempatPage() {
               href="/"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#005B54] bg-gray-50 hover:bg-teal-50/60 rounded-xl border border-gray-200 transition-all active:scale-[0.98] cursor-pointer shrink-0"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeftIcon size={16} weight="bold" />
               <span>Kembali ke Peta</span>
             </Link>
             <div className="h-4 w-px bg-gray-200" />
@@ -216,7 +216,7 @@ export default function TambahTempatPage() {
           </div>
 
           <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs sm:text-sm text-[#005B54] font-bold bg-[#E0F3EE] px-3 py-1 rounded-full border border-teal-200/60">
+            <span className="text-xs sm:text-sm text-[#005B54] font-bold bg-[#E0F3EE] px-3 py-1 rounded-full border border-[#005B54]">
               Formulir Kontribusi Komunitas
             </span>
           </div>
@@ -262,7 +262,7 @@ export default function TambahTempatPage() {
         {isSuccess ? (
           <div className="bg-white border-2 border-[#005B54] rounded-2xl p-8 text-center max-w-2xl mx-auto space-y-4 shadow-lg my-12 animate-in fade-in zoom-in-95">
             <div className="w-14 h-14 rounded-full bg-[#E0F3EE] text-[#005B54] flex items-center justify-center mx-auto">
-              <Check className="w-8 h-8 stroke-[3]" />
+              <CheckIcon size={32} weight="bold" />
             </div>
             <h2 className="text-xl font-bold text-gray-900">
               Usulan Tempat Nugas Berhasil Dikirim!
@@ -275,7 +275,7 @@ export default function TambahTempatPage() {
                 href="/"
                 className="px-6 py-3 bg-[#005B54] hover:bg-[#004741] text-white font-semibold text-sm rounded-xl shadow-xs transition-all flex items-center gap-2"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeftIcon size={16} weight="bold" />
                 <span>Kembali ke Peta WebGIS</span>
               </Link>
               <button
@@ -312,7 +312,7 @@ export default function TambahTempatPage() {
               {/* Error Callout */}
               {errorMessage && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                  <WarningCircleIcon size={16} weight="fill" className="text-red-500 shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
               )}

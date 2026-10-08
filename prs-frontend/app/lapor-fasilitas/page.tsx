@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { PublicFooter } from '@/components/layout/PublicFooter';
 import { LaporFasilitasForm, ReportSidebar } from '@/components/reports';
 import { useToast } from '@/hooks/useToast';
@@ -20,7 +20,7 @@ export default function LaporFasilitasPage() {
               href="/"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#005B54] bg-gray-50 hover:bg-teal-50/60 rounded-xl border border-gray-200 transition-all active:scale-[0.98] cursor-pointer shrink-0"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeftIcon size={16} weight="bold" />
               <span>Kembali ke Peta</span>
             </Link>
             <div className="h-4 w-px bg-gray-200" />
@@ -30,7 +30,7 @@ export default function LaporFasilitasPage() {
           </div>
 
           <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs sm:text-sm text-[#005B54] font-bold bg-[#E0F3EE] px-3 py-1 rounded-full border border-teal-200/60">
+            <span className="text-xs sm:text-sm text-[#005B54] font-bold bg-[#E0F3EE] px-3 py-1 rounded-full border border-[#005B54]">
               Laporan Publik &amp; Anonim
             </span>
           </div>

@@ -1,12 +1,16 @@
 'use client';
 
-import { ShieldCheck, Clock, CheckCircle2 } from 'lucide-react';
+import {
+  ShieldCheckIcon,
+  ClockIcon,
+  CheckCircleIcon,
+} from '@phosphor-icons/react';
 
 const VERIFIED_TICKETS = [
   {
     id: '#TK-992',
     status: 'Selesai Diperbaiki',
-    statusColor: 'text-emerald-700 bg-emerald-50 border-emerald-200/80',
+    statusColor: 'text-emerald-700 bg-emerald-50 border-[#005B54]',
     dotColor: 'bg-emerald-500',
     cafe: 'Popolo Coffee – Lodaya',
     desc: 'Colokan meja lantai 2 kini telah dipasang perpanjangan stopkontak 6 lubang oleh pihak manajemen cafe.',
@@ -16,7 +20,7 @@ const VERIFIED_TICKETS = [
   {
     id: '#TK-888',
     status: 'Selesai Dipulihkan',
-    statusColor: 'text-teal-700 bg-teal-50 border-teal-200/80',
+    statusColor: 'text-teal-700 bg-teal-50 border-[#005B54]',
     dotColor: 'bg-teal-500',
     cafe: 'Anthology Coffee & Tea',
     desc: 'WiFi fiber optic dipulihkan menjadi 85 Mbps pasca perbaikan kabel jaringan putus di Jl. Baranangsiang Indah.',
@@ -47,7 +51,7 @@ export function ReportSidebar() {
               Alur Verifikasi Penanganan Laporan
             </h3>
           </div>
-          <span className="bg-[#E0F3EE] text-[#005B54] text-xs font-bold px-2.5 py-1 rounded-full border border-teal-200/60">
+          <span className="bg-[#E0F3EE] text-[#005B54] text-xs font-bold px-2.5 py-1 rounded-full border border-[#005B54]">
             SOP Kurasi
           </span>
         </div>
@@ -55,7 +59,7 @@ export function ReportSidebar() {
         {/* SLA Target Box */}
         <div className="bg-[#F8FAFC] border border-gray-200 rounded-xl p-3 flex items-center justify-between">
           <div className="flex items-center gap-2 text-gray-700">
-            <Clock className="w-4 h-4 text-[#005B54]" />
+            <ClockIcon size={16} weight="duotone" className="text-[#005B54]" />
             <span className="text-xs sm:text-sm font-bold">Target Validasi On-site</span>
           </div>
           <span className="text-xs sm:text-sm font-extrabold text-[#005B54]">&lt; 24 Jam Kerja</span>
@@ -73,7 +77,7 @@ export function ReportSidebar() {
               </p>
               <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                 Laporan tercatat dengan kode unik publik seperti{' '}
-                <span className="font-mono bg-teal-50 border border-teal-200/60 text-[#005B54] px-1.5 py-0.5 rounded text-xs font-bold">
+                <span className="font-mono bg-teal-50 border border-[#005B54] text-[#005B54] px-1.5 py-0.5 rounded text-xs font-bold">
                   #TK-2026-xxx
                 </span>{' '}
                 tanpa mempublikasikan data pribadi pelapor.
@@ -111,7 +115,7 @@ export function ReportSidebar() {
         </div>
 
         <p className="text-xs text-gray-500 flex items-start gap-2 leading-relaxed pt-3 border-t border-gray-100">
-          <ShieldCheck className="w-4 h-4 text-[#005B54] shrink-0 mt-0.5" />
+          <ShieldCheckIcon size={16} weight="duotone" className="text-[#005B54] shrink-0 mt-0.5" />
           <span>Setiap perbaikan divalidasi langsung oleh komunitas relawan mahasiswa IPB University.</span>
         </p>
       </div>
@@ -120,7 +124,7 @@ export function ReportSidebar() {
       <div className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-5 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <CheckCircleIcon size={16} weight="fill" className="text-emerald-600" />
             <h3 className="text-sm font-bold text-gray-900">
               Laporan Terverifikasi Terkini
             </h3>
@@ -138,7 +142,7 @@ export function ReportSidebar() {
               className="border border-gray-200 rounded-xl p-3.5 bg-gray-50/40 hover:bg-white hover:border-[#005B54]/40 hover:shadow-2xs transition-all space-y-2"
             >
               <div className="flex items-center justify-between">
-                <span className="font-mono text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200/60 px-2 py-0.5 rounded-md">
+                <span className="font-mono text-xs font-bold text-teal-800 bg-teal-50 border border-[#005B54] px-2 py-0.5 rounded-md">
                   {ticket.id}
                 </span>
                 <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-0.5 rounded-full border ${ticket.statusColor}`}>

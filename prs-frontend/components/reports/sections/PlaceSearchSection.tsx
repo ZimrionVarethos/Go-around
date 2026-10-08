@@ -3,14 +3,14 @@
 import { useRef, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
-  Search,
-  X,
-  Building2,
-  MapPin,
-  Compass,
-  Check,
-  AlertCircle,
-} from 'lucide-react';
+  MagnifyingGlassIcon,
+  XIcon,
+  BuildingsIcon,
+  MapPinIcon,
+  CompassIcon,
+  CheckIcon,
+  WarningCircleIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import type { PlaceListItem } from '@/lib/types';
 
@@ -89,7 +89,7 @@ export function PlaceSearchSection({
           Nama Tempat / Kafe Terdaftar <span className="text-red-500">*</span>
         </label>
         <div className="relative">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <MagnifyingGlassIcon size={16} weight="bold" className="text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
@@ -99,7 +99,7 @@ export function PlaceSearchSection({
             }}
             onFocus={() => setIsSearchOpen(true)}
             placeholder="Cari kafe... (cth: Maraca, Popolo, Kopi Nako, Awal Mula)"
-            className="w-full h-11 pl-10 pr-10 text-xs sm:text-sm bg-white border border-gray-200 rounded-xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] transition-all shadow-2xs placeholder:text-gray-400"
+            className="w-full h-11 pl-10 pr-10 text-xs sm:text-sm bg-white border border-gray-200 rounded-xl text-gray-900 font-medium focus:outline-none focus:border-[#005B54] transition-all shadow-2xs placeholder:text-gray-400"
           />
           {searchQuery && (
             <button
@@ -111,7 +111,7 @@ export function PlaceSearchSection({
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
               title="Hapus pencarian"
             >
-              <X className="w-4 h-4" />
+              <XIcon size={16} weight="bold" />
             </button>
           )}
 
@@ -141,9 +141,11 @@ export function PlaceSearchSection({
                       )}
                     >
                       <div className="flex items-start gap-2.5 min-w-0">
-                        <Building2
+                        <BuildingsIcon
+                          size={16}
+                          weight="duotone"
                           className={cn(
-                            'w-4 h-4 shrink-0 mt-0.5',
+                            'shrink-0 mt-0.5',
                             isCurrent ? 'text-[#005B54]' : 'text-gray-400'
                           )}
                         />
@@ -153,7 +155,7 @@ export function PlaceSearchSection({
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200/60">
+                        <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-[#005B54]">
                           {place.wifi_speed_mbps ? `${place.wifi_speed_mbps} Mbps` : place.subdistrict}
                         </span>
                       </div>
@@ -176,7 +178,7 @@ export function PlaceSearchSection({
                   }}
                   className="w-full text-left p-2 rounded-lg text-xs text-[#005B54] hover:bg-[#F0FAF7] font-semibold flex items-center gap-2 cursor-pointer"
                 >
-                  <MapPin className="w-3.5 h-3.5" />
+                  <MapPinIcon size={14} weight="fill" />
                   <span>
                     Gunakan &quot;{searchQuery || 'Nama Kafe Baru'}&quot; (Kafe belum terdaftar di WebGIS)
                   </span>
@@ -200,7 +202,7 @@ export function PlaceSearchSection({
         {/* Genuine Spatial Coordinates & Location Bar */}
         <div className="p-3.5 bg-[#F8FAFC] border border-gray-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
           <div className="flex items-center gap-2.5 min-w-0">
-            <Compass className="w-4 h-4 text-[#005B54] shrink-0" />
+            <CompassIcon size={16} weight="duotone" className="text-[#005B54] shrink-0" />
             <div className="min-w-0">
               {selectedPlace ? (
                 <>
@@ -226,13 +228,13 @@ export function PlaceSearchSection({
 
           <div className="flex items-center gap-1.5 shrink-0 sm:self-center">
             {selectedPlace ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E0F3EE] text-[#005B54] text-xs font-bold border border-teal-200/60">
-                <Check className="w-3.5 h-3.5 stroke-[3]" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E0F3EE] text-[#005B54] text-xs font-bold border border-[#005B54]">
+                <CheckIcon size={14} weight="bold" />
                 <span>Terhubung ke Peta WebGIS</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold border border-amber-200/60">
-                <AlertCircle className="w-3.5 h-3.5" />
+                <WarningCircleIcon size={14} weight="fill" />
                 <span>Menunggu Pilihan Kafe</span>
               </span>
             )}

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { CheckCircle2, ArrowLeft } from 'lucide-react';
+import { CheckCircleIcon, ArrowLeftIcon } from '@phosphor-icons/react';
 
 interface ReportSuccessViewProps {
   placeName?: string;
@@ -11,8 +11,8 @@ interface ReportSuccessViewProps {
 export function ReportSuccessView({ placeName, onReset }: ReportSuccessViewProps) {
   return (
     <div className="flex-1 w-full bg-white rounded-2xl border-2 border-[#005B54] shadow-lg p-8 sm:p-12 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95">
-      <div className="w-16 h-16 rounded-2xl bg-[#E0F3EE] border border-teal-200/60 flex items-center justify-center mx-auto mb-5 shadow-xs">
-        <CheckCircle2 className="w-9 h-9 text-[#005B54]" />
+      <div className="w-16 h-16 rounded-2xl bg-[#E0F3EE] border border-[#005B54] flex items-center justify-center mx-auto mb-5 shadow-xs">
+        <CheckCircleIcon size={36} weight="duotone" className="text-[#005B54]" />
       </div>
       <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-2">
         Laporan Tiket Berhasil Dikirim!
@@ -25,7 +25,7 @@ export function ReportSuccessView({ placeName, onReset }: ReportSuccessViewProps
           href="/"
           className="inline-flex items-center gap-2 px-6 py-3 bg-[#005B54] hover:bg-[#004741] text-white font-bold text-sm rounded-xl shadow-xs transition-all active:scale-[0.98]"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeftIcon size={16} weight="bold" />
           <span>Kembali ke Peta</span>
         </Link>
         <button

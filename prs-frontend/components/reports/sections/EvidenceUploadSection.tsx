@@ -1,7 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Unplug, Wifi, TrendingUp, Upload, X } from 'lucide-react';
+import {
+  PlugIcon,
+  WifiHighIcon,
+  TrendUpIcon,
+  UploadSimpleIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 
 interface EvidenceUploadSectionProps {
   photoColokan: string | null;
@@ -50,7 +56,7 @@ export function EvidenceUploadSection({
                 Lampirkan Bukti Lapangan <span className="text-red-500">*</span>
               </h2>
               {hasEvidence ? (
-                <span className="text-xs font-bold text-[#005B54] bg-[#E0F3EE] px-2.5 py-0.5 rounded-full border border-teal-200/60">
+                <span className="text-xs font-bold text-[#005B54] bg-[#E0F3EE] px-2.5 py-0.5 rounded-full border border-[#005B54]">
                   ✓ Minimal 1 Bukti Terlampir
                 </span>
               ) : (
@@ -72,7 +78,7 @@ export function EvidenceUploadSection({
         <div className="border border-gray-200/90 rounded-2xl p-4 flex flex-col justify-between space-y-3 bg-gray-50/50 hover:bg-white transition-colors">
           <div>
             <div className="flex items-center gap-1.5 text-[#005B54] font-bold text-xs mb-1">
-              <Unplug className="w-4 h-4" />
+              <PlugIcon size={16} weight="duotone" />
               <span>Foto Fisik Kendala</span>
             </div>
             <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">
@@ -92,12 +98,12 @@ export function EvidenceUploadSection({
                 className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer"
                 title="Hapus foto"
               >
-                <X className="w-3.5 h-3.5" />
+                <XIcon size={14} weight="bold" />
               </button>
             </div>
           ) : (
             <label className="border border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#005B54] hover:bg-teal-50/20 transition-all">
-              <Upload className="w-5 h-5 text-gray-400 mb-1.5" />
+              <UploadSimpleIcon size={20} weight="bold" className="text-gray-400 mb-1.5" />
               <span className="text-xs font-bold text-[#005B54] bg-[#E0F3EE] px-3 py-1 rounded-full mb-1">
                 Pilih File
               </span>
@@ -116,7 +122,7 @@ export function EvidenceUploadSection({
         <div className="border border-gray-200/90 rounded-2xl p-4 flex flex-col justify-between space-y-3 bg-gray-50/50 hover:bg-white transition-colors">
           <div>
             <div className="flex items-center gap-1.5 text-[#005B54] font-bold text-xs mb-1">
-              <Wifi className="w-4 h-4" />
+              <WifiHighIcon size={16} weight="bold" />
               <span>Bukti Jaringan</span>
             </div>
             <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">
@@ -136,12 +142,12 @@ export function EvidenceUploadSection({
                 className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer"
                 title="Hapus screenshot"
               >
-                <X className="w-3.5 h-3.5" />
+                <XIcon size={14} weight="bold" />
               </button>
             </div>
           ) : (
             <label className="border border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#005B54] hover:bg-teal-50/20 transition-all">
-              <Upload className="w-5 h-5 text-gray-400 mb-1.5" />
+              <UploadSimpleIcon size={20} weight="bold" className="text-gray-400 mb-1.5" />
               <span className="text-xs font-bold text-[#005B54] bg-[#E0F3EE] px-3 py-1 rounded-full mb-1">
                 Pilih File
               </span>
@@ -160,7 +166,7 @@ export function EvidenceUploadSection({
         <div className="border border-gray-200/90 rounded-2xl p-4 flex flex-col justify-between space-y-3 bg-gray-50/50 hover:bg-white transition-colors">
           <div>
             <div className="flex items-center gap-1.5 text-[#005B54] font-bold text-xs mb-1">
-              <TrendingUp className="w-4 h-4" />
+              <TrendUpIcon size={16} weight="bold" />
               <span>Koreksi Harga</span>
             </div>
             <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">
@@ -180,12 +186,12 @@ export function EvidenceUploadSection({
                 className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer"
                 title="Hapus foto"
               >
-                <X className="w-3.5 h-3.5" />
+                <XIcon size={14} weight="bold" />
               </button>
             </div>
           ) : (
             <label className="border border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#005B54] hover:bg-teal-50/20 transition-all">
-              <Upload className="w-5 h-5 text-gray-400 mb-1.5" />
+              <UploadSimpleIcon size={20} weight="bold" className="text-gray-400 mb-1.5" />
               <span className="text-xs font-bold text-[#005B54] bg-[#E0F3EE] px-3 py-1 rounded-full mb-1">
                 Pilih File
               </span>

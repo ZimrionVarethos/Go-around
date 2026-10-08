@@ -1,6 +1,13 @@
 'use client';
 
-import { Coffee, Laptop, BookOpen, Sparkles, Moon, Users } from 'lucide-react';
+import {
+  CoffeeIcon,
+  LaptopIcon,
+  BookOpenIcon,
+  PaletteIcon,
+  MoonIcon,
+  UsersIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 
 export interface BasicInfoSectionProps {
@@ -23,33 +30,33 @@ const CATEGORIES = [
     id: 'coffee_shop' as const,
     label: 'Coffee Shop',
     desc: 'Kopi santai, musik ramah nugas & meja luas',
-    icon: Coffee,
+    icon: CoffeeIcon,
   },
   {
     id: 'coworking' as const,
     label: 'Coworking Space',
     desc: 'Hening, colokan melimpah di setiap kursi',
-    icon: Laptop,
+    icon: LaptopIcon,
   },
   {
     id: 'library' as const,
     label: 'Library Cafe',
     desc: 'Koleksi buku, pencahayaan terang & tenang',
-    icon: BookOpen,
+    icon: BookOpenIcon,
   },
   {
     id: 'creative_hub' as const,
     label: 'Creative Hub',
     desc: 'Outdoor terbuka, cocok diskusi kelompok besar',
-    icon: Sparkles,
+    icon: PaletteIcon,
   },
 ];
 
 const STUDY_VIBES_OPTIONS = [
-  { id: 'work-friendly', label: 'Work-Friendly', desc: 'Laptopan & colokan banyak', icon: Laptop },
-  { id: 'quiet-focus', label: 'Focus / Skripsi', desc: 'Hening bebas bising', icon: BookOpen },
-  { id: 'group-discussion', label: 'Kerja Kelompok', desc: 'Meja komunal panjang', icon: Users },
-  { id: 'night-owl', label: 'Night Owl', desc: 'Buka larut malam / 24 jam', icon: Moon },
+  { id: 'work-friendly', label: 'Work-Friendly', desc: 'Laptopan & colokan banyak', icon: LaptopIcon },
+  { id: 'quiet-focus', label: 'Focus / Skripsi', desc: 'Hening bebas bising', icon: BookOpenIcon },
+  { id: 'group-discussion', label: 'Kerja Kelompok', desc: 'Meja komunal panjang', icon: UsersIcon },
+  { id: 'night-owl', label: 'Night Owl', desc: 'Buka larut malam / 24 jam', icon: MoonIcon },
 ];
 
 export function BasicInfoSection({
@@ -94,7 +101,7 @@ export function BasicInfoSection({
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
           placeholder="Contoh: Kopi Ranin, Anthology Coffee, Maraca Books & Coffee"
-          className="w-full h-12 px-4 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] transition-all"
+          className="w-full h-12 px-4 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#005B54] transition-all"
         />
       </div>
 
@@ -112,20 +119,20 @@ export function BasicInfoSection({
                 key={item.id}
                 onClick={() => onCategoryChange(item.id)}
                 className={cn(
-                  'p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3.5 select-none active:scale-[0.98]',
+                  'p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3 select-none active:scale-[0.98]',
                   isSelected
-                    ? 'bg-[#F0FAF7] border-[#005B54] ring-1 ring-[#005B54]/30 shadow-xs'
+                    ? 'bg-[#F0FAF7] border-[#005B54] shadow-xs'
                     : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
                 )}
               >
-                <div
+                <Icon
+                  size={22}
+                  weight="duotone"
                   className={cn(
-                    'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 transition-colors',
-                    isSelected ? 'bg-[#005B54] text-white shadow-2xs' : 'bg-gray-100 text-gray-600'
+                    'shrink-0 mt-0.5 transition-colors',
+                    isSelected ? 'text-[#005B54]' : 'text-gray-500'
                   )}
-                >
-                  <Icon className="w-4.5 h-4.5" />
-                </div>
+                />
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-gray-900">{item.label}</p>
                   <p className="text-xs text-gray-500 leading-snug mt-1">{item.desc}</p>
@@ -151,19 +158,21 @@ export function BasicInfoSection({
                 type="button"
                 onClick={() => onStudyVibeChange?.(v.id)}
                 className={cn(
-                  'p-3 rounded-xl border text-left transition-all flex flex-col justify-between gap-2 select-none',
+                  'p-3 rounded-xl border text-left transition-all flex flex-col justify-between gap-2 select-none cursor-pointer',
                   isSelected
-                    ? 'bg-teal-50 border-[#005B54] ring-1 ring-[#005B54]/30'
+                    ? 'bg-teal-50 border-[#005B54]'
                     : 'bg-white border-gray-200 hover:bg-gray-50'
                 )}
               >
                 <div className="flex items-center justify-between">
-                  <div className={cn(
-                    'w-7 h-7 rounded-lg flex items-center justify-center',
-                    isSelected ? 'bg-[#005B54] text-white' : 'bg-gray-100 text-gray-600'
-                  )}>
-                    <Icon className="w-3.5 h-3.5" />
-                  </div>
+                  <Icon
+                    size={18}
+                    weight="duotone"
+                    className={cn(
+                      'transition-colors',
+                      isSelected ? 'text-[#005B54]' : 'text-gray-500'
+                    )}
+                  />
                   {isSelected && <span className="w-2 h-2 rounded-full bg-[#005B54]" />}
                 </div>
                 <div>
@@ -185,7 +194,7 @@ export function BasicInfoSection({
           <select
             value={subdistrict}
             onChange={(e) => onSubdistrictChange(e.target.value)}
-            className="w-full h-12 px-3.5 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] cursor-pointer"
+            className="w-full h-12 px-3.5 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-[#005B54] cursor-pointer"
           >
             <option value="Bogor Tengah">Bogor Tengah (Pusat Kota / SSA)</option>
             <option value="Bogor Timur">Bogor Timur (Koridor Pajajaran)</option>
@@ -203,7 +212,7 @@ export function BasicInfoSection({
           <select
             value={campusAccess}
             onChange={(e) => onCampusAccessChange(e.target.value)}
-            className="w-full h-12 px-3.5 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] cursor-pointer"
+            className="w-full h-12 px-3.5 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-[#005B54] cursor-pointer"
           >
             <option value="Sekolah Vokasi IPB (Kampus Cilibende / Kumbang)">
               Sekolah Vokasi IPB (Kampus Cilibende / Kumbang)
@@ -238,7 +247,7 @@ export function BasicInfoSection({
           value={address}
           onChange={(e) => onAddressChange(e.target.value)}
           placeholder="Contoh: Jl. Bangbarung Raya No. 12, Bantarjati (Sebelah Indomaret, 500m dari Kampus SV IPB)"
-          className="w-full h-12 px-4 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] transition-all"
+          className="w-full h-12 px-4 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#005B54] transition-all"
         />
         <p className="text-xs text-gray-400">
           Sebutkan patokan jalan atau gedung terdekat agar mudah diverifikasi.
