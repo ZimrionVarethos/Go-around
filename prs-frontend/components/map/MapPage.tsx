@@ -19,6 +19,7 @@ import {
 import { cn } from '@/lib/cn';
 import { useSearchContext } from '@/components/search/SearchProvider';
 import { GoAroundLoader } from '@/components/loading/GoAroundLoader';
+import { trackPublicSpatialQuery } from '@/lib/admin-store';
 import type L from 'leaflet';
 
 // Dynamic import for Leaflet MapView (client-only, SSR false)
@@ -139,6 +140,11 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
     if (!searchIntent || appliedSearchId.current === searchIntent.id) return;
 
     appliedSearchId.current = searchIntent.id;
+    trackPublicSpatialQuery(
+      searchIntent.mode === 'keyword'
+        ? searchIntent.place?.subdistrict || searchIntent.query
+        : searchIntent.query
+    );
     setSubmittedRequest((current) => ({
       ...current,
       search_query: searchIntent.mode === 'keyword' ? searchIntent.query : null,
@@ -336,6 +342,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
   };
 
   const handleRecommendationSubmit = (request: RecommendationRequest) => {
+    trackPublicSpatialQuery(request.search_query || request.natural_language_query || undefined);
     setSubmittedRequest({
       ...request,
       location: userLocation
@@ -386,6 +393,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
           onFilterChange={setFilters}
           recommendationRequest={submittedRequest}
           onRecommendationRequestChange={(nextRequest) => {
+            trackPublicSpatialQuery();
             setSubmittedRequest(nextRequest);
             setIsCollapsed(false);
           }}

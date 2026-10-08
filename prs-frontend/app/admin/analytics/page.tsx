@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Download } from 'lucide-react';
 import { AdminTopbar } from '@/components/layout/AdminTopbar';
 import { useAdminLayout } from '../layout';
-import { MOCK_ANALYTICS } from '@/lib/admin-mock-data';
+import { useAdminStore } from '@/lib/admin-store';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
 import {
@@ -19,28 +19,29 @@ import {
 export default function AdminAnalyticsPage() {
   const { openMobileMenu } = useAdminLayout();
   const { toasts, showToast, dismissToast } = useToast();
+  const { analytics } = useAdminStore();
 
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
 
   const handleExport = () => {
-    showToast('Laporan analisis spasial berhasil diekspor (CSV & PDF)! 📊', 'success', 3000);
+    showToast('Laporan analisis spasial diekspor (CSV & GeoJSON).', 'success', 3000);
   };
 
   return (
     <div className="flex flex-col min-h-full pb-12">
       <AdminTopbar
-        title="Analisis Pengguna & Spasial"
-        subtitle="Wawasan preferensi mahasiswa, jam sibuk nugas, dan distribusi spasial Kota Bogor"
+        title="Analisis Spasial"
+        subtitle="Distribusi kueri wilayah, pola waktu kunjungan, dan preferensi fasilitas mahasiswa"
         onOpenMobileMenu={openMobileMenu}
         showSearch={false}
         actions={
           <button
             type="button"
             onClick={handleExport}
-            className="bg-white hover:bg-gray-50 active:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+            className="bg-white hover:bg-[#F5F6F3] border border-[#E2E5DF] text-text-700 text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs tactile-press"
           >
-            <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Ekspor Laporan</span>
+            <Download className="w-3.5 h-3.5 text-text-500" />
+            <span className="hidden sm:inline">Ekspor Analisis</span>
             <span className="sm:hidden">Ekspor</span>
           </button>
         }
@@ -51,18 +52,18 @@ export default function AdminAnalyticsPage() {
         <AnalyticsFilterToolbar timeRange={timeRange} setTimeRange={setTimeRange} />
 
         {/* 4 KPI Metrics */}
-        <AnalyticsKPIGrid kpi={MOCK_ANALYTICS.kpi} />
+        <AnalyticsKPIGrid kpi={analytics.kpi} />
 
         {/* 2-Column: Preferences & Peak Hours */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <StudentPreferencesSection preferences={MOCK_ANALYTICS.preferences} />
-          <PeakHoursChart peakHours={MOCK_ANALYTICS.peakHours} />
+          <StudentPreferencesSection preferences={analytics.preferences} />
+          <PeakHoursChart peakHours={analytics.peakHours} />
         </div>
 
         {/* 2-Column: Spatial Density & Top Cafes */}
         <SpatialZonesSection
-          spatialDensity={MOCK_ANALYTICS.spatialDensity}
-          topCafes={MOCK_ANALYTICS.topCafes}
+          spatialDensity={analytics.spatialDensity}
+          topCafes={analytics.topCafes}
         />
       </div>
 

@@ -4,7 +4,6 @@
 import { usePlaceDetail } from '@/hooks/usePlacesQuery';
 import {
   X,
-  Sparkles,
   MapPin,
   Clock,
   Navigation,
@@ -23,6 +22,7 @@ import { cn } from '@/lib/cn';
 import Link from 'next/link';
 import { useState } from 'react';
 import type { ToastType } from '@/hooks/useToast';
+import { trackPublicRouteClick } from '@/lib/admin-store';
 
 export interface PlaceDetailDrawerProps {
   slug: string | null;
@@ -206,57 +206,46 @@ export function PlaceDetailDrawer({
 
       {/* Scrollable Detail Body */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3.5 no-scrollbar">
-        {/* 2. 4-Metric Grid Cards (Clean SVG Icons) */}
+        {/* 2. 4-Metric Grid Cards */}
         <div className="grid grid-cols-4 gap-2">
           {/* WiFi */}
-          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2 text-center flex flex-col items-center justify-center">
-            <div className="w-6 h-6 rounded-lg bg-teal-50 flex items-center justify-center text-[#005B54] mb-1">
-              <Wifi className="w-3.5 h-3.5" />
-            </div>
-            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{wifiValue}</span>
-            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">{wifiLabel}</span>
+          <div className="bg-[#F8FAFC] border border-gray-200/70 rounded-xl p-2 text-center flex flex-col items-center justify-center">
+            <Wifi className="w-3.5 h-3.5 text-[#005B54] mb-1" />
+            <span className="font-extrabold text-[11px] text-gray-900 leading-tight tabular-nums">{wifiValue}</span>
+            <span className="text-[9.5px] text-gray-500 font-medium mt-0.5">{wifiLabel}</span>
           </div>
 
           {/* Colokan */}
-          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2 text-center flex flex-col items-center justify-center">
-            <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 mb-1">
-              <Zap className="w-3.5 h-3.5" />
-            </div>
+          <div className="bg-[#F8FAFC] border border-gray-200/70 rounded-xl p-2 text-center flex flex-col items-center justify-center">
+            <Zap className="w-3.5 h-3.5 text-[#005B54] mb-1" />
             <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{place.nugas_metrics.plug_label}</span>
-            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">Ketersediaan colokan</span>
+            <span className="text-[9.5px] text-gray-500 font-medium mt-0.5">Colokan</span>
           </div>
 
           {/* Akustik */}
-          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2 text-center flex flex-col items-center justify-center">
-            <div className="w-6 h-6 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 mb-1">
-              <Volume2 className="w-3.5 h-3.5" />
-            </div>
+          <div className="bg-[#F8FAFC] border border-gray-200/70 rounded-xl p-2 text-center flex flex-col items-center justify-center">
+            <Volume2 className="w-3.5 h-3.5 text-[#005B54] mb-1" />
             <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{place.nugas_metrics.noise_label}</span>
-            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">Tingkat keramaian</span>
+            <span className="text-[9.5px] text-gray-500 font-medium mt-0.5">Suasana</span>
           </div>
 
-          {/* Rating */}
-          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-2 text-center flex flex-col items-center justify-center">
-            <div className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 mb-1">
-              <Star className="w-3.5 h-3.5" />
-            </div>
-            <span className="font-extrabold text-[11px] text-gray-900 leading-tight">{place.ratings.google_rating.toFixed(1)}</span>
-            <span className="text-[9.5px] text-gray-400 font-medium mt-0.5">{place.ratings.total_google_reviews} ulasan</span>
+          {/* Rating (Standardized / 5 scale) */}
+          <div className="bg-[#F8FAFC] border border-gray-200/70 rounded-xl p-2 text-center flex flex-col items-center justify-center">
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500 mb-1" />
+            <span className="font-extrabold text-[11px] text-gray-900 leading-tight tabular-nums">
+              {place.ratings.google_rating.toFixed(1)} / 5
+            </span>
+            <span className="text-[9.5px] text-gray-500 font-medium mt-0.5">{place.ratings.total_google_reviews} ulasan</span>
           </div>
         </div>
 
-        {/* 3. AI Smart Recommendation Box - hidden on mobile sheet to save vertical space */}
+        {/* 3. Place Summary Box - hidden on mobile sheet to save vertical space */}
         {!isMobileSheet && (
-          <div className="bg-[#F0FAF7] border border-[#A7F3D0] rounded-xl p-3 flex items-start gap-2.5 text-xs text-gray-700">
-            <div className="w-5 h-5 rounded-md bg-[#005B54] text-white flex items-center justify-center shrink-0 mt-0.5">
-              <Sparkles className="w-3.5 h-3.5" />
-            </div>
-            <div className="flex-1">
-              <p className="font-bold text-gray-900">Tentang tempat ini</p>
-              <p className="mt-0.5 text-gray-600 text-[11.5px] leading-relaxed">
-                {description}
-              </p>
-            </div>
+          <div className="bg-[#F8FAFC] border border-gray-200/70 rounded-xl p-3 text-xs text-gray-700">
+            <p className="font-bold text-gray-900">Ringkasan Tempat</p>
+            <p className="mt-0.5 text-gray-600 text-[11.5px] leading-relaxed">
+              {description}
+            </p>
           </div>
         )}
 
@@ -348,6 +337,7 @@ export function PlaceDetailDrawer({
             href={mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackPublicRouteClick(place.name, place.location.address)}
             className="flex-1 bg-[#005B54] hover:bg-[#004741] active:scale-[0.99] text-white text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
           >
             <Navigation className="w-3.5 h-3.5 fill-white" />

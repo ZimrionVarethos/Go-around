@@ -217,9 +217,9 @@ export function PlaceCard({
           </div>
 
           {place.google_rating !== null && (
-            <p className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600">
+            <p className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600 tabular-nums">
               <Star className="h-3 w-3 fill-amber-400 text-amber-500" aria-hidden="true" />
-              {place.google_rating.toFixed(1)}
+              <span>{place.google_rating.toFixed(1)} / 5</span>
               {place.total_google_reviews !== null && (
                 <span className="font-medium text-slate-400">({place.total_google_reviews.toLocaleString('id-ID')})</span>
               )}
