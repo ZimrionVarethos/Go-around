@@ -21,12 +21,12 @@ export default function AdminDashboardPage() {
 
   const handleResolveTicket = (ticketId: string, cafeName: string) => {
     resolveTicket(ticketId);
-    showToast(`Tiket ${ticketId} (${cafeName}) ditandai selesai! ✅`, 'success', 3000);
+    showToast(`Tiket ${ticketId} (${cafeName}) ditandai selesai.`, 'success', 3000);
   };
 
   const handleDismissTicket = (ticketId: string) => {
     dismissTicket(ticketId);
-    showToast(`Tiket ${ticketId} diabaikan`, 'info', 2500);
+    showToast(`Tiket ${ticketId} diabaikan.`, 'info', 2500);
   };
 
   const activeTickets = tickets.filter((t) => t.status === 'open');
@@ -35,8 +35,8 @@ export default function AdminDashboardPage() {
     <div className="flex flex-col min-h-full pb-12">
       {/* Admin Header */}
       <AdminTopbar
-        title="Dashboard Overview"
-        subtitle="Pemantauan master data spasial, tiket laporan, dan aktivitas nugas mahasiswa"
+        title="Dashboard"
+        subtitle="Ringkasan operasional titik spasial kafe dan antrean laporan fasilitas"
         onOpenMobileMenu={openMobileMenu}
         showSearch={false}
         hideDefaultExport={true}

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState } from 'react';
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 import { PlaceItem } from '@/lib/admin-store';
 import { cn } from '@/lib/cn';
+import { formatStarRating, formatNugasScore } from '@/lib/utils';
 
 interface PlacesTableProps {
   places: PlaceItem[];
@@ -89,38 +91,38 @@ export function PlacesTable({
 
   return (
     <div className="hidden lg:block overflow-x-auto select-none">
-      <table className="w-full text-left border-collapse text-xs text-gray-600">
-        <thead className="bg-[#F8FAFC] border-b border-gray-200/90 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+      <table className="w-full text-left border-collapse text-xs text-text-700">
+        <thead className="bg-[#F8F9F7] border-b border-[#E2E5DF] text-[11px] font-bold text-text-600 uppercase tracking-wider">
           <tr>
             <th className="py-3.5 px-4 w-12 text-center">
               <input
                 type="checkbox"
                 checked={isAllSelected}
                 onChange={handleSelectAll}
-                className="w-4 h-4 rounded-sm text-[#005B54] focus:ring-[#005B54] border-gray-300 cursor-pointer accent-[#005B54]"
+                className="w-4 h-4 rounded-sm text-[#005B54] focus:ring-[#005B54] border-[#D5D3C8] cursor-pointer accent-[#005B54]"
                 aria-label="Pilih Semua"
               />
             </th>
-            <th className="py-3.5 px-4 min-w-[280px]">Kafe & Lokasi Spasial</th>
+            <th className="py-3.5 px-4 min-w-[280px]">Kafe &amp; Lokasi Spasial</th>
             <th className="py-3.5 px-4 min-w-[160px]">Koordinat PostGIS</th>
             <th className="py-3.5 px-4 min-w-[120px]">WiFi Speed</th>
             <th className="py-3.5 px-4 min-w-[130px]">Colokan Listrik</th>
             <th className="py-3.5 px-4 min-w-[120px]">Kisaran Harga</th>
-            <th className="py-3.5 px-4 min-w-[140px]">Akustik & Skor</th>
+            <th className="py-3.5 px-4 min-w-[140px]">Akustik &amp; Skor</th>
             <th className="py-3.5 px-4 min-w-[130px]">Status Tayang</th>
             <th className="py-3.5 px-4 min-w-[120px] text-center">Aksi Spasial</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100/90 bg-white">
+        <tbody className="divide-y divide-[#E2E5DF] bg-white">
           {paginatedPlaces.length === 0 ? (
             <tr>
-              <td colSpan={9} className="py-12 text-center text-gray-400">
+              <td colSpan={9} className="py-12 text-center text-text-500">
                 Tidak ada tempat nugas yang sesuai dengan filter atau kata kunci.
                 {hasSearchQuery && (
                   <button
                     type="button"
                     onClick={onResetSearch}
-                    className="block mx-auto mt-2 text-xs font-bold text-[#005B54] hover:underline"
+                    className="block mx-auto mt-2 text-xs font-bold text-[#005B54] hover:underline cursor-pointer"
                   >
                     Reset Pencarian
                   </button>
@@ -134,8 +136,8 @@ export function PlacesTable({
                 <tr
                   key={place.id}
                   className={cn(
-                    'transition-colors hover:bg-[#F8FAFC]/80 group',
-                    isSelected && 'bg-[#EFFBF6]/70 hover:bg-[#EFFBF6]'
+                    'transition-colors hover:bg-[#F5F6F3]/65 group',
+                    isSelected && 'bg-[#005B54]/[0.05] hover:bg-[#005B54]/[0.08]'
                   )}
                 >
                   {/* Row Checkbox */}
@@ -144,7 +146,7 @@ export function PlacesTable({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => handleToggleSelect(place.id)}
-                      className="w-4 h-4 rounded-sm text-[#005B54] focus:ring-[#005B54] border-gray-300 cursor-pointer accent-[#005B54]"
+                      className="w-4 h-4 rounded-sm text-[#005B54] focus:ring-[#005B54] border-[#D5D3C8] cursor-pointer accent-[#005B54]"
                       aria-label={`Pilih ${place.name}`}
                     />
                   </td>
@@ -153,7 +155,7 @@ export function PlacesTable({
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
                       {/* Thumbnail Image */}
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 border border-gray-200/60 shrink-0 relative">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-[#F5F6F3] border border-[#E2E5DF] shrink-0 relative">
                         <img
                           src={
                             place.imageUrl ||
@@ -167,15 +169,15 @@ export function PlacesTable({
                       {/* Name, Tag & Address */}
                       <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-bold text-gray-900 text-[13px] hover:text-[#005B54] transition-colors cursor-pointer truncate">
+                          <span className="font-bold text-text-950 text-[13px] hover:text-[#005B54] transition-colors cursor-pointer truncate">
                             {place.name}
                           </span>
-                          <span className="font-mono text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md border border-gray-200/50 shrink-0">
+                          <span className="font-mono text-[10px] font-bold text-text-600 tabular-nums bg-[#F5F6F3] px-1.5 py-0.5 rounded-md border border-[#E2E5DF] shrink-0">
                             #{place.code}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 text-[11px] text-gray-500 mt-1 truncate">
-                          <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
+                        <div className="flex items-center gap-1 text-[11px] text-text-500 mt-1 truncate">
+                          <MapPin className="w-3 h-3 text-text-400 shrink-0" />
                           <span className="truncate">{place.address}</span>
                         </div>
                       </div>
@@ -185,15 +187,15 @@ export function PlacesTable({
                   {/* Koordinat PostGIS */}
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-2">
-                      <div className="font-mono text-[11px] text-gray-600 leading-tight">
+                      <div className="font-mono text-[11px] text-text-700 tabular-nums leading-tight">
                         <div>{place.lat.toFixed(4)},</div>
                         <div>{place.lng.toFixed(4)}</div>
                       </div>
                       <button
                         type="button"
                         onClick={() => onLocatePlace?.(place)}
-                        title="Buka titik koordinat di GIS"
-                        className="w-6 h-6 rounded-lg text-teal-600 hover:text-teal-700 hover:bg-teal-50 border border-transparent hover:border-teal-200 flex items-center justify-center transition-all cursor-pointer shrink-0"
+                        title="Salin titik koordinat GIS"
+                        className="w-6 h-6 rounded-lg text-[#005B54] hover:bg-[#005B54]/[0.08] border border-transparent hover:border-[#005B54]/20 flex items-center justify-center transition-all cursor-pointer shrink-0 tactile-press"
                       >
                         <MapPin className="w-3.5 h-3.5" />
                       </button>
@@ -202,25 +204,26 @@ export function PlacesTable({
 
                   {/* WiFi Speed */}
                   <td className="py-4 px-4">
-                    <div className="inline-flex items-center gap-1.5 bg-[#E0F2FE] text-[#0284C7] border border-[#BAE6FD] text-xs font-bold px-2.5 py-1 rounded-full shadow-2xs">
-                      <Wifi className="w-3.5 h-3.5" />
+                    <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-900 tabular-nums">
+                      <Wifi className="w-3.5 h-3.5 text-[#005B54]" />
                       <span>{place.wifi} Mbps</span>
                     </div>
                   </td>
 
-                  {/* Colokan Listrik */}
+                  {/* Colokan Listrik (Structured Telemetry Pill instead of repetitive progress bars) */}
                   <td className="py-4 px-4">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-amber-600 text-xs">{place.plug}%</span>
-                        <div className="w-12 h-1.5 bg-gray-100 rounded-full overflow-hidden shrink-0">
-                          <div
-                            className="h-full bg-amber-500 rounded-full transition-all duration-500"
-                            style={{ width: `${place.plug}%` }}
-                          />
-                        </div>
-                      </div>
-                      <span className="text-[11px] text-gray-500 truncate">
+                    <div className="flex flex-col items-start gap-1">
+                      <span
+                        className={cn(
+                          'inline-flex items-center gap-1 font-mono text-[11px] font-bold px-2 py-0.5 rounded-md border tabular-nums',
+                          place.plug >= 80
+                            ? 'bg-teal-50/75 text-[#005B54] border-teal-200'
+                            : 'bg-[#F5F6F3] text-text-800 border-[#E2E5DF]'
+                        )}
+                      >
+                        <span>{place.plug}% Meja</span>
+                      </span>
+                      <span className="text-[11px] text-text-500 truncate">
                         {place.plugLabel || (place.plug >= 80 ? 'Hampir tiap meja' : 'Cukup memadai')}
                       </span>
                     </div>
@@ -229,23 +232,29 @@ export function PlacesTable({
                   {/* Kisaran Harga */}
                   <td className="py-4 px-4">
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-bold text-gray-900 text-xs">{place.price}</span>
-                      <span className="text-[11px] font-semibold text-emerald-700 truncate">
+                      <span className="font-bold text-text-900 text-xs tabular-nums">{place.price}</span>
+                      <span className="text-[11px] font-medium text-text-500 truncate">
                         {place.priceCategory || 'Ramah Mahasiswa'}
                       </span>
                     </div>
                   </td>
 
-                  {/* Akustik & Skor */}
+                  {/* Akustik & Skor (Normalized 5-Star Scale + Nugas Suitability Index) */}
                   <td className="py-4 px-4">
                     <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1 text-xs text-gray-700 font-medium">
-                        <Volume2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-xs text-text-700 font-medium">
+                        <Volume2 className="w-3.5 h-3.5 text-text-400 shrink-0" />
                         <span className="truncate">{place.acoustic || 'Tenang'}</span>
                       </div>
-                      <div className="flex items-baseline gap-1 text-[11px]">
-                        <span className="font-extrabold text-amber-500">★ {place.score}</span>
-                        <span className="text-gray-400 text-[10px]">/10 Nugas</span>
+                      <div className="flex items-center gap-1.5 text-[11px] tabular-nums">
+                        <span className="font-bold text-text-900">
+                          <span className="text-[#D97706]">★</span> {formatStarRating(place.score)}
+                        </span>
+                        <span className="text-text-400">/ 5</span>
+                        <span className="text-text-300">·</span>
+                        <span className="font-semibold text-[#005B54]">
+                          {formatNugasScore(place.score)} Nugas
+                        </span>
                       </div>
                     </div>
                   </td>
@@ -253,13 +262,13 @@ export function PlacesTable({
                   {/* Status Tayang */}
                   <td className="py-4 px-4">
                     {place.status === 'verified' ? (
-                      <span className="inline-flex items-center gap-1.5 bg-[#E6F7EF] text-[#059669] border border-[#A7F3D0] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#059669]" />
+                      <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
                         <span>Terverifikasi</span>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#D97706]" />
+                      <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                         <span>Perlu Review</span>
                       </span>
                     )}
@@ -274,7 +283,7 @@ export function PlacesTable({
                             type="button"
                             onClick={() => onToggleStatus(place)}
                             title="Lakukan audit dan verifikasi tempat ini"
-                            className="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+                            className="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all cursor-pointer shadow-2xs tactile-press"
                           >
                             <ClipboardCheck className="w-3.5 h-3.5" />
                             <span>Audit</span>
@@ -282,8 +291,8 @@ export function PlacesTable({
                           <button
                             type="button"
                             onClick={() => onLocatePlace?.(place)}
-                            title="Lihat di Peta Spasial"
-                            className="p-1.5 text-gray-400 hover:text-[#005B54] hover:bg-teal-50 rounded-lg transition-colors cursor-pointer"
+                            title="Salin Koordinat Spasial"
+                            className="p-1.5 text-text-400 hover:text-[#005B54] hover:bg-[#005B54]/[0.08] rounded-lg transition-colors cursor-pointer tactile-press"
                           >
                             <Crosshair className="w-3.5 h-3.5" />
                           </button>
@@ -294,15 +303,15 @@ export function PlacesTable({
                             type="button"
                             onClick={() => onEdit(place)}
                             title="Edit data kafe"
-                            className="p-1.5 text-gray-400 hover:text-[#005B54] hover:bg-teal-50 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-text-400 hover:text-[#005B54] hover:bg-[#005B54]/[0.08] rounded-lg transition-colors cursor-pointer tactile-press"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             type="button"
                             onClick={() => onLocatePlace?.(place)}
-                            title="Lihat di Peta Spasial"
-                            className="p-1.5 text-gray-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors cursor-pointer"
+                            title="Salin Koordinat Spasial"
+                            className="p-1.5 text-text-400 hover:text-[#005B54] hover:bg-[#005B54]/[0.08] rounded-lg transition-colors cursor-pointer tactile-press"
                           >
                             <Crosshair className="w-3.5 h-3.5" />
                           </button>
@@ -310,7 +319,7 @@ export function PlacesTable({
                             type="button"
                             onClick={() => onDelete(place.id, place.name)}
                             title="Hapus / Arsipkan"
-                            className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-text-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer tactile-press"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -326,17 +335,17 @@ export function PlacesTable({
       </table>
 
       {/* 4. PAGINATION & BATCH ACTIONS FOOTER */}
-      <div className="bg-white border-t border-gray-200/80 px-4 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-[#F8F9F7] border-t border-[#E2E5DF] px-4 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Batch Actions Left */}
         <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
-          <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
+          <span className="text-xs text-text-600 font-semibold whitespace-nowrap">
             Aksi Batch Terpilih:
           </span>
           <button
             type="button"
             disabled={selectedIds.length === 0}
             onClick={() => onBatchVerify?.(selectedIds)}
-            className="bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            className="bg-white hover:bg-[#F5F6F3] disabled:opacity-40 disabled:cursor-not-allowed border border-[#E2E5DF] text-text-800 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap tactile-press"
           >
             <Check className="w-3.5 h-3.5 text-emerald-600" />
             <span>Verifikasi Masal</span>
@@ -351,7 +360,7 @@ export function PlacesTable({
               });
               setSelectedIds([]);
             }}
-            className="bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
+            className="bg-white hover:bg-[#F5F6F3] disabled:opacity-40 disabled:cursor-not-allowed border border-[#E2E5DF] text-text-800 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-2xs transition-all cursor-pointer whitespace-nowrap tactile-press"
           >
             Ubah Status
           </button>
@@ -364,7 +373,7 @@ export function PlacesTable({
                 setSelectedIds([]);
               }
             }}
-            className="bg-white hover:bg-rose-50 disabled:opacity-40 disabled:cursor-not-allowed border border-gray-200 text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
+            className="bg-white hover:bg-rose-50 disabled:opacity-40 disabled:cursor-not-allowed border border-[#E2E5DF] text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-2xs transition-all cursor-pointer whitespace-nowrap tactile-press"
           >
             Hapus Terpilih
           </button>
@@ -372,15 +381,15 @@ export function PlacesTable({
 
         {/* Pagination Controls Right */}
         <div className="flex items-center gap-3 self-end md:self-auto">
-          <span className="text-xs text-gray-500 font-medium">
-            Menampilkan {totalItems === 0 ? 0 : startIndex + 1}–{endIndex} dari {totalPlacesCount} titik kafe
+          <span className="text-xs text-text-600 font-medium tabular-nums">
+            Menampilkan {totalItems === 0 ? 0 : startIndex + 1}-{endIndex} dari {totalPlacesCount} titik kafe
           </span>
           <div className="flex items-center gap-1">
             <button
               type="button"
               disabled={validPage <= 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="w-8 h-8 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 cursor-pointer shadow-xs transition-colors"
+              className="w-8 h-8 rounded-lg border border-[#E2E5DF] bg-white hover:bg-[#F5F6F3] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-text-700 cursor-pointer shadow-2xs transition-colors tactile-press"
               title="Halaman Sebelumnya"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -392,16 +401,16 @@ export function PlacesTable({
                   type="button"
                   onClick={() => setCurrentPage(p)}
                   className={cn(
-                    'w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center cursor-pointer transition-colors',
+                    'w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center cursor-pointer transition-colors tabular-nums tactile-press',
                     validPage === p
-                      ? 'bg-[#005B54] text-white shadow-xs'
-                      : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                      ? 'bg-[#005B54] text-white shadow-2xs'
+                      : 'bg-white border border-[#E2E5DF] text-text-700 hover:bg-[#F5F6F3]'
                   )}
                 >
                   {p}
                 </button>
               ) : (
-                <span key={idx} className="text-gray-400 px-1 text-xs font-bold">
+                <span key={idx} className="text-text-400 px-1 text-xs font-bold">
                   ...
                 </span>
               )
@@ -410,7 +419,7 @@ export function PlacesTable({
               type="button"
               disabled={validPage >= totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="w-8 h-8 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 cursor-pointer shadow-xs transition-colors"
+              className="w-8 h-8 rounded-lg border border-[#E2E5DF] bg-white hover:bg-[#F5F6F3] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-text-700 cursor-pointer shadow-2xs transition-colors tactile-press"
               title="Halaman Berikutnya"
             >
               <ChevronRight className="w-4 h-4" />

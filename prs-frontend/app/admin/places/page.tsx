@@ -155,10 +155,10 @@ export default function AdminPlacesPage() {
         priceCategory: 'Ramah Mahasiswa',
         acoustic: 'Kondusif',
       });
-      showToast(`Tempat "${formData.name}" berhasil ditambahkan ke master GIS! 🎉`, 'success', 3000);
+      showToast(`Tempat "${formData.name}" ditambahkan ke direktori GIS.`, 'success', 3000);
     } else if (modalMode === 'edit' && editingPlace) {
       updatePlace({ ...editingPlace, ...formData, isUnread: false });
-      showToast(`Data "${formData.name}" berhasil diperbarui! 💾`, 'success', 3000);
+      showToast(`Data "${formData.name}" berhasil diperbarui.`, 'success', 3000);
     }
 
     setModalMode(null);
@@ -174,12 +174,12 @@ export default function AdminPlacesPage() {
   const handleToggleStatus = (place: PlaceItem) => {
     if (place.status === 'review') {
       verifyPlace(place.id);
-      showToast(`Tempat "${place.name}" diverifikasi & disetujui tayang! ✅`, 'success', 2500);
+      showToast(`Tempat "${place.name}" diverifikasi dan disetujui tayang.`, 'success', 2500);
     } else {
       const nextStatus = place.status === 'verified' ? 'review' : 'verified';
       updatePlace({ ...place, status: nextStatus, isUnread: false });
       showToast(
-        `Status "${place.name}" diubah ke ${nextStatus === 'verified' ? 'Terverifikasi' : 'Perlu Review'}`,
+        `Status "${place.name}" diubah ke ${nextStatus === 'verified' ? 'Terverifikasi' : 'Perlu Review'}.`,
         'info',
         2500
       );
@@ -188,18 +188,18 @@ export default function AdminPlacesPage() {
 
   const handleBatchVerify = (ids: number[]) => {
     ids.forEach((id) => verifyPlace(id));
-    showToast(`${ids.length} tempat nugas berhasil diverifikasi masal! ✅`, 'success', 3000);
+    showToast(`${ids.length} tempat nugas berhasil diverifikasi.`, 'success', 3000);
   };
 
   const handleBatchDelete = (ids: number[]) => {
     ids.forEach((id) => deletePlace(id));
-    showToast(`${ids.length} tempat nugas berhasil dihapus dari direktori.`, 'info', 3000);
+    showToast(`${ids.length} tempat nugas dihapus dari direktori.`, 'info', 3000);
   };
 
   const handleLocatePlace = (place: PlaceItem) => {
     navigator.clipboard?.writeText?.(`${place.lat}, ${place.lng}`);
     showToast(
-      `Koordinat ${place.name} (${place.lat.toFixed(4)}, ${place.lng.toFixed(4)}) disalin! 📍`,
+      `Koordinat ${place.name} (${place.lat.toFixed(4)}, ${place.lng.toFixed(4)}) disalin.`,
       'info',
       3000
     );
@@ -234,36 +234,36 @@ export default function AdminPlacesPage() {
     link.download = `goaround_places_postgis_${new Date().toISOString().slice(0, 10)}.geojson`;
     link.click();
     URL.revokeObjectURL(url);
-    showToast('Dataset GeoJSON PostGIS berhasil diekspor! 📁', 'success', 3000);
+    showToast('Dataset GeoJSON berhasil diekspor.', 'success', 3000);
   };
 
   return (
-    <div className="flex flex-col min-h-full pb-16 bg-[#F8FAFC]">
-      {/* Top Navbar Component matching Figma */}
+    <div className="flex flex-col min-h-full pb-16 bg-[#F5F6F3]">
+      {/* Top Navbar Component */}
       <AdminTopbar
         onOpenMobileMenu={openMobileMenu}
         hideDefaultExport={true}
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
-        searchPlaceholder="Cari nama kafe, nama jalan (mis. Pajajaran, Ciheuleut), atau ID spasial..."
+        searchPlaceholder="Cari nama kafe, jalan (mis. Pajajaran, Ciheuleut), atau kode spasial..."
         actions={
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleExportGIS}
-              className="bg-white hover:bg-gray-50 active:bg-gray-100 border border-gray-200/90 text-gray-700 text-xs font-semibold px-3 py-2 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              className="bg-white hover:bg-[#F5F6F3] border border-[#E2E5DF] text-text-700 text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer tactile-press"
             >
-              <Download className="w-3.5 h-3.5 text-gray-500" />
-              <span className="hidden sm:inline">Export GIS</span>
-              <span className="sm:hidden">Export</span>
+              <Download className="w-3.5 h-3.5 text-text-500" />
+              <span className="hidden sm:inline">Ekspor GeoJSON</span>
+              <span className="sm:hidden">GeoJSON</span>
             </button>
             <button
               type="button"
               onClick={handleOpenCreate}
-              className="bg-[#005B54] hover:bg-[#004741] active:scale-95 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              className="bg-[#005B54] hover:bg-[#004741] text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs tactile-press"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Tambah Data Kafe</span>
+              <span className="hidden sm:inline">Tambah Kafe</span>
               <span className="sm:hidden">Tambah</span>
             </button>
           </div>
@@ -272,33 +272,27 @@ export default function AdminPlacesPage() {
 
       {/* Main Content Body Canvas */}
       <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
-        {/* Page Title Header Section matching Figma */}
+        {/* Page Title Header Section */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-                Kelola Kafe & Spot Nugas
-              </h1>
-              <span className="bg-[#EFFBF6] text-[#005B54] border border-[#A7F3D0] text-xs font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
-                Direktori Spasial
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-gray-500 mt-1 max-w-3xl leading-relaxed">
-              Master data direktori spasial, atribut fasilitas WiFi, colokan, harga, koordinat PostGIS,
-              dan status verifikasi tayang untuk mahasiswa Kota Bogor.
+            <h1 className="text-xl sm:text-2xl font-bold text-text-950 tracking-tight">
+              Kelola Kafe &amp; Tempat Nugas
+            </h1>
+            <p className="text-xs sm:text-sm text-text-500 mt-1 max-w-3xl leading-relaxed">
+              Direktori titik koordinat kafe, atribut fasilitas belajar (Wi-Fi, colokan, akustik), dan status penayangan pada peta publik.
             </p>
           </div>
 
-          {/* Right Status Pill Badge */}
-          <div className="self-start lg:self-center inline-flex items-center gap-2 bg-white border border-gray-200/90 px-3.5 py-1.5 rounded-full shadow-xs text-xs text-gray-700 font-medium">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span className="font-semibold text-gray-800">SRS: EPSG:4326 (WGS84)</span>
-            <span className="text-gray-300">•</span>
-            <span className="text-gray-600">Buffer Radius Kampus: Aktif</span>
+          {/* Right Spatial Reference Metadata */}
+          <div className="self-start lg:self-center inline-flex items-center gap-2 bg-white border border-[#E2E5DF] shadow-2xs px-3 py-1.5 rounded-lg text-xs text-text-700">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#005B54] shrink-0" />
+            <span className="font-mono font-semibold text-text-900">SRS: EPSG:4326</span>
+            <span className="text-text-300">·</span>
+            <span className="text-text-500">Buffer Kampus Aktif</span>
           </div>
         </div>
 
-        {/* 1. RINGKASAN STATUS DIREKTORI (KPI Bento Metric Cards) */}
+        {/* 1. RINGKASAN STATUS DIREKTORI (Unified Telemetry Strip) */}
         <PlacesKPIGrid
           totalPlaces={places.length}
           verifiedPlaces={places.filter((p) => p.status === 'verified').length}
@@ -317,58 +311,54 @@ export default function AdminPlacesPage() {
           setViewMode={setViewMode}
         />
 
-        {/* 3. TABEL MASTER DATA KAFE KOMPREHENSIF / GRID PETA */}
-        <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
-          {viewMode === 'table' ? (
-            <>
-              <PlacesTable
-                places={filteredPlaces}
-                totalPlacesCount={places.length}
-                hasSearchQuery={!!searchQuery || selectedDistrict !== 'all' || selectedStatus !== 'all'}
-                onResetSearch={() => {
-                  setSearchQuery('');
-                  setSelectedDistrict('all');
-                  setSelectedStatus('all');
-                  setQuickFilters({
-                    wifi50: false,
-                    plug80: false,
-                    budget25k: false,
-                    open24h: false,
-                  });
-                }}
-                onToggleStatus={handleToggleStatus}
-                onEdit={handleOpenEdit}
-                onDelete={handleDelete}
-                onBatchVerify={handleBatchVerify}
-                onBatchDelete={handleBatchDelete}
-                onLocatePlace={handleLocatePlace}
-              />
-              <PlacesMobileList
-                places={filteredPlaces}
-                onToggleStatus={handleToggleStatus}
-                onEdit={handleOpenEdit}
-                onDelete={handleDelete}
-                onLocatePlace={handleLocatePlace}
-              />
-            </>
-          ) : (
-            <div className="p-4 sm:p-6">
-              <PlacesGrid
-                places={filteredPlaces}
-                onToggleStatus={handleToggleStatus}
-                onEdit={handleOpenEdit}
-                onDelete={handleDelete}
-                onLocatePlace={handleLocatePlace}
-              />
-            </div>
-          )}
-        </div>
+        {/* 3. TABEL MASTER DATA KAFE KOMPREHENSIF / GRID PETA (Single Clean Wrapper) */}
+        {viewMode === 'table' ? (
+          <div className="bg-white rounded-xl border border-[#E2E5DF] shadow-card-subtle overflow-hidden">
+            <PlacesTable
+              places={filteredPlaces}
+              totalPlacesCount={places.length}
+              hasSearchQuery={!!searchQuery || selectedDistrict !== 'all' || selectedStatus !== 'all'}
+              onResetSearch={() => {
+                setSearchQuery('');
+                setSelectedDistrict('all');
+                setSelectedStatus('all');
+                setQuickFilters({
+                  wifi50: false,
+                  plug80: false,
+                  budget25k: false,
+                  open24h: false,
+                });
+              }}
+              onToggleStatus={handleToggleStatus}
+              onEdit={handleOpenEdit}
+              onDelete={handleDelete}
+              onBatchVerify={handleBatchVerify}
+              onBatchDelete={handleBatchDelete}
+              onLocatePlace={handleLocatePlace}
+            />
+            <PlacesMobileList
+              places={filteredPlaces}
+              onToggleStatus={handleToggleStatus}
+              onEdit={handleOpenEdit}
+              onDelete={handleDelete}
+              onLocatePlace={handleLocatePlace}
+            />
+          </div>
+        ) : (
+          <PlacesGrid
+            places={filteredPlaces}
+            onToggleStatus={handleToggleStatus}
+            onEdit={handleOpenEdit}
+            onDelete={handleDelete}
+            onLocatePlace={handleLocatePlace}
+          />
+        )}
 
         {/* Footer Specification from Figma */}
-        <footer className="pt-6 pb-2 border-t border-gray-200/70 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-2">
+        <footer className="pt-6 pb-2 border-t border-[#E2E5DF] flex flex-col sm:flex-row items-center justify-between text-xs text-text-500 gap-2">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-            <span>Go Around – WEB GIS © 2026 Sekolah Vokasi IPB</span>
+            <span>Go Around · WEB GIS © 2026 Sekolah Vokasi IPB</span>
           </div>
           <button
             type="button"
@@ -379,7 +369,7 @@ export default function AdminPlacesPage() {
                 4000
               )
             }
-            className="text-gray-500 hover:text-gray-900 font-medium hover:underline cursor-pointer"
+            className="text-text-500 hover:text-text-900 font-medium hover:underline cursor-pointer"
           >
             Dokumentasi Teknis
           </button>

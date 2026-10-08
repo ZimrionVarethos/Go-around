@@ -40,13 +40,13 @@ export function PlacesToolbar({
   setViewMode,
 }: PlacesToolbarProps) {
   const districts = [
-    { id: 'all', label: 'Semua Wilayah Kota Bogor' },
+    { id: 'all', label: 'Semua Kecamatan Kota Bogor' },
     { id: 'Bogor Tengah', label: 'Bogor Tengah' },
     { id: 'Bogor Timur', label: 'Bogor Timur' },
-    { id: 'Dramaga', label: 'Dramaga / Sekitar IPB' },
-    { id: 'Babakan Madang / Sentul', label: 'Babakan Madang / Sentul' },
-    { id: 'Bogor Barat', label: 'Bogor Barat' },
     { id: 'Bogor Utara', label: 'Bogor Utara' },
+    { id: 'Bogor Barat', label: 'Bogor Barat' },
+    { id: 'Tanah Sareal', label: 'Tanah Sareal' },
+    { id: 'Bogor Selatan', label: 'Bogor Selatan' },
   ];
 
   const statuses = [
@@ -56,15 +56,15 @@ export function PlacesToolbar({
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-4 flex flex-col xl:flex-row gap-4 items-stretch xl:items-center justify-between">
+    <div className="bg-white rounded-xl border border-[#E2E5DF] shadow-card-subtle p-3.5 flex flex-col xl:flex-row gap-3 items-stretch xl:items-center justify-between">
       {/* Left Filters Row */}
-      <div className="flex flex-wrap items-center gap-2.5 flex-1">
+      <div className="flex flex-wrap items-center gap-2 flex-1">
         {/* Dropdown Filter Wilayah */}
         <div className="relative">
           <select
             value={selectedDistrict}
             onChange={(e) => setSelectedDistrict(e.target.value)}
-            className="appearance-none bg-white hover:bg-gray-50/80 border border-gray-200/90 text-gray-800 text-xs font-semibold pl-3.5 pr-8 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#005B54] focus:border-[#005B54] cursor-pointer shadow-xs transition-all"
+            className="appearance-none h-9 bg-[#F5F6F3] hover:bg-white border border-[#E2E5DF] text-text-900 text-xs font-semibold pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] cursor-pointer transition-all"
           >
             {districts.map((d) => (
               <option key={d.id} value={d.id}>
@@ -72,7 +72,7 @@ export function PlacesToolbar({
               </option>
             ))}
           </select>
-          <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-3.5 h-3.5 text-text-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* Dropdown Filter Status Tayang */}
@@ -80,7 +80,7 @@ export function PlacesToolbar({
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="appearance-none bg-white hover:bg-gray-50/80 border border-gray-200/90 text-gray-800 text-xs font-semibold pl-8 pr-8 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#005B54] focus:border-[#005B54] cursor-pointer shadow-xs transition-all"
+            className="appearance-none h-9 bg-[#F5F6F3] hover:bg-white border border-[#E2E5DF] text-text-900 text-xs font-semibold pl-8 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] cursor-pointer transition-all"
           >
             {statuses.map((s) => (
               <option key={s.id} value={s.id}>
@@ -88,91 +88,87 @@ export function PlacesToolbar({
               </option>
             ))}
           </select>
-          <SlidersHorizontal className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <SlidersHorizontal className="w-3.5 h-3.5 text-text-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-3.5 h-3.5 text-text-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* Divider */}
-        <div className="w-px h-6 bg-gray-200 hidden md:block" />
+        <div className="w-px h-5 bg-[#E2E5DF] hidden md:block mx-0.5" />
 
-        {/* Quick Filter Chips */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* WiFi > 50 Mbps */}
+        {/* Quick Filter Toggles */}
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
             onClick={() => toggleQuickFilter('wifi50')}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs',
+              'inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border tabular-nums tactile-press',
               quickFilters.wifi50
-                ? 'bg-[#005B54] text-white border border-[#005B54]'
-                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                ? 'bg-[#005B54] text-white border-[#005B54] shadow-2xs'
+                : 'bg-white text-text-700 border-[#E2E5DF] hover:bg-[#F5F6F3]'
             )}
           >
-            <Wifi className={cn('w-3.5 h-3.5', quickFilters.wifi50 ? 'text-white' : 'text-blue-500')} />
-            <span>WiFi &gt; 50 Mbps</span>
+            <Wifi className={cn('w-3.5 h-3.5', quickFilters.wifi50 ? 'text-white' : 'text-text-500')} />
+            <span>Wi-Fi &gt; 50 Mbps</span>
             {quickFilters.wifi50 && <X className="w-3 h-3 ml-0.5" />}
           </button>
 
-          {/* Colokan > 80% */}
           <button
             type="button"
             onClick={() => toggleQuickFilter('plug80')}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs',
+              'inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border tabular-nums tactile-press',
               quickFilters.plug80
-                ? 'bg-[#005B54] text-white border border-[#005B54]'
-                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                ? 'bg-[#005B54] text-white border-[#005B54] shadow-2xs'
+                : 'bg-white text-text-700 border-[#E2E5DF] hover:bg-[#F5F6F3]'
             )}
           >
-            <Zap className={cn('w-3.5 h-3.5', quickFilters.plug80 ? 'text-white' : 'text-amber-500')} />
+            <Zap className={cn('w-3.5 h-3.5', quickFilters.plug80 ? 'text-white' : 'text-text-500')} />
             <span>Colokan &gt; 80%</span>
             {quickFilters.plug80 && <X className="w-3 h-3 ml-0.5" />}
           </button>
 
-          {/* Budget < Rp 25k */}
           <button
             type="button"
             onClick={() => toggleQuickFilter('budget25k')}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs',
+              'inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border tabular-nums tactile-press',
               quickFilters.budget25k
-                ? 'bg-[#005B54] text-white border border-[#005B54]'
-                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                ? 'bg-[#005B54] text-white border-[#005B54] shadow-2xs'
+                : 'bg-white text-text-700 border-[#E2E5DF] hover:bg-[#F5F6F3]'
             )}
           >
-            <Banknote className={cn('w-3.5 h-3.5', quickFilters.budget25k ? 'text-white' : 'text-emerald-500')} />
-            <span>Budget &lt; Rp 25k</span>
+            <Banknote className={cn('w-3.5 h-3.5', quickFilters.budget25k ? 'text-white' : 'text-text-500')} />
+            <span>&lt; Rp 25rb</span>
             {quickFilters.budget25k && <X className="w-3 h-3 ml-0.5" />}
           </button>
 
-          {/* Buka 24 Jam */}
           <button
             type="button"
             onClick={() => toggleQuickFilter('open24h')}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs',
+              'inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border tabular-nums tactile-press',
               quickFilters.open24h
-                ? 'bg-[#005B54] text-white border border-[#005B54]'
-                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                ? 'bg-[#005B54] text-white border-[#005B54] shadow-2xs'
+                : 'bg-white text-text-700 border-[#E2E5DF] hover:bg-[#F5F6F3]'
             )}
           >
-            <Clock className={cn('w-3.5 h-3.5', quickFilters.open24h ? 'text-white' : 'text-purple-500')} />
-            <span>Buka 24 Jam</span>
+            <Clock className={cn('w-3.5 h-3.5', quickFilters.open24h ? 'text-white' : 'text-text-500')} />
+            <span>24 Jam</span>
             {quickFilters.open24h && <X className="w-3 h-3 ml-0.5" />}
           </button>
         </div>
       </div>
 
       {/* View Mode Toggle (Table / Grid) */}
-      <div className="flex items-center self-end xl:self-auto bg-gray-100 p-1 rounded-xl shrink-0 border border-gray-200/50">
+      <div className="flex items-center self-end xl:self-auto bg-[#F5F6F3] p-1 rounded-lg shrink-0 border border-[#E2E5DF]">
         <button
           type="button"
           onClick={() => setViewMode('table')}
           className={cn(
-            'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
+            'flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer tactile-press',
             viewMode === 'table'
-              ? 'bg-white text-[#005B54] font-bold shadow-xs'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-white text-[#005B54] shadow-2xs border border-[#E2E5DF]'
+              : 'text-text-600 hover:text-text-900'
           )}
         >
           <TableIcon className="w-3.5 h-3.5" />
@@ -182,14 +178,14 @@ export function PlacesToolbar({
           type="button"
           onClick={() => setViewMode('grid')}
           className={cn(
-            'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
+            'flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer tactile-press',
             viewMode === 'grid'
-              ? 'bg-white text-[#005B54] font-bold shadow-xs'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-white text-[#005B54] shadow-2xs border border-[#E2E5DF]'
+              : 'text-text-600 hover:text-text-900'
           )}
         >
           <LayoutGrid className="w-3.5 h-3.5" />
-          <span>Grid Peta</span>
+          <span>Grid</span>
         </button>
       </div>
     </div>
