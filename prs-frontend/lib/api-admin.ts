@@ -209,7 +209,7 @@ export const adminPlacesApi = {
       // Fallback ke local store data jika Laravel belum siap
       if (typeof window !== 'undefined') {
         try {
-          const stored = localStorage.getItem('goaround_admin_store_v2');
+          const stored = localStorage.getItem('goaround_admin_store_v3');
           if (stored) {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed.places)) return parsed.places;
@@ -327,7 +327,7 @@ export const adminTicketsApi = {
     } catch {
       if (typeof window !== 'undefined') {
         try {
-          const stored = localStorage.getItem('goaround_admin_store_v2');
+          const stored = localStorage.getItem('goaround_admin_store_v3');
           if (stored) {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed.tickets)) return parsed.tickets;

@@ -26,6 +26,23 @@ export function formatNugasScore(score: number): string {
   return `${Math.round(val)}%`;
 }
 
+/**
+ * Normalize a 0–10 or 0–5 rating score to the standard 5-star scale (1 decimal).
+ * Examples: 9.7 -> "4.9", 9.4 -> "4.7", 9.1 -> "4.6", 4.7 -> "4.7".
+ */
+export function formatStarRating(score: number | null | undefined): string {
+  if (typeof score !== 'number' || isNaN(score)) return '0.0';
+  const normalized = score > 5 ? (score <= 10 ? score / 2 : score / 20) : score;
+  return Math.min(5, Math.max(0, normalized)).toFixed(1);
+}
+
+/**
+ * Format a 0–10 or 0–5 rating score with explicit "/ 5" scale, e.g. "4.9 / 5".
+ */
+export function formatStarRatingWithScale(score: number | null | undefined): string {
+  return `${formatStarRating(score)} / 5`;
+}
+
 /** Get standard 4-tier color palette matching the Map Legend */
 export function getScoreTier(score: number | null | undefined): ScoreTierInfo {
   if (score === null || score === undefined || isNaN(score)) {

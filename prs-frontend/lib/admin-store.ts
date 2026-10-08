@@ -1,7 +1,11 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
-import { MOCK_ADMIN_TICKETS, MOCK_PLACES_TABLE } from './admin-mock-data';
+import { useMemo, useSyncExternalStore } from 'react';
+import {
+  MOCK_ADMIN_TICKETS,
+  MOCK_PLACES_TABLE,
+  MOCK_ANALYTICS,
+} from './admin-mock-data';
 
 export interface AdminTicketItem {
   id: string;
@@ -38,13 +42,15 @@ export interface PlaceItem {
   is24Hours?: boolean;
 }
 
+export type AdminAnalyticsState = typeof MOCK_ANALYTICS;
+
 interface AdminState {
   tickets: AdminTicketItem[];
   places: PlaceItem[];
+  analytics?: AdminAnalyticsState;
 }
 
-const STORAGE_KEY = 'goaround_admin_store_v2';
-const EVENT_KEY = 'goaround:admin-store-updated';
+const STORAGE_KEY = 'goaround_admin_store_v3';
 
 // Default initial state:
 // 1 ticket unread (TK-802) so there is an active issue to demonstrate "1 baru"
@@ -63,6 +69,7 @@ const INITIAL_PLACES: PlaceItem[] = MOCK_PLACES_TABLE.map((p) => ({
 const DEFAULT_STATE: AdminState = {
   tickets: INITIAL_TICKETS,
   places: INITIAL_PLACES,
+  analytics: MOCK_ANALYTICS,
 };
 
 let memoryState: AdminState = DEFAULT_STATE;
@@ -76,7 +83,12 @@ function getStoredState(): AdminState {
     try {
       const item = window.localStorage.getItem(STORAGE_KEY);
       if (item) {
-        memoryState = JSON.parse(item);
+        const parsed = JSON.parse(item) as AdminState;
+        memoryState = {
+          ...DEFAULT_STATE,
+          ...parsed,
+          analytics: parsed.analytics || MOCK_ANALYTICS,
+        };
       } else {
         memoryState = DEFAULT_STATE;
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_STATE));
@@ -94,7 +106,6 @@ function saveAndNotify(nextState: AdminState) {
   if (typeof window !== 'undefined') {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
-      window.dispatchEvent(new CustomEvent(EVENT_KEY));
     } catch (e) {
       console.warn('Failed to save to localStorage', e);
     }
@@ -105,22 +116,15 @@ function saveAndNotify(nextState: AdminState) {
 function subscribe(callback: () => void) {
   listeners.add(callback);
 
-  const handleCustomEvent = () => {
-    try {
-      const item = window.localStorage.getItem(STORAGE_KEY);
-      if (item) {
-        memoryState = JSON.parse(item);
-      }
-    } catch {
-      // ignore
-    }
-    callback();
-  };
-
   const handleStorageEvent = (e: StorageEvent) => {
     if (e.key === STORAGE_KEY && e.newValue) {
       try {
-        memoryState = JSON.parse(e.newValue);
+        const parsed = JSON.parse(e.newValue) as AdminState;
+        memoryState = {
+          ...DEFAULT_STATE,
+          ...parsed,
+          analytics: parsed.analytics || MOCK_ANALYTICS,
+        };
         callback();
       } catch {
         // ignore
@@ -129,14 +133,12 @@ function subscribe(callback: () => void) {
   };
 
   if (typeof window !== 'undefined') {
-    window.addEventListener(EVENT_KEY, handleCustomEvent);
     window.addEventListener('storage', handleStorageEvent);
   }
 
   return () => {
     listeners.delete(callback);
     if (typeof window !== 'undefined') {
-      window.removeEventListener(EVENT_KEY, handleCustomEvent);
       window.removeEventListener('storage', handleStorageEvent);
     }
   };
@@ -149,17 +151,20 @@ export function useAdminStore() {
     () => DEFAULT_STATE
   );
 
-  const unreadTicketsCount = state.tickets.filter(
-    (t) => t.status === 'open' && t.isUnread
-  ).length;
+  const unreadTicketsCount = useMemo(
+    () => state.tickets.filter((t) => t.status === 'open' && t.isUnread).length,
+    [state.tickets]
+  );
 
-  const newPlacesCount = state.places.filter(
-    (p) => p.status === 'review' && p.isUnread !== false
-  ).length;
+  const newPlacesCount = useMemo(
+    () => state.places.filter((p) => p.status === 'review' && p.isUnread !== false).length,
+    [state.places]
+  );
 
   return {
     tickets: state.tickets,
     places: state.places,
+    analytics: state.analytics || MOCK_ANALYTICS,
     unreadTicketsCount,
     newPlacesCount,
 
@@ -200,7 +205,7 @@ export function useAdminStore() {
         cafeName: ticket.cafeName || 'Spot Kafe Baru',
         location: ticket.location || 'Kota Bogor',
         timeAgo: 'Baru saja',
-        reportedBy: ticket.reportedBy || 'Mahasiswa (Baru)',
+        reportedBy: ticket.reportedBy || 'Anonim',
         description: ticket.description || 'Laporan fasilitas baru masuk.',
         status: 'open',
         isUnread: true,
@@ -273,7 +278,7 @@ export function useAdminStore() {
   };
 }
 
-// Standalone functions for external pages (like /lapor-fasilitas and /tambah-tempat)
+// Standalone functions for external pages (like /lapor-fasilitas, /tambah-tempat, and Public WebGIS /)
 export function dispatchNewPublicTicket(ticket: Partial<AdminTicketItem>) {
   if (typeof window === 'undefined') return;
   const current = getStoredState();
@@ -284,7 +289,7 @@ export function dispatchNewPublicTicket(ticket: Partial<AdminTicketItem>) {
     cafeName: ticket.cafeName || 'Spot Kafe Baru',
     location: ticket.location || 'Kota Bogor',
     timeAgo: 'Baru saja',
-    reportedBy: ticket.reportedBy || 'Mahasiswa (Lapor Fasilitas)',
+    reportedBy: ticket.reportedBy || 'Anonim',
     description: ticket.description || 'Laporan fasilitas dari pengguna.',
     status: 'open',
     isUnread: true,
@@ -312,4 +317,100 @@ export function dispatchNewPublicPlace(place: Partial<PlaceItem>) {
     imageUrl: place.imageUrl ?? null,
   };
   saveAndNotify({ ...current, places: [newPlace, ...current.places] });
+}
+
+/**
+ * Tracks a spatial query event from Public WebGIS (/) — Search or Filter submission.
+ * When backend endpoint `POST /api/v1/analytics/track` is ready, call it here.
+ */
+export function trackPublicSpatialQuery(queryHint?: string) {
+  if (typeof window === 'undefined') return;
+  const current = getStoredState();
+  const currentAnalytics = current.analytics || MOCK_ANALYTICS;
+
+  const nextTotalQueries = currentAnalytics.kpi.totalQueries + 1;
+  const nextConversionRate = `${(
+    (currentAnalytics.kpi.routeConversions / nextTotalQueries) *
+    100
+  ).toFixed(1)}%`;
+
+  const hintLower = (queryHint || '').toLowerCase();
+  const matchedZoneIndex = currentAnalytics.spatialDensity.findIndex((z) => {
+    const areaLower = z.area.toLowerCase();
+    if (hintLower.includes('timur') || hintLower.includes('baranangsiang')) {
+      return areaLower.includes('bogor timur');
+    }
+    if (hintLower.includes('utara') || hintLower.includes('tegal gundil') || hintLower.includes('pandu')) {
+      return areaLower.includes('bogor utara');
+    }
+    if (hintLower.includes('barat') || hintLower.includes('yasmin') || hintLower.includes('sareal')) {
+      return areaLower.includes('bogor barat');
+    }
+    return false;
+  });
+
+  const targetIndex = matchedZoneIndex >= 0 ? matchedZoneIndex : 0;
+  const nextSpatialDensity = currentAnalytics.spatialDensity.map((zone, idx) =>
+    idx === targetIndex ? { ...zone, queries: zone.queries + 1 } : zone
+  );
+
+  saveAndNotify({
+    ...current,
+    analytics: {
+      ...currentAnalytics,
+      kpi: {
+        ...currentAnalytics.kpi,
+        totalQueries: nextTotalQueries,
+        conversionRate: nextConversionRate,
+      },
+      spatialDensity: nextSpatialDensity,
+    },
+  });
+}
+
+/**
+ * Tracks a route navigation click event ("Petunjuk Arah (Maps)") from Public WebGIS (/).
+ * When backend endpoint `POST /api/v1/analytics/track` is ready, call it here.
+ */
+export function trackPublicRouteClick(placeName?: string, address?: string) {
+  if (typeof window === 'undefined') return;
+  const current = getStoredState();
+  const currentAnalytics = current.analytics || MOCK_ANALYTICS;
+
+  const nextRouteConversions = currentAnalytics.kpi.routeConversions + 1;
+  const nextConversionRate = `${(
+    (nextRouteConversions / currentAnalytics.kpi.totalQueries) *
+    100
+  ).toFixed(1)}%`;
+
+  let nextTopCafes = [...currentAnalytics.topCafes];
+  if (placeName) {
+    const existingIdx = nextTopCafes.findIndex(
+      (c) => c.name.toLowerCase() === placeName.toLowerCase()
+    );
+    if (existingIdx >= 0) {
+      nextTopCafes[existingIdx] = {
+        ...nextTopCafes[existingIdx],
+        clicks: nextTopCafes[existingIdx].clicks + 1,
+      };
+    } else if (address) {
+      // Optional: keep top 5 sorted if aexisting cafe is clicked
+    }
+    nextTopCafes = nextTopCafes
+      .sort((a, b) => b.clicks - a.clicks)
+      .map((item, idx) => ({ ...item, rank: idx + 1 }));
+  }
+
+  saveAndNotify({
+    ...current,
+    analytics: {
+      ...currentAnalytics,
+      kpi: {
+        ...currentAnalytics.kpi,
+        routeConversions: nextRouteConversions,
+        conversionRate: nextConversionRate,
+      },
+      topCafes: nextTopCafes,
+    },
+  });
 }

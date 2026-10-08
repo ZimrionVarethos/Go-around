@@ -14,45 +14,29 @@ export interface AdminProfile {
   lastLogin: string;
 }
 
-export interface AdminPreferences {
-  defaultBasemap: 'carto' | 'osm' | 'topo';
-  defaultBufferRadius: number; // in meters (e.g. 500, 1000, 2000)
-  notificationsEnabled: boolean;
-  soundAlerts: boolean;
-  coordinateFormat: 'decimal' | 'dms';
-}
-
 export interface AdminAuthState {
   profile: AdminProfile;
-  preferences: AdminPreferences;
+  password?: string;
 }
 
-const STORAGE_KEY = 'goaround_admin_auth_v1';
-const EVENT_KEY = 'goaround:admin-auth-updated';
+const STORAGE_KEY = 'goaround_admin_auth_v2';
+const DEFAULT_ADMIN_PASSWORD = 'admin123';
 
 export const DEFAULT_ADMIN_PROFILE: AdminProfile = {
-  name: 'Azqilla Simbolon',
+  name: 'Admin',
   email: 'admin@goaround.id',
   role: 'Super Admin SIG Kota Bogor',
   agency: 'Bappeda & Tim SIG IPB University',
-  avatarInitials: 'AS',
+  avatarInitials: 'AD',
   bio: 'Pengelola master data spasial dan verifikator fasilitas kafe ramah mahasiswa seputar Kota Bogor.',
   phone: '+62 812-3456-7890',
   isAuthenticated: true,
   lastLogin: 'Hari ini, 08:30 WIB',
 };
 
-export const DEFAULT_ADMIN_PREFERENCES: AdminPreferences = {
-  defaultBasemap: 'carto',
-  defaultBufferRadius: 1000,
-  notificationsEnabled: true,
-  soundAlerts: false,
-  coordinateFormat: 'decimal',
-};
-
 const DEFAULT_AUTH_STATE: AdminAuthState = {
   profile: DEFAULT_ADMIN_PROFILE,
-  preferences: DEFAULT_ADMIN_PREFERENCES,
+  password: DEFAULT_ADMIN_PASSWORD,
 };
 
 let memoryState: AdminAuthState = DEFAULT_AUTH_STATE;
@@ -84,7 +68,6 @@ function saveAndNotify(nextState: AdminAuthState) {
   if (typeof window !== 'undefined') {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
-      window.dispatchEvent(new CustomEvent(EVENT_KEY));
     } catch (e) {
       console.warn('Failed to save admin auth to localStorage', e);
     }
@@ -94,18 +77,6 @@ function saveAndNotify(nextState: AdminAuthState) {
 
 function subscribe(callback: () => void) {
   listeners.add(callback);
-
-  const handleCustomEvent = () => {
-    try {
-      const item = window.localStorage.getItem(STORAGE_KEY);
-      if (item) {
-        memoryState = JSON.parse(item);
-      }
-    } catch {
-      // ignore
-    }
-    callback();
-  };
 
   const handleStorageEvent = (e: StorageEvent) => {
     if (e.key === STORAGE_KEY && e.newValue) {
@@ -119,14 +90,12 @@ function subscribe(callback: () => void) {
   };
 
   if (typeof window !== 'undefined') {
-    window.addEventListener(EVENT_KEY, handleCustomEvent);
     window.addEventListener('storage', handleStorageEvent);
   }
 
   return () => {
     listeners.delete(callback);
     if (typeof window !== 'undefined') {
-      window.removeEventListener(EVENT_KEY, handleCustomEvent);
       window.removeEventListener('storage', handleStorageEvent);
     }
   };
@@ -148,7 +117,6 @@ export function useAdminAuth() {
   };
 
   const login = (email: string, password: string): { success: boolean; error?: string } => {
-    // Validasi sederhana: mendukung akun demo atau kombinasi email/password apa pun yang tidak kosong
     const trimmedEmail = email.trim().toLowerCase();
     const trimmedPassword = password.trim();
 
@@ -156,8 +124,18 @@ export function useAdminAuth() {
       return { success: false, error: 'Email dan kata sandi wajib diisi.' };
     }
 
-    if (trimmedPassword.length < 6) {
-      return { success: false, error: 'Kata sandi minimal 6 karakter.' };
+    const activeEmail = (state.profile.email || DEFAULT_ADMIN_PROFILE.email).trim().toLowerCase();
+    const activePassword = state.password || DEFAULT_ADMIN_PASSWORD;
+
+    const isEmailValid =
+      trimmedEmail === activeEmail || trimmedEmail === DEFAULT_ADMIN_PROFILE.email.toLowerCase();
+    const isPasswordValid = trimmedPassword === activePassword;
+
+    if (!isEmailValid || !isPasswordValid) {
+      return {
+        success: false,
+        error: 'Email atau kata sandi yang Anda masukkan salah.',
+      };
     }
 
     // Login berhasil
@@ -166,9 +144,6 @@ export function useAdminAuth() {
 
     const updatedProfile: AdminProfile = {
       ...state.profile,
-      email: trimmedEmail,
-      name: trimmedEmail === 'admin@goaround.id' ? 'Azqilla Simbolon' : state.profile.name,
-      avatarInitials: calculateInitials(trimmedEmail === 'admin@goaround.id' ? 'Azqilla Simbolon' : state.profile.name),
       isAuthenticated: true,
       lastLogin: `Hari ini, ${timeString}`,
     };
@@ -208,34 +183,32 @@ export function useAdminAuth() {
     });
   };
 
-  const updatePreferences = (data: Partial<AdminPreferences>) => {
-    saveAndNotify({
-      ...state,
-      preferences: {
-        ...state.preferences,
-        ...data,
-      },
-    });
-  };
-
   const updatePassword = (oldPassword: string, newPassword: string): { success: boolean; error?: string } => {
     if (!oldPassword) {
       return { success: false, error: 'Kata sandi saat ini wajib diisi.' };
     }
+    const activePassword = state.password || DEFAULT_ADMIN_PASSWORD;
+    if (oldPassword !== activePassword) {
+      return { success: false, error: 'Kata sandi saat ini tidak sesuai.' };
+    }
     if (newPassword.length < 6) {
       return { success: false, error: 'Kata sandi baru minimal 6 karakter.' };
     }
+
+    saveAndNotify({
+      ...state,
+      password: newPassword,
+    });
+
     return { success: true };
   };
 
   return {
     profile: state.profile,
-    preferences: state.preferences,
     isAuthenticated: state.profile.isAuthenticated,
     login,
     logout,
     updateProfile,
-    updatePreferences,
     updatePassword,
   };
 }
