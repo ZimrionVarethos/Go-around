@@ -1,296 +1,329 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Lock,
-  Mail,
-  Eye,
-  EyeOff,
-  ArrowRight,
-  ShieldCheck,
-  MapPin,
-  Sparkles,
-  ArrowLeft,
-  Coffee,
-  CheckCircle2,
-} from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, CheckCircle2, RotateCcw } from 'lucide-react';
 import { useAdminAuth } from '@/lib/admin-auth';
-import { Button } from '@/components/ui/Button';
-import { useToast } from '@/hooks/useToast';
-import { ToastContainer } from '@/components/ui/ToastContainer';
+import { CartographicBackground } from '@/components/admin/auth/CartographicBackground';
+
+type AuthViewMode = 'login' | 'forgot' | 'sent';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const { login } = useAdminAuth();
-  const { toasts, showToast, dismissToast } = useToast();
 
+  const [viewMode, setViewMode] = useState<AuthViewMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [resetEmail, setResetEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  const handleSubmitLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setIsLoading(true);
 
-    // Simulate quick network/auth check
-    await new Promise((resolve) => setTimeout(resolve, 450));
+    await new Promise((resolve) => setTimeout(resolve, 250));
 
     const result = login(email, password);
 
     if (result.success) {
-      showToast('Login berhasil! Mengalihkan ke Dashboard...', 'success', 2500);
-      setTimeout(() => {
-        router.push('/admin');
-      }, 500);
+      router.push('/admin');
     } else {
       setIsLoading(false);
-      setErrorMessage(result.error || 'Email atau kata sandi tidak valid.');
+      setErrorMessage(result.error || 'Email atau kata sandi tidak sesuai.');
     }
   };
 
-  const handleFillDemo = () => {
-    setEmail('admin@goaround.id');
-    setPassword('admin123');
+  const handleSubmitReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail.trim() || !resetEmail.includes('@')) {
+      setErrorMessage('Masukkan alamat email pengelola yang valid.');
+      return;
+    }
     setErrorMessage('');
-    showToast('Kredensial demo terisi otomatis! Silakan klik Masuk.', 'info', 2500);
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    setIsLoading(false);
+    setResendCooldown(30);
+    setViewMode('sent');
+  };
+
+  const handleResendReset = async () => {
+    if (resendCooldown > 0) return;
+    setResendCooldown(30);
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-[#F8FAFC] select-none">
-      {/* 1. Left Side Hero Banner (Desktop Only) */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-[#003833] via-[#005B54] to-[#0F172A] text-white p-12 flex-col justify-between overflow-hidden">
-        {/* Background Ambient Circles & Grid Pattern */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]" />
-        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary-600/20 blur-3xl" />
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-emerald-500/20 blur-3xl" />
+    <div className="relative min-h-[100dvh] w-full flex flex-col justify-between bg-[#F2F4F0] text-[#0F172A] px-4 py-6 sm:px-8 select-none overflow-hidden">
+      <CartographicBackground />
 
-        {/* Top Brand Logo */}
-        <div className="relative z-10">
-          <Link href="/" className="inline-flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg group-hover:bg-white/20 transition-all">
-              <Coffee className="w-5 h-5 text-emerald-300" />
-            </div>
-            <div>
-              <span className="text-xl font-bold tracking-tight text-white font-sans">
-                Go Around
-              </span>
-              <span className="text-[10px] block text-emerald-300 font-medium tracking-wider uppercase">
-                Admin Portal SIG
-              </span>
-            </div>
-          </Link>
-        </div>
+      {/* Top Bar: Back Link & Subtle Spatial Reference */}
+      <header className="relative z-10 w-full max-w-5xl mx-auto flex items-center justify-between">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-white/85 hover:bg-white border border-[#DCDFD9] text-xs font-semibold text-text-700 hover:text-text-950 transition-all group tactile-press shadow-2xs backdrop-blur-xs"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 text-text-500 group-hover:text-text-950 transition-transform group-hover:-translate-x-0.5" />
+          <span>Peta Publik</span>
+        </Link>
 
-        {/* Center Content / Pitch */}
-        <div className="relative z-10 space-y-6 max-w-lg">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs text-emerald-200 backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Tata Kelola Data Spasial Tempat Nugas Mahasiswa</span>
-          </div>
+        <span className="hidden sm:inline-block font-mono text-[11px] text-text-500 tabular-nums">
+          6°35&apos;48&quot;S · 106°47&apos;50&quot;E — KOTA BOGOR
+        </span>
+      </header>
 
-          <h1 className="text-3xl xl:text-4xl font-extrabold text-white leading-tight tracking-tight">
-            Portal Administrasi WebGIS Kota Bogor
-          </h1>
-
-          <p className="text-sm text-slate-200 leading-relaxed font-normal">
-            Kelola master data kafe ramah mahasiswa, verifikasi laporan fasilitas colokan & Wi-Fi, serta analisis koridor transit Biskita Transpakuan dan jangkauan kampus IPB University secara terintegrasi.
-          </p>
-
-          <div className="grid grid-cols-2 gap-4 pt-2">
-            <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-              <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold mb-1">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>Radius Buffer</span>
-              </div>
-              <p className="text-[11px] text-slate-300">
-                Pemetaan jarak tempuh jalan kaki 500m hingga 2km dari kampus.
-              </p>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-              <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold mb-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Moderasi Komunitas</span>
-              </div>
-              <p className="text-[11px] text-slate-300">
-                Verifikasi usulan kafe baru dan tiket laporan fasilitas real-time.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Note */}
-        <div className="relative z-10 text-xs text-slate-400 flex items-center justify-between">
-          <span>&copy; {new Date().getFullYear()} Go-around Kota Bogor</span>
-          <span className="flex items-center gap-1.5 text-emerald-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Server Spasial Online
-          </span>
-        </div>
-      </div>
-
-      {/* 2. Right Side Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-md space-y-6">
-          {/* Back link */}
-          <div>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-primary-900 transition-colors"
+      {/* Center Structured Login Card */}
+      <main className="relative z-10 w-full max-w-[388px] mx-auto my-auto py-8">
+        <div className="bg-white rounded-xl border border-[#DCDFD9] shadow-[0_12px_32px_-8px_rgba(15,23,42,0.08),0_2px_6px_-1px_rgba(0,91,84,0.05)] overflow-hidden">
+          {/* 1. Card Identity Header */}
+          <div className="px-6 py-4 bg-[#F8F9F7] border-b border-[#E2E5DF] flex items-center justify-between">
+            <span
+              style={{
+                color: '#0F172A',
+                fontFamily: "var(--font-onest), 'Onest', sans-serif",
+                fontSize: '22px',
+                fontStyle: 'normal',
+                fontWeight: 500,
+                lineHeight: 'normal',
+                letterSpacing: '-0.724px',
+              }}
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Kembali ke WebGIS Publik</span>
-            </Link>
+              Go Around
+            </span>
+
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-[#005B54] bg-[#005B54]/[0.08] border border-[#005B54]/15 px-2 py-0.5 rounded">
+              Admin Portal
+            </span>
           </div>
 
-          {/* Form Header */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 lg:hidden">
-              <div className="w-8 h-8 rounded-lg bg-primary-900 flex items-center justify-center text-white">
-                <Coffee className="w-4 h-4" />
+          {/* 2. Card Body: Switchable Login / Forgot / Sent */}
+          <div className="p-6">
+            {viewMode === 'login' && (
+              <div className="animate-in fade-in duration-150">
+                <div className="mb-5">
+                  <h1 className="text-base font-bold text-text-950 tracking-tight">
+                    Masuk ke Ruang Kerja
+                  </h1>
+                  <p className="text-xs text-text-500 mt-0.5">
+                    Pengelolaan direktori kafe &amp; moderasi laporan Kota Bogor.
+                  </p>
+                </div>
+
+                {errorMessage && (
+                  <div
+                    role="alert"
+                    className="mb-4 px-3 py-2 rounded-lg bg-rose-50 border border-rose-200/80 text-rose-700 text-xs font-medium"
+                  >
+                    {errorMessage}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmitLogin} className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="admin-email"
+                      className="block text-xs font-semibold text-text-800 mb-1.5"
+                    >
+                      Alamat Email
+                    </label>
+                    <input
+                      id="admin-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="admin@goaround.id"
+                      autoComplete="email"
+                      required
+                      className="w-full h-9 px-3 text-xs font-mono bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label
+                        htmlFor="admin-password"
+                        className="block text-xs font-semibold text-text-800"
+                      >
+                        Kata Sandi
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setErrorMessage('');
+                          setResetEmail(email);
+                          setViewMode('forgot');
+                        }}
+                        className="text-[11px] font-semibold text-[#005B54] hover:underline cursor-pointer"
+                      >
+                        Lupa sandi?
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <input
+                        id="admin-password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Masukkan kata sandi"
+                        autoComplete="current-password"
+                        required
+                        className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-400 hover:text-text-700 cursor-pointer p-1 rounded focus-visible:outline-none tactile-press"
+                        aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-3.5 h-3.5" />
+                        ) : (
+                          <Eye className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-1">
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-9 rounded-lg bg-[#005B54] hover:bg-[#004741] disabled:opacity-60 text-white text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2 tactile-press"
+                    >
+                      <span>{isLoading ? 'Memverifikasi...' : 'Masuk ke Dashboard'}</span>
+                      {!isLoading && (
+                        <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-white/15 text-white/90 leading-none">
+                          ↵
+                        </kbd>
+                      )}
+                    </button>
+                  </div>
+                </form>
               </div>
-              <span className="font-bold text-slate-900 text-base">Go Around Admin</span>
-            </div>
+            )}
 
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Masuk ke Portal Admin
-            </h2>
-            <p className="text-xs text-slate-500">
-              Silakan masukkan kredensial administrator untuk mengelola data WebGIS.
-            </p>
-          </div>
+            {viewMode === 'forgot' && (
+              <div className="animate-in fade-in duration-150">
+                <div className="mb-5">
+                  <h1 className="text-base font-bold text-text-950 tracking-tight">
+                    Pemulihan Kata Sandi
+                  </h1>
+                  <p className="text-xs text-text-500 mt-0.5 leading-relaxed">
+                    Masukkan email pengelola untuk menerima tautan pengaturan ulang kata sandi.
+                  </p>
+                </div>
 
-          {/* 1-Click Demo Fill Box */}
-          <div className="p-3.5 rounded-xl bg-primary-50 border border-primary-200/80 flex items-center justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-primary-950">
-                <Sparkles className="w-3.5 h-3.5 text-primary-700 shrink-0" />
-                <span>Pengujian & Evaluasi Cepat</span>
+                {errorMessage && (
+                  <div
+                    role="alert"
+                    className="mb-4 px-3 py-2 rounded-lg bg-rose-50 border border-rose-200/80 text-rose-700 text-xs font-medium"
+                  >
+                    {errorMessage}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmitReset} className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="reset-email"
+                      className="block text-xs font-semibold text-text-800 mb-1.5"
+                    >
+                      Email Terdaftar
+                    </label>
+                    <input
+                      id="reset-email"
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      placeholder="admin@goaround.id"
+                      required
+                      className="w-full h-9 px-3 text-xs font-mono bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setErrorMessage('');
+                        setViewMode('login');
+                      }}
+                      className="h-9 px-3 rounded-lg border border-[#E2E5DF] bg-white hover:bg-[#F5F6F3] text-xs font-semibold text-text-700 transition-colors cursor-pointer tactile-press"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="flex-1 h-9 rounded-lg bg-[#005B54] hover:bg-[#004741] disabled:opacity-60 text-white text-xs font-semibold transition-colors cursor-pointer tactile-press"
+                    >
+                      {isLoading ? 'Mengirim...' : 'Kirim Tautan Reset'}
+                    </button>
+                  </div>
+                </form>
               </div>
-              <p className="text-[11px] text-primary-800 truncate mt-0.5">
-                Akun: <code className="font-mono bg-white/70 px-1 py-0.5 rounded text-[10px]">admin@goaround.id</code>
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="px-3 py-1.5 text-xs font-bold bg-primary-900 hover:bg-primary-950 text-white rounded-lg transition-all cursor-pointer shadow-xs shrink-0"
-            >
-              Gunakan Demo
-            </button>
-          </div>
+            )}
 
-          {/* Error Alert */}
-          {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2 animate-in fade-in">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0" />
-              <span>{errorMessage}</span>
-            </div>
-          )}
+            {viewMode === 'sent' && (
+              <div className="animate-in fade-in duration-150 space-y-4">
+                <div className="p-3.5 rounded-lg bg-[#F8F9F7] border border-[#E2E5DF] space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#005B54]">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>Tautan Pemulihan Terkirim</span>
+                  </div>
+                  <p className="text-xs text-text-600 leading-relaxed">
+                    Instruksi pengaturan ulang kata sandi telah dikirimkan ke{' '}
+                    <span className="font-mono font-semibold text-text-900">{resetEmail}</span>.
+                    Silakan periksa kotak masuk Anda.
+                  </p>
+                </div>
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email Field */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Email Administrator
-              </label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@goaround.id"
-                  required
-                  className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-700/20 focus:border-primary-700 transition-all shadow-2xs placeholder:text-slate-400"
-                />
-              </div>
-            </div>
+                <div className="flex items-center justify-between text-[11px] text-text-500 px-0.5">
+                  <span>Belum menerima email?</span>
+                  <button
+                    type="button"
+                    onClick={handleResendReset}
+                    disabled={resendCooldown > 0}
+                    className="font-semibold text-[#005B54] disabled:text-text-400 hover:underline disabled:no-underline cursor-pointer disabled:cursor-default"
+                  >
+                    {resendCooldown > 0
+                      ? `Kirim ulang dalam ${resendCooldown}d`
+                      : 'Kirim ulang tautan'}
+                  </button>
+                </div>
 
-            {/* Password Field */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-slate-700">
-                  Kata Sandi
-                </label>
-                <span className="text-[11px] text-slate-400 hover:text-primary-800 cursor-pointer">
-                  Lupa sandi?
-                </span>
-              </div>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  className="w-full pl-10 pr-10 py-2.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-700/20 focus:border-primary-700 transition-all shadow-2xs placeholder:text-slate-400"
-                />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-1"
-                  title={showPassword ? 'Sembunyikan sandi' : 'Lihat sandi'}
+                  onClick={() => setViewMode('login')}
+                  className="w-full h-9 rounded-lg border border-[#E2E5DF] bg-white hover:bg-[#F5F6F3] text-xs font-semibold text-text-800 transition-colors cursor-pointer flex items-center justify-center gap-1.5 tactile-press"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  <RotateCcw className="w-3.5 h-3.5 text-text-500" />
+                  <span>Kembali ke Halaman Masuk</span>
                 </button>
               </div>
-            </div>
-
-            {/* Remember Me Checkbox */}
-            <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 text-slate-600 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 accent-primary-900 rounded cursor-pointer"
-                />
-                <span>Ingat sesi saya di perangkat ini</span>
-              </label>
-            </div>
-
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              disabled={isLoading}
-              className="w-full rounded-xl justify-center font-bold text-xs gap-2 py-3 shadow-sm cursor-pointer"
-            >
-              {isLoading ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Memverifikasi Sesi...</span>
-                </>
-              ) : (
-                <>
-                  <span>Masuk ke Dashboard Admin</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </Button>
-          </form>
-
-          {/* Security footnote */}
-          <div className="pt-4 text-center">
-            <p className="text-[11px] text-slate-400">
-              Khusus pengelola data spasial Bappeda & Tim WebGIS Go-around Kota Bogor.
-            </p>
+            )}
           </div>
         </div>
-      </div>
+      </main>
 
-      {/* Global Toast */}
-      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      {/* Minimal Footer */}
+      <footer className="relative z-10 w-full max-w-5xl mx-auto flex items-center justify-between text-[11px] text-text-500">
+        <span>Go Around · WebGIS Tempat Nugas Kota Bogor</span>
+        <span className="font-mono">SRID 4326</span>
+      </footer>
     </div>
   );
 }
