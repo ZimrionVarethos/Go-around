@@ -36,11 +36,11 @@ export function PlacesKPIGrid({
           </div>
         </div>
         <div className="mt-3.5 pt-2.5 border-t border-[#E2E5DF] flex items-center justify-between text-[11px] text-text-500 tabular-nums">
-          <span>Dramaga: 32</span>
-          <span>·</span>
           <span>Tengah: 38</span>
           <span>·</span>
-          <span>Pajajaran: 24</span>
+          <span>Timur: 32</span>
+          <span>·</span>
+          <span>Utara: 24</span>
         </div>
       </div>
 

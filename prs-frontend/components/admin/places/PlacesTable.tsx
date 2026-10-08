@@ -90,8 +90,9 @@ export function PlacesTable({
   };
 
   return (
-    <div className="hidden lg:block overflow-x-auto select-none">
-      <table className="w-full text-left border-collapse text-xs text-text-700">
+    <div className="hidden lg:block select-none">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse text-xs text-text-700">
         <thead className="bg-[#F8F9F7] border-b border-[#E2E5DF] text-[11px] font-bold text-text-600 uppercase tracking-wider">
           <tr>
             <th className="py-3.5 px-4 w-12 text-center">
@@ -332,7 +333,8 @@ export function PlacesTable({
             })
           )}
         </tbody>
-      </table>
+        </table>
+      </div>
 
       {/* 4. PAGINATION & BATCH ACTIONS FOOTER */}
       <div className="bg-[#F8F9F7] border-t border-[#E2E5DF] px-4 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
