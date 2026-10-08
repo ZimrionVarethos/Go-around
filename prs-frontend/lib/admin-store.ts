@@ -2,6 +2,7 @@
 
 import { useMemo, useSyncExternalStore } from 'react';
 import {
+  ADMIN_STORAGE_KEY,
   MOCK_ADMIN_TICKETS,
   MOCK_PLACES_TABLE,
   MOCK_ANALYTICS,
@@ -50,7 +51,7 @@ interface AdminState {
   analytics?: AdminAnalyticsState;
 }
 
-const STORAGE_KEY = 'goaround_admin_store_v3';
+const STORAGE_KEY = ADMIN_STORAGE_KEY;
 
 // Default initial state:
 // 1 ticket unread (TK-802) so there is an active issue to demonstrate "1 baru"

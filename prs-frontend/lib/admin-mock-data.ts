@@ -8,16 +8,18 @@
  * DO NOT import this file from lib/api.ts or any API layer.
  */
 
+export const ADMIN_STORAGE_KEY = 'goaround_admin_store_v3';
+
 export const MOCK_KPI = {
-  totalKafe: 108,
-  totalKafeChange: '+12 bulan ini',
-  totalKafeBreakdown: 'Bgr Tengah (42), Bgr Timur (38), Bgr Utara & Barat (28)',
-  tiketTerbuka: 8,
+  totalKafe: 13,
+  totalKafeChange: '+3 bulan ini',
+  totalKafeBreakdown: 'Bgr Tengah (3), Bgr Timur (4), Bgr Utara (3), Lainnya (3)',
+  tiketTerbuka: 4,
   tiketNote: 'Perlu validasi',
-  tiketBreakdown: '3 wifi drop, 4 colokan mati, 1 jam buka',
-  usulanBaru: 5,
+  tiketBreakdown: '1 wifi drop, 1 colokan mati, 1 usulan, 1 jam buka',
+  usulanBaru: 1,
   usulanNote: 'Menunggu Review',
-  usulanBreakdown: 'Masuk dari area SV IPB, Baranangsiang & Yasmin',
+  usulanBreakdown: 'Masuk dari koridor Yasmin (Bogor Barat)',
   kunjungan: 1420,
   kunjunganNote: 'sesi hari ini',
   kunjunganBreakdown: '312 unduhan rute GIS & bookmark kafe',
