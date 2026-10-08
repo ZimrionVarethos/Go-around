@@ -282,12 +282,44 @@ Mengambil daftar tempat di Kota Bogor dalam format yang langsung siap dirender o
 }
 ```
 
-#### 2. Endpoint Mutasi Kafe (`auth:sanctum`)
-- `POST /api/v1/admin/places` $\rightarrow$ Tambah tempat baru oleh Admin.
-- `PUT /api/v1/admin/places/{id}` $\rightarrow$ Edit data kafe oleh Admin.
+#### 2. Endpoint Mutasi Kafe & Upload Foto (`auth:sanctum`)
+- `POST /api/v1/admin/places` $\rightarrow$ Tambah tempat baru oleh Admin (menerima atribut lengkap + foto kafe).
+- `PUT /api/v1/admin/places/{id}` $\rightarrow$ Edit data & foto kafe oleh Admin.
+- `POST /api/v1/admin/places/{id}/photo` *(opsional multipart khusus)* $\rightarrow$ Upload file foto sampul kafe (`image`: `jpg,jpeg,png,webp`, maks 2.5 MB) ke `storage/app/public/places/` dan kembalikan `{ "status": "success", "imageUrl": "https://.../storage/places/xyz.webp" }`.
 - `DELETE /api/v1/admin/places/{id}` $\rightarrow$ Hapus tempat.
-- `PATCH /api/v1/admin/places/{id}/verify` $\rightarrow$ Ubah status kafe dari `review`/`pending` menjadi `verified`/`active` agar tampil di peta WebGIS Publik.
-- `PATCH /api/v1/admin/places/{id}/reject` $\rightarrow$ Ubah status menjadi `rejected`.
+- `PATCH /api/v1/admin/places/{id}/verify` $\rightarrow$ Ubah status kafe dari `review`/`pending` menjadi `verified`/`active` agar langsung tampil di peta WebGIS Publik (`/`).
+- `PATCH /api/v1/admin/places/{id}/reject` $\rightarrow$ Ubah status menjadi `rejected` (`inactive` di peta publik).
+
+**Contoh Payload `POST /api/v1/admin/places` & `PUT /api/v1/admin/places/{id}`:**
+```json
+{
+  "name": "Kopi Tuya Baranangsiang",
+  "address": "Jl. Pajajaran No. 28, Baranangsiang, Bogor Timur",
+  "district": "Bogor Timur",
+  "lat": -6.5985,
+  "lng": 106.8065,
+  "wifi": 60,
+  "plug": 85,
+  "price": "Rp 22.000+",
+  "score": 9.2,
+  "status": "verified",
+  "acoustic": "Kondusif",
+  "is24Hours": false,
+  "imageUrl": "https://.../storage/places/kopi-tuya.webp"
+}
+```
+> **Catatan Penanganan Foto Kafe (`imageUrl` / File Upload):**
+> Di UI Modal `/admin/places` (`PlaceFormModal.tsx`), Admin memiliki 2 mode input foto:
+> 1. **Upload File dari Perangkat**: Dapat dikirim sebagai `multipart/form-data` (`image` file) atau Base64 Data URL; Backend wajib memvalidasi MIME type (`image/jpeg`, `image/png`, `image/webp`, maks `2560 KB`), menyimpannya ke `storage/app/public/places/{slug}-{hash}.webp`, lalu menyimpan URL publiknya ke kolom `image_url`.
+> 2. **URL Gambar Eksternal**: Jika Admin menempelkan URL langsung (misal dari CDN atau hasil *scraping* Google Places), simpan string URL tersebut langsung ke kolom `image_url`.
+
+#### 3. Alur Masuk Data Hasil Scraping & Sinkronisasi ke Peta Publik
+1. **Jalur Bulk / Scraping (`php artisan goaround:import-csv`)**:
+   - Saat hasil *scraping* CSV dimasukkan lewat command importer/seeder, kolom `image_url` di CSV langsung dipetakan ke tabel `places.image_url`.
+   - Jika ada baris CSV hasil *scraping* yang belum memiliki foto (`image_url = null`), tempat tersebut tetap masuk ke database dan Admin dapat menyusul mengunggah fotonya secara manual lewat tombol **Edit** pada halaman `/admin/places`.
+2. **Aturan Sinkronisasi Admin $\leftrightarrow$ Publik WebGIS**:
+   - Satu tabel sumber kebenaran: tabel `places` di database menjadi satu-satunya sumber data untuk **Halaman Admin (`/admin/places`)** maupun **Peta Publik (`/`, `/api/v1/places/bbox`, `/api/v1/places/recommend`, `/api/v1/places/{slug}`)**.
+   - Hanya tempat dengan status **`verified` (`places.status = 'active'`)** yang dikembalikan oleh endpoint publik, sedangkan `/admin/places` menampilkan seluruh tempat (`verified` + `review`).
 
 ---
 
@@ -377,10 +409,11 @@ Agar struktur folder Laravel tetap rapi dan standar, berikut daftar file yang pe
   - Buat `ImportBogorPlacesCommand.php` (`php artisan goaround:import-csv`) untuk mengimpor CSV Scraping Peta + CSV Survey Form Mahasiswa.
 - [ ] **Controllers (`app/Http/Controllers/Api/`)**:
   - `Admin/AuthController.php` (`login`, `logout`, `me`, `updateProfile`, `changePassword`, `forgotPassword`)
-  - `Admin/AdminPlaceController.php` (`index`, `store`, `update`, `destroy`, `verify`, `reject`)
+  - `Admin/AdminPlaceController.php` (`index`, `store`, `update`, `destroy`, `verify`, `reject`, `uploadPhoto`)
   - `Admin/AdminTicketController.php` (`index`, `resolve`, `dismiss`, `markRead`, `markAllRead`)
   - `Admin/AdminAnalyticsController.php` (`overview`, `exportGeoJson`)
   - `FacilityReportController.php` (`store` — publik)
   - `AnalyticsTrackingController.php` (`track` — publik)
-- [ ] **Routes (`routes/api.php`)**:
+- [ ] **Storage Symlink & Routes (`routes/api.php`)**:
+  - Jalankan `php artisan storage:link` agar file gambar di `storage/app/public/places/` dan `storage/app/public/reports/` dapat diakses melalui `/storage/...`.
   - Tambahkan grup route publik (`facility-reports`, `analytics/track`, `auth/login`) dan grup route terproteksi `Route::middleware('auth:sanctum')->prefix('admin')->group(...)`.

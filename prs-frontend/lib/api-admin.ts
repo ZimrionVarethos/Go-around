@@ -14,7 +14,7 @@
 
 import { AdminProfile, DEFAULT_ADMIN_PROFILE } from './admin-auth';
 import { AdminTicketItem, PlaceItem } from './admin-store';
-import { MOCK_ANALYTICS, MOCK_KPI } from './admin-mock-data';
+import { ADMIN_STORAGE_KEY, MOCK_ANALYTICS, MOCK_KPI } from './admin-mock-data';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
 const TOKEN_KEY = 'goaround_admin_token_v1';
@@ -209,7 +209,7 @@ export const adminPlacesApi = {
       // Fallback ke local store data jika Laravel belum siap
       if (typeof window !== 'undefined') {
         try {
-          const stored = localStorage.getItem('goaround_admin_store_v3');
+          const stored = localStorage.getItem(ADMIN_STORAGE_KEY);
           if (stored) {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed.places)) return parsed.places;
@@ -304,6 +304,38 @@ export const adminPlacesApi = {
       return { success: true, status: 'rejected' };
     }
   },
+
+  /**
+   * Endpoint Laravel target: POST /api/v1/admin/places/{id}/photo (multipart/form-data)
+   */
+  uploadPhoto: async (
+    id: number,
+    file: File
+  ): Promise<{ status: 'success'; imageUrl: string }> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const token = getAdminToken();
+    try {
+      const res = await fetch(`${API_BASE}/admin/places/${id}/photo`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return (await res.json()) as { status: 'success'; imageUrl: string };
+    } catch {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('Gagal membaca file gambar'));
+        reader.readAsDataURL(file);
+      });
+      return { status: 'success', imageUrl: dataUrl };
+    }
+  },
 };
 
 // ─── 3. Tiket Laporan Fasilitas & Usulan Mahasiswa ───────────────────────────
@@ -327,7 +359,7 @@ export const adminTicketsApi = {
     } catch {
       if (typeof window !== 'undefined') {
         try {
-          const stored = localStorage.getItem('goaround_admin_store_v3');
+          const stored = localStorage.getItem(ADMIN_STORAGE_KEY);
           if (stored) {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed.tickets)) return parsed.tickets;
