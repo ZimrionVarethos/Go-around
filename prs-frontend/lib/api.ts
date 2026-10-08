@@ -16,6 +16,11 @@ import type {
   PlaceFilters,
 } from '@/lib/types';
 import { ApiError as ApiErrorClass } from '@/lib/types';
+import {
+  buildMockPlaceDetail,
+  getSyncedPublicPlaces,
+  recommendationToGeoJsonFeature,
+} from '@/lib/recommendations/mock-data';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
 
@@ -55,8 +60,22 @@ export const placesApi = {
   list: (filters: PlaceFilters = {}) =>
     apiFetch<ApiListResponse<PlaceListItem>>('/places', undefined, filters as unknown as Record<string, unknown>),
 
-  bbox: (params: BboxParams = {}) =>
-    apiFetch<GeoJsonFeatureCollection>('/places/bbox', undefined, params as unknown as Record<string, unknown>),
+  bbox: async (params: BboxParams = {}): Promise<GeoJsonFeatureCollection> => {
+    try {
+      return await apiFetch<GeoJsonFeatureCollection>('/places/bbox', undefined, params as unknown as Record<string, unknown>);
+    } catch {
+      const synced = getSyncedPublicPlaces();
+      return {
+        type: 'FeatureCollection',
+        metadata: {
+          count: synced.length,
+          city: 'Kota Bogor',
+          generated_at: new Date().toISOString(),
+        },
+        features: synced.map(recommendationToGeoJsonFeature),
+      };
+    }
+  },
 
   nearby: (params: NearbyParams) =>
     apiFetch<GeoJsonFeatureCollection>('/places/nearby', undefined, params as unknown as Record<string, unknown>),
@@ -68,8 +87,23 @@ export const placesApi = {
       params as unknown as Record<string, unknown>
     ),
 
-  detail: (idOrSlug: string) =>
-    apiFetch<ApiSingleResponse<PlaceDetail>>(`/places/${idOrSlug}`),
+  detail: async (idOrSlug: string): Promise<ApiSingleResponse<PlaceDetail>> => {
+    try {
+      return await apiFetch<ApiSingleResponse<PlaceDetail>>(`/places/${idOrSlug}`);
+    } catch {
+      const allPlaces = getSyncedPublicPlaces(true);
+      const found = allPlaces.find(
+        (p) => p.slug === idOrSlug || String(p.id) === String(idOrSlug)
+      );
+      if (!found) {
+        throw new ApiErrorClass(404, null, 'Tempat nugas tidak ditemukan');
+      }
+      return {
+        status: 'success',
+        data: buildMockPlaceDetail(found),
+      };
+    }
+  },
 
   subdistricts: () =>
     apiFetch<ApiSingleResponse<SubdistrictItem[]>>('/places/subdistricts'),
@@ -99,4 +133,3 @@ export const contributionsApi = {
 
 // ─── Admin API Service Layer ───────────────────────────────────────────────────
 export * from './api-admin';
-

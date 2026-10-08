@@ -12,10 +12,10 @@ import { ToastContainer } from '@/components/ui/ToastContainer';
 import type { PlaceFilters, BboxParams, PlaceGeoJsonFeature } from '@/lib/types';
 import {
   DEFAULT_RECOMMENDATION_REQUEST,
-  type RecommendationPlace,
   type RecommendationRequest,
   type RecommendationSort,
 } from '@/lib/recommendations';
+import { recommendationToGeoJsonFeature } from '@/lib/recommendations/mock-data';
 import { cn } from '@/lib/cn';
 import { useSearchContext } from '@/components/search/SearchProvider';
 import { GoAroundLoader } from '@/components/loading/GoAroundLoader';
@@ -30,45 +30,6 @@ const MapView = dynamic(() => import('./MapView'), {
 
 // Centered on Baranangsiang / IPB University district
 const BOGOR_CENTER: [number, number] = [-6.601, 106.806];
-
-function recommendationToGeoJsonFeature(place: RecommendationPlace): PlaceGeoJsonFeature {
-  return {
-    type: 'Feature',
-    id: place.id,
-    geometry: {
-      type: 'Point',
-      coordinates: [place.longitude, place.latitude],
-    },
-    properties: {
-      id: place.id,
-      name: place.name,
-      slug: place.slug,
-      subdistrict: place.subdistrict,
-      address: place.address,
-      price_min_drink: place.price_min_drink,
-      price_max_drink: place.price_max_drink,
-      price_avg_food: null,
-      wifi_speed_mbps: place.wifi_speed_mbps,
-      wifi_quality: place.wifi_quality,
-      plug_availability: place.plug_availability,
-      noise_level: place.noise_level,
-      is_24_hours: null,
-      open_time: null,
-      close_time: null,
-      google_rating: place.google_rating,
-      nugas_score: place.recommendation_score,
-      budget_score: place.score_breakdown.price,
-      facility_score: null,
-      recommendation_score: place.recommendation_score,
-      data_confidence: place.data_confidence,
-      image_url: place.image_url,
-      vibe_tags: place.reasons,
-      google_maps_url: place.google_maps_url,
-      distance_km: place.distance_km,
-      amenities: [],
-    },
-  };
-}
 
 export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean }) {
   const { searchIntent, openCriteriaTrigger } = useSearchContext();
