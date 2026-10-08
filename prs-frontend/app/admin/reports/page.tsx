@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Plus } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { AdminTopbar } from '@/components/layout/AdminTopbar';
 import { useAdminLayout } from '../layout';
 import { useAdminStore, AdminTicketItem } from '@/lib/admin-store';
@@ -33,7 +33,6 @@ export default function AdminReportsPage() {
     markAllTicketsAsRead,
     resolveTicket,
     dismissTicket,
-    addTicket,
   } = useAdminStore();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -50,14 +49,13 @@ export default function AdminReportsPage() {
       searchQuery === '' ||
       t.cafeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.reportedBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCategory && matchStatus && matchSearch;
   });
 
   const handleResolve = (id: string, cafeName: string) => {
     resolveTicket(id);
-    showToast(`Tiket ${id} untuk ${cafeName} berhasil diselesaikan! 🚀`, 'success', 3000);
+    showToast(`Tiket ${id} (${cafeName}) divalidasi selesai.`, 'success', 3000);
     if (activeModalTicket?.id === id) {
       setActiveModalTicket(null);
     }
@@ -74,7 +72,7 @@ export default function AdminReportsPage() {
   const handleSaveNote = () => {
     if (!activeModalTicket) return;
     resolveTicket(activeModalTicket.id, noteInput);
-    showToast('Catatan internal admin berhasil disimpan! 📝', 'success', 2500);
+    showToast('Catatan internal admin disimpan.', 'success', 2500);
     setActiveModalTicket(null);
     setNoteInput('');
   };
@@ -89,45 +87,26 @@ export default function AdminReportsPage() {
     <div className="flex flex-col min-h-full pb-12">
       {/* Topbar */}
       <AdminTopbar
-        title="Report & Tiket Validasi"
-        subtitle="Kelola laporan fasilitas mahasiswa dan usulan spot nugas baru"
+        title="Laporan & Tiket"
+        subtitle="Antrean moderasi laporan fasilitas publik dan usulan titik tempat nugas"
         onOpenMobileMenu={openMobileMenu}
         showSearch={false}
         hideDefaultExport={true}
         actions={
-          <div className="flex items-center gap-2">
-            {unreadTicketsCount > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  markAllTicketsAsRead();
-                  showToast('Semua tiket telah ditandai sudah dibaca 👍', 'success', 2500);
-                }}
-                className="bg-white hover:bg-gray-50 active:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-2 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="hidden sm:inline">Tandai Sudah Dibaca ({unreadTicketsCount})</span>
-                <span className="sm:hidden">Tandai Dibaca</span>
-              </button>
-            )}
+          unreadTicketsCount > 0 ? (
             <button
               type="button"
               onClick={() => {
-                addTicket({
-                  category: 'Colokan Rusak',
-                  cafeName: 'Janji Jiwa Pajajaran',
-                  description: 'Colokan di meja area tengah banyak yang mati total saat jam nugas.',
-                  reportedBy: 'Mahasiswa IPB (Baru)',
-                });
-                showToast('Tiket laporan baru masuk! Badge navbar diperbarui 🔔', 'info', 3000);
+                markAllTicketsAsRead();
+                showToast('Semua tiket ditandai sudah dibaca.', 'success', 2500);
               }}
-              className="bg-[#005B54] hover:bg-[#004741] active:bg-[#003d38] text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              className="bg-white hover:bg-[#F5F6F3] border border-[#E2E5DF] text-text-700 text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer tactile-press tabular-nums"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Simulasi Laporan</span>
-              <span className="sm:hidden">Laporan</span>
+              <Check className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="hidden sm:inline">Tandai Dibaca ({unreadTicketsCount})</span>
+              <span className="sm:hidden">Dibaca</span>
             </button>
-          </div>
+          ) : undefined
         }
       />
 

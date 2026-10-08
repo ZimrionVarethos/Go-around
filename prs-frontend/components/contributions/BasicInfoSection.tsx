@@ -190,9 +190,9 @@ export function BasicInfoSection({
             <option value="Bogor Tengah">Bogor Tengah (Pusat Kota / SSA)</option>
             <option value="Bogor Timur">Bogor Timur (Koridor Pajajaran)</option>
             <option value="Bogor Utara">Bogor Utara (Cilibende &amp; Bangbarung)</option>
-            <option value="Bogor Barat">Bogor Barat (Bubulak &amp; Dramaga Border)</option>
-            <option value="Bogor Selatan">Bogor Selatan (Batutulis &amp; Sejuk)</option>
-            <option value="Tanah Sareal">Tanah Sareal (Sholeh Iskandar &amp; Cilebut)</option>
+            <option value="Bogor Barat">Bogor Barat (Yasmin, Cilendek &amp; Bubulak)</option>
+            <option value="Bogor Selatan">Bogor Selatan (Batutulis &amp; Empang)</option>
+            <option value="Tanah Sareal">Tanah Sareal (Sholeh Iskandar &amp; Cimanggu)</option>
           </select>
         </div>
 
@@ -211,8 +211,8 @@ export function BasicInfoSection({
             <option value="Dekat Kampus IPB Baranangsiang (< 1.5 km)">
               Dekat Kampus IPB Baranangsiang (&lt; 1.5 km)
             </option>
-            <option value="Dekat Kampus Utama IPB Dramaga">
-              Dekat Kampus Utama IPB Dramaga
+            <option value="Dekat Kampus IPB Gunung Gede / Lodaya">
+              Dekat Kampus IPB Gunung Gede / Lodaya
             </option>
             <option value="Dekat Kampus Universitas Pakuan (Pajajaran)">
               Dekat Kampus Universitas Pakuan (Pajajaran)

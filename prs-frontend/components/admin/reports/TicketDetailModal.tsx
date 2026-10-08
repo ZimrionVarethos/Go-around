@@ -26,21 +26,26 @@ export function TicketDetailModal({
         className="fixed inset-0 bg-black/50 backdrop-blur-xs animate-in fade-in"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="relative z-10 w-full max-w-lg bg-white rounded-2xl border border-[#E2E5DF] shadow-tinted-teal overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-[#E2E5DF] bg-[#F8F9F7] flex items-center justify-between">
           <div>
-            <span className="font-mono text-xs font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-              {ticket.id}
-            </span>
-            <h3 className="text-base font-bold text-gray-900 mt-1">
-              Detail Tiket & Catatan Admin
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs font-bold text-text-800 tabular-nums bg-white border border-[#E2E5DF] px-2 py-0.5 rounded">
+                {ticket.id}
+              </span>
+              <span className="text-xs font-semibold text-text-600">
+                {ticket.category}
+              </span>
+            </div>
+            <h3 className="text-base font-bold text-text-950 mt-1 tracking-tight">
+              Detail Laporan &amp; Catatan Tindak Lanjut
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-text-400 hover:text-text-700 hover:bg-[#F0F2EE] transition-colors cursor-pointer tactile-press"
           >
             <X className="w-4 h-4" />
           </button>
@@ -49,55 +54,55 @@ export function TicketDetailModal({
         {/* Body */}
         <div className="p-5 space-y-4">
           <div>
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Tempat Nugas
+            <label className="text-[11px] font-semibold text-text-600 uppercase tracking-wider">
+              Lokasi Tempat Nugas
             </label>
-            <p className="text-sm font-bold text-gray-900 mt-0.5">
-              {ticket.cafeName} ({ticket.location})
+            <p className="text-sm font-bold text-text-950 mt-0.5">
+              {ticket.cafeName} <span className="font-normal text-text-500">({ticket.location})</span>
             </p>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Laporan Pengguna
+            <label className="text-[11px] font-semibold text-text-600 uppercase tracking-wider">
+              Deskripsi Laporan Fasilitas
             </label>
-            <p className="text-xs text-gray-700 bg-gray-50 p-3 rounded-xl border border-gray-100 mt-1 leading-relaxed">
-              &quot;{ticket.description}&quot;
+            <p className="text-xs text-text-800 bg-[#F5F6F3] p-3 rounded-lg border border-[#E2E5DF] mt-1 leading-relaxed">
+              {ticket.description}
             </p>
-            <p className="text-[11px] text-gray-400 mt-1">
-              Dilaporkan oleh: {ticket.reportedBy} · {ticket.timeAgo}
+            <p className="text-[11px] text-text-500 tabular-nums mt-1.5">
+              Dilaporkan {ticket.timeAgo}
             </p>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-              Catatan Tindak Lanjut Tim Admin
+            <label className="text-[11px] font-semibold text-text-700 uppercase tracking-wider">
+              Catatan Verifikasi Admin
             </label>
             <textarea
               rows={3}
               value={noteInput}
               onChange={(e) => setNoteInput(e.target.value)}
-              placeholder="Tuliskan catatan teknis, instruksi surveyor lapangan, atau verifikasi perubahan data..."
-              className="w-full mt-1.5 p-3 text-xs bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#005B54] focus:border-[#005B54] transition-all"
+              placeholder="Tuliskan hasil verifikasi lapangan atau pembaruan atribut fasilitas..."
+              className="w-full mt-1.5 p-3 text-xs bg-white border border-[#E2E5DF] rounded-lg text-text-900 placeholder:text-text-500 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-2">
+        <div className="px-5 py-3.5 bg-[#F8F9F7] border-t border-[#E2E5DF] flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-200/60 rounded-xl transition-colors cursor-pointer"
+            className="px-3.5 py-2 text-xs font-semibold text-text-700 hover:bg-[#F0F2EE] rounded-lg transition-colors cursor-pointer tactile-press"
           >
-            Tutup
+            Batal
           </button>
           <button
             type="button"
             onClick={onSaveNote}
-            className="px-4 py-2 bg-[#005B54] hover:bg-[#004741] active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+            className="px-4 py-2 bg-[#005B54] hover:bg-[#004741] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-2xs tactile-press"
           >
-            Simpan Catatan
+            Simpan &amp; Validasi
           </button>
         </div>
       </div>

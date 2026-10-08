@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Clock, Check, X, MapPin, User, Eye, MessageSquare } from 'lucide-react';
+import { FileText, Check, X, MapPin, Eye, MessageSquare } from 'lucide-react';
 import { AdminTicketItem } from '@/lib/admin-store';
 import { cn } from '@/lib/cn';
 
@@ -19,145 +19,167 @@ export function TicketCardList({
 }: TicketCardListProps) {
   if (tickets.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200/80 p-12 text-center space-y-2">
-        <FileText className="w-10 h-10 text-gray-300 mx-auto" />
-        <h4 className="text-base font-bold text-gray-800">Tidak ada tiket yang cocok</h4>
-        <p className="text-xs text-gray-500 max-w-sm mx-auto">
-          Coba ganti filter kategori atau kata kunci pencarian Anda untuk melihat laporan lain.
+      <div className="bg-white rounded-xl border border-[#E2E5DF] shadow-card-subtle p-10 text-center space-y-1.5">
+        <FileText className="w-8 h-8 text-text-400 mx-auto" />
+        <h4 className="text-sm font-bold text-text-900">Tidak ada tiket laporan yang sesuai</h4>
+        <p className="text-xs text-text-500 max-w-sm mx-auto">
+          Sesuaikan filter status, kategori, atau kata kunci pencarian untuk melihat tiket lainnya.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {tickets.map((t) => {
-        const isResolved = t.status === 'resolved';
-        const isDismissed = t.status === 'dismissed';
+    <div className="bg-white rounded-xl border border-[#E2E5DF] shadow-card-subtle overflow-hidden">
+      {/* Desktop Column Header */}
+      <div className="hidden lg:grid lg:grid-cols-12 gap-4 px-5 py-2.5 bg-[#F8F9F7] border-b border-[#E2E5DF] text-[11px] font-semibold uppercase tracking-wider text-text-600">
+        <div className="col-span-2">ID &amp; Status</div>
+        <div className="col-span-3">Tempat &amp; Kategori</div>
+        <div className="col-span-4">Ringkasan Laporan Fasilitas</div>
+        <div className="col-span-3 text-right">Tindakan Moderasi</div>
+      </div>
 
-        return (
-          <div
-            key={t.id}
-            className={cn(
-              'bg-white rounded-2xl border p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between gap-4',
-              isResolved
-                ? 'border-emerald-200 bg-emerald-50/20'
-                : isDismissed
-                ? 'border-gray-200 bg-gray-50/60 opacity-60'
-                : 'border-gray-200/80'
-            )}
-          >
-            <div className="space-y-3">
-              {/* Header */}
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-mono text-xs font-bold text-gray-800 bg-gray-100 px-2.5 py-0.5 rounded-md">
+      {/* Structured Operational Rows */}
+      <div className="divide-y divide-[#E2E5DF]">
+        {tickets.map((t) => {
+          const isResolved = t.status === 'resolved';
+          const isDismissed = t.status === 'dismissed';
+
+          return (
+            <div
+              key={t.id}
+              className={cn(
+                'p-4 sm:px-5 sm:py-4 transition-colors lg:grid lg:grid-cols-12 lg:items-center lg:gap-4 flex flex-col gap-3',
+                isResolved
+                  ? 'bg-emerald-50/20'
+                  : isDismissed
+                  ? 'bg-[#F5F6F3]/70 opacity-65'
+                  : 'hover:bg-[#F5F6F3]/60'
+              )}
+            >
+              {/* Col 1: ID, Workflow Status Dot & Time */}
+              <div className="lg:col-span-2 flex lg:flex-col items-center lg:items-start justify-between gap-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold text-text-900 tabular-nums bg-[#F5F6F3] border border-[#E2E5DF] px-1.5 py-0.5 rounded">
                     {t.id}
                   </span>
                   {t.isUnread && t.status === 'open' && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 animate-pulse">
-                      Baru
+                    <span
+                      className="w-2 h-2 rounded-full bg-rose-500"
+                      title="Belum dibaca"
+                    />
+                  )}
+                </div>
+
+                {/* Semantic Workflow Status Badge (Pill with status dot) */}
+                <div className="flex items-center gap-2">
+                  {isResolved ? (
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                      Selesai
+                    </span>
+                  ) : isDismissed ? (
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-text-600 bg-[#F0F2EE] border border-[#E2E5DF] px-2 py-0.5 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-text-400" />
+                      Diabaikan
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-900 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                      Perlu Validasi
                     </span>
                   )}
+                </div>
+
+                <span className="text-[11px] text-text-500 tabular-nums hidden lg:block">
+                  {t.timeAgo}
+                </span>
+              </div>
+
+              {/* Col 2: Place Name, Location & Category Tag (rectangular tag, distinct from status pill) */}
+              <div className="lg:col-span-3 min-w-0 space-y-1">
+                <h3 className="text-sm font-bold text-text-950 truncate">
+                  {t.cafeName}
+                </h3>
+                <p className="text-xs text-text-600 flex items-center gap-1 truncate">
+                  <MapPin className="w-3 h-3 text-text-400 shrink-0" />
+                  <span className="truncate">{t.location}</span>
+                </p>
+                <div className="pt-0.5">
                   <span
                     className={cn(
-                      'text-[11px] font-semibold px-2 py-0.5 rounded-full',
+                      'inline-block text-[11px] font-semibold px-1.5 py-0.5 rounded border',
                       t.priority === 'high'
-                        ? 'bg-red-100 text-red-700'
+                        ? 'bg-rose-50/70 text-rose-700 border-rose-200'
                         : t.priority === 'suggestion'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-amber-100 text-amber-700'
+                        ? 'bg-teal-50/70 text-[#005B54] border-teal-200'
+                        : 'bg-[#F5F6F3] text-text-700 border-[#E2E5DF]'
                     )}
                   >
                     {t.category}
                   </span>
                 </div>
-
-                <span className="text-xs text-gray-400 flex items-center gap-1 shrink-0">
-                  <Clock className="w-3 h-3" />
-                  {t.timeAgo}
-                </span>
               </div>
 
-              {/* Cafe & Location */}
-              <div>
-                <h3 className="text-base font-bold text-gray-900 leading-snug">
-                  {t.cafeName}
-                </h3>
-                <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                  <span>{t.location}</span>
+              {/* Col 3: Issue Summary */}
+              <div className="lg:col-span-4 min-w-0 space-y-1.5">
+                <p className="text-xs text-text-800 leading-relaxed line-clamp-2">
+                  {t.description}
                 </p>
+                <div className="flex items-center gap-2 text-[11px] text-text-500 flex-wrap">
+                  <span className="lg:hidden tabular-nums">Dilaporkan {t.timeAgo}</span>
+                  {t.internalNote && (
+                    <span className="inline-flex items-center gap-1 text-[#005B54] font-semibold bg-teal-50/60 border border-teal-200/70 px-1.5 py-0.5 rounded">
+                      <MessageSquare className="w-3 h-3" /> Catatan Tersimpan
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* Description Quote */}
-              <p className="text-xs text-gray-700 bg-gray-50 p-3 rounded-xl border border-gray-100 leading-relaxed italic">
-                &quot;{t.description}&quot;
-              </p>
+              {/* Col 4: Moderation Actions */}
+              <div className="lg:col-span-3 flex items-center justify-end gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-[#E2E5DF]">
+                <button
+                  type="button"
+                  onClick={() => onOpenModal(t)}
+                  className="text-xs font-semibold text-text-700 hover:text-[#005B54] hover:bg-[#F5F6F3] px-2.5 py-1.5 rounded-lg border border-[#E2E5DF] transition-colors flex items-center gap-1.5 cursor-pointer tactile-press"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Detail &amp; Catatan</span>
+                </button>
 
-              {/* Reporter & Note */}
-              <div className="flex items-center justify-between text-[11.5px] text-gray-500 pt-1">
-                <span className="flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-gray-400" />
-                  {t.reportedBy}
-                </span>
-                {t.internalNote && (
-                  <span className="text-teal-700 font-medium flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3" /> Ada Catatan
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Actions Footer */}
-            <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => onOpenModal(t)}
-                className="text-xs font-semibold text-gray-700 hover:text-[#005B54] hover:bg-teal-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
-              >
-                <Eye className="w-3.5 h-3.5" />
-                <span>Detail & Catatan</span>
-              </button>
-
-              <div className="flex items-center gap-1.5">
-                {isResolved ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-lg">
-                    <Check className="w-3.5 h-3.5" /> Selesai
-                  </span>
-                ) : isDismissed ? (
+                {isResolved ? null : isDismissed ? (
                   <button
                     type="button"
                     onClick={() => onResolve(t.id, t.cafeName)}
-                    className="text-xs text-[#005B54] hover:underline font-semibold"
+                    className="text-xs text-[#005B54] hover:underline font-semibold px-2 py-1.5 cursor-pointer tactile-press"
                   >
-                    Buka Kembali
+                    Validasi
                   </button>
                 ) : (
                   <>
                     <button
                       type="button"
-                      onClick={() => onDismiss(t.id)}
-                      className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-                      title="Abaikan Tiket"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
                       onClick={() => onResolve(t.id, t.cafeName)}
-                      className="bg-[#005B54] hover:bg-[#004741] active:scale-95 text-white text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-1"
+                      className="bg-[#005B54] hover:bg-[#004741] text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs tactile-press"
                     >
                       <Check className="w-3.5 h-3.5" />
                       <span>Validasi Selesai</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDismiss(t.id)}
+                      className="p-1.5 text-text-400 hover:text-text-700 hover:bg-[#F0F2EE] rounded-lg transition-colors cursor-pointer tactile-press"
+                      title="Abaikan Tiket"
+                    >
+                      <X className="w-4 h-4" />
                     </button>
                   </>
                 )}
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
