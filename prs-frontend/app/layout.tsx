@@ -27,7 +27,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Go Around — WebGIS Tempat Nugas & Kafe Ramah Mahasiswa Kota Bogor',
+  title: 'Go Around - WebGIS Tempat Nugas & Kafe Ramah Mahasiswa Kota Bogor',
   description:
     'Eksplorasi direktori spasial dan rekomendasi kafe nugas terbaik di Kota Bogor berdasarkan kecepatan WiFi, ketersediaan colokan, akustik, dan budget mahasiswa.',
 };

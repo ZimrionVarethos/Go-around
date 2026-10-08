@@ -4,15 +4,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Bell,
-  Coffee,
   CheckCheck,
   Clock,
   ArrowRight,
   AlertTriangle,
   Zap,
   Wifi,
-  Sparkles,
+  Coffee,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useAdminStore } from '@/lib/admin-store';
@@ -101,218 +99,207 @@ export function AdminNotificationDropdown({
       role="region"
       aria-label="Notifikasi Administrator"
       className={cn(
-        'absolute right-0 top-full mt-2 z-50 w-[360px] sm:w-[390px] rounded-2xl bg-white border border-border-subtle shadow-2xl ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-150 select-none overflow-hidden flex flex-col max-h-[520px]',
+        'absolute right-0 top-full mt-2.5 z-50 w-[356px] sm:w-[392px] bg-white rounded-2xl border border-[#E2E5DF] shadow-tinted-teal overflow-hidden flex flex-col max-h-[500px] animate-in fade-in zoom-in-95 duration-150 select-none',
         className
       )}
     >
       {/* 1. Header */}
-      <div className="p-4 border-b border-border-subtle bg-gradient-to-r from-surface-subtle to-white flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary-100 flex items-center justify-center text-primary-900 shadow-2xs">
-            <Bell className="w-4 h-4" />
-          </div>
+        <div className="px-4 py-3 border-b border-[#E2E5DF] bg-[#F5F6F3]/80 flex items-center justify-between shrink-0">
           <div>
-            <h4 className="text-xs font-bold text-text-950 flex items-center gap-1.5">
-              <span>Notifikasi Admin</span>
+            <h4 className="text-xs font-bold text-text-950 flex items-center gap-2">
+              <span>Notifikasi Operasional</span>
               {totalUnread > 0 && (
-                <span className="text-[10px] font-bold bg-rose-500 text-white px-1.5 py-0.2 rounded-full">
+                <span className="text-[10px] font-mono tabular-nums font-semibold bg-rose-50 text-rose-700 border border-rose-200 px-1.5 py-0.5 rounded-md">
                   {totalUnread} baru
                 </span>
               )}
             </h4>
-            <p className="text-[11px] text-text-500">Aktivitas pelaporan & usulan kafe</p>
+            <p className="text-[11px] text-text-500 mt-0.5">Laporan fasilitas &amp; usulan kafe</p>
           </div>
+
+          {totalUnread > 0 && (
+            <button
+              type="button"
+              onClick={handleMarkAllRead}
+              className="text-[11px] font-semibold text-[#005B54] hover:text-[#003833] flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#005B54]/[0.06] transition-colors cursor-pointer tactile-press"
+              title="Tandai semua telah dibaca"
+            >
+              <CheckCheck className="w-3.5 h-3.5" />
+              <span>Tandai dibaca</span>
+            </button>
+          )}
         </div>
 
-        {totalUnread > 0 && (
+        {/* 2. Filter Tabs */}
+        <div className="flex items-center border-b border-[#E2E5DF] px-3 py-1.5 bg-white gap-1 shrink-0 text-xs">
           <button
             type="button"
-            onClick={handleMarkAllRead}
-            className="text-[11px] font-semibold text-primary-900 hover:text-primary-950 flex items-center gap-1 hover:underline cursor-pointer"
-            title="Tandai semua telah dibaca"
+            onClick={() => setActiveTab('all')}
+            className={cn(
+              'px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer text-[11px] tabular-nums tactile-press',
+              activeTab === 'all'
+                ? 'bg-[#005B54]/[0.08] text-[#005B54] border border-[#005B54]/20'
+                : 'text-text-500 hover:text-text-900 hover:bg-[#F5F6F3] border border-transparent'
+            )}
           >
-            <CheckCheck className="w-3.5 h-3.5" />
-            <span>Tandai dibaca</span>
+            Semua ({unreadTickets.length + reviewPlaces.length})
           </button>
-        )}
-      </div>
 
-      {/* 2. Filter Tabs */}
-      <div className="flex items-center border-b border-border-subtle px-3 py-2 bg-surface-subtle/40 gap-1.5 shrink-0 text-xs">
-        <button
-          type="button"
-          onClick={() => setActiveTab('all')}
-          className={cn(
-            'px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer text-[11px]',
-            activeTab === 'all'
-              ? 'bg-white text-text-950 shadow-2xs border border-border-subtle'
-              : 'text-text-500 hover:text-text-900'
-          )}
-        >
-          Semua ({unreadTickets.length + reviewPlaces.length})
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('tickets')}
+            className={cn(
+              'px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer text-[11px] flex items-center gap-1.5 tactile-press',
+              activeTab === 'tickets'
+                ? 'bg-[#005B54]/[0.08] text-[#005B54] border border-[#005B54]/20'
+                : 'text-text-500 hover:text-text-900 hover:bg-[#F5F6F3] border border-transparent'
+            )}
+          >
+            <span>Tiket</span>
+            {unreadTicketsCount > 0 && (
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            )}
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('tickets')}
-          className={cn(
-            'px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer text-[11px] flex items-center gap-1',
-            activeTab === 'tickets'
-              ? 'bg-white text-text-950 shadow-2xs border border-border-subtle'
-              : 'text-text-500 hover:text-text-900'
-          )}
-        >
-          <span>Laporan</span>
-          {unreadTicketsCount > 0 && (
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-          )}
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('places')}
+            className={cn(
+              'px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer text-[11px] flex items-center gap-1.5 tactile-press',
+              activeTab === 'places'
+                ? 'bg-[#005B54]/[0.08] text-[#005B54] border border-[#005B54]/20'
+                : 'text-text-500 hover:text-text-900 hover:bg-[#F5F6F3] border border-transparent'
+            )}
+          >
+            <span>Usulan Kafe</span>
+            {newPlacesCount > 0 && (
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            )}
+          </button>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('places')}
-          className={cn(
-            'px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer text-[11px] flex items-center gap-1',
-            activeTab === 'places'
-              ? 'bg-white text-text-950 shadow-2xs border border-border-subtle'
-              : 'text-text-500 hover:text-text-900'
-          )}
-        >
-          <span>Usulan Kafe</span>
-          {newPlacesCount > 0 && (
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-          )}
-        </button>
-      </div>
-
-      {/* 3. Notification List */}
-      <div className="flex-1 overflow-y-auto divide-y divide-border-subtle/60 p-1">
-        {/* Empty State */}
-        {unreadTickets.length === 0 && reviewPlaces.length === 0 && (
-          <div className="py-12 px-4 text-center space-y-2.5">
-            <div className="w-11 h-11 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto shadow-2xs">
-              <Sparkles className="w-5 h-5" />
+        {/* 3. Notification List */}
+        <div className="flex-1 overflow-y-auto divide-y divide-[#E2E5DF]">
+          {/* Empty State */}
+          {unreadTickets.length === 0 && reviewPlaces.length === 0 && (
+            <div className="py-10 px-4 text-center space-y-1.5">
+              <CheckCheck className="w-5 h-5 text-emerald-600 mx-auto" />
+              <p className="text-xs font-bold text-text-900">Antrean Bersih</p>
+              <p className="text-[11px] text-text-500 max-w-xs mx-auto">
+                Tidak ada laporan fasilitas atau usulan tempat baru yang menunggu validasi.
+              </p>
             </div>
-            <p className="text-xs font-bold text-text-900">Semua Laporan Telah Ditangani!</p>
-            <p className="text-[11px] text-text-500 max-w-xs mx-auto">
-              Tidak ada tiket colokan/wifi yang pending maupun kafe baru yang perlu diverifikasi saat ini.
-            </p>
-          </div>
-        )}
+          )}
 
-        {/* Tickets Section */}
-        {(activeTab === 'all' || activeTab === 'tickets') &&
-          unreadTickets.slice(0, 4).map((ticket) => (
-            <button
-              key={ticket.id}
-              type="button"
-              onClick={() => handleTicketClick(ticket.id)}
-              className={cn(
-                'w-full text-left p-3 rounded-xl transition-all cursor-pointer flex items-start gap-3 group',
-                ticket.isUnread
-                  ? 'bg-primary-50/40 hover:bg-primary-50/80'
-                  : 'hover:bg-surface-subtle'
-              )}
-            >
-              <div
+          {/* Tickets Section */}
+          {(activeTab === 'all' || activeTab === 'tickets') &&
+            unreadTickets.slice(0, 4).map((ticket) => (
+              <button
+                key={ticket.id}
+                type="button"
+                onClick={() => handleTicketClick(ticket.id)}
                 className={cn(
-                  'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-2xs',
-                  ticket.priority === 'high'
-                    ? 'bg-rose-100 text-rose-700'
-                    : 'bg-amber-100 text-amber-700'
+                  'w-full text-left px-3.5 py-3 transition-colors cursor-pointer flex items-start gap-2.5 group',
+                  ticket.isUnread
+                    ? 'bg-[#005B54]/[0.03] hover:bg-[#F5F6F3]'
+                    : 'hover:bg-[#F5F6F3]'
                 )}
               >
-                {ticket.category.toLowerCase().includes('wifi') ? (
-                  <Wifi className="w-4 h-4" />
-                ) : ticket.category.toLowerCase().includes('colokan') ? (
-                  <Zap className="w-4 h-4" />
-                ) : (
-                  <AlertTriangle className="w-4 h-4" />
+                <div className="mt-0.5 w-7 h-7 rounded-lg bg-[#F5F6F3] border border-[#E2E5DF] flex items-center justify-center shrink-0">
+                  {ticket.category.toLowerCase().includes('wifi') ? (
+                    <Wifi className="w-3.5 h-3.5 text-amber-600" />
+                  ) : ticket.category.toLowerCase().includes('colokan') ? (
+                    <Zap className="w-3.5 h-3.5 text-rose-600" />
+                  ) : (
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-text-950 truncate group-hover:text-[#005B54]">
+                      {ticket.cafeName}
+                    </span>
+                    <span className="text-[10px] font-mono tabular-nums text-text-400 shrink-0 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {ticket.timeAgo}
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] text-text-600 line-clamp-1 mt-0.5">
+                    <span className="font-semibold text-text-900">{ticket.category}:</span>{' '}
+                    {ticket.description}
+                  </p>
+
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] text-text-500 font-mono font-medium tabular-nums">
+                      {ticket.id}
+                    </span>
+                    <span className="text-[10px] text-text-400 truncate">· {ticket.location}</span>
+                    {ticket.isUnread && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#005B54] ml-auto shrink-0" />
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
+
+          {/* Places Section */}
+          {(activeTab === 'all' || activeTab === 'places') &&
+            reviewPlaces.slice(0, 3).map((place) => (
+              <button
+                key={place.id}
+                type="button"
+                onClick={() => handlePlaceClick(place.id)}
+                className={cn(
+                  'w-full text-left px-3.5 py-3 transition-colors cursor-pointer flex items-start gap-2.5 group',
+                  place.isUnread
+                    ? 'bg-amber-50/30 hover:bg-[#F5F6F3]'
+                    : 'hover:bg-[#F5F6F3]'
                 )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs font-bold text-text-950 truncate group-hover:text-primary-950">
-                    {ticket.cafeName}
-                  </span>
-                  <span className="text-[10px] text-text-400 shrink-0 flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {ticket.timeAgo}
-                  </span>
+              >
+                <div className="mt-0.5 w-7 h-7 rounded-lg bg-amber-50 border border-amber-200/70 flex items-center justify-center shrink-0">
+                  <Coffee className="w-3.5 h-3.5 text-amber-700" />
                 </div>
 
-                <p className="text-[11px] text-text-600 line-clamp-1 mt-0.5">
-                  <span className="font-semibold text-rose-600">{ticket.category}</span> —{' '}
-                  {ticket.description}
-                </p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-text-950 truncate group-hover:text-[#005B54]">
+                      {place.name}
+                    </span>
+                    <span className="text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded-md shrink-0">
+                      Perlu Review
+                    </span>
+                  </div>
 
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] text-text-400">Oleh: {ticket.reportedBy}</span>
-                  {ticket.isUnread && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary-800" />
-                  )}
+                  <p className="text-[11px] text-text-500 line-clamp-1 mt-0.5">
+                    {place.address}
+                  </p>
+
+                  <div className="flex items-center gap-2 mt-1 text-[10px] font-mono tabular-nums text-text-500">
+                    <span>Harga: {place.price}</span>
+                    <span>·</span>
+                    <span>Wi-Fi: {place.wifi}%</span>
+                    {place.isUnread && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-600 ml-auto" />
+                    )}
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))}
+        </div>
 
-        {/* Places Section */}
-        {(activeTab === 'all' || activeTab === 'places') &&
-          reviewPlaces.slice(0, 3).map((place) => (
-            <button
-              key={place.id}
-              type="button"
-              onClick={() => handlePlaceClick(place.id)}
-              className={cn(
-                'w-full text-left p-3 rounded-xl transition-all cursor-pointer flex items-start gap-3 group',
-                place.isUnread
-                  ? 'bg-amber-50/40 hover:bg-amber-50/80'
-                  : 'hover:bg-surface-subtle'
-              )}
-            >
-              <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-                <Coffee className="w-4 h-4" />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs font-bold text-text-950 truncate group-hover:text-amber-950">
-                    {place.name}
-                  </span>
-                  <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded-full shrink-0">
-                    Verifikasi
-                  </span>
-                </div>
-
-                <p className="text-[11px] text-text-500 line-clamp-1 mt-0.5">
-                  {place.address}
-                </p>
-
-                <div className="flex items-center gap-2 mt-1 text-[10px] text-text-400">
-                  <span>Harga: {place.price}</span>
-                  <span>•</span>
-                  <span>Wi-Fi: {place.wifi}%</span>
-                  {place.isUnread && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
-                  )}
-                </div>
-              </div>
-            </button>
-          ))}
-      </div>
-
-      {/* 4. Footer */}
-      <div className="p-2.5 border-t border-border-subtle bg-surface-subtle/50 shrink-0 text-center">
-        <Link
-          href="/admin/reports"
-          onClick={onClose}
-          className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-primary-900 hover:text-primary-950 hover:underline py-1"
-        >
-          <span>Buka Pusat Tiket & Laporan Spasial</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      </div>
+        {/* 4. Footer */}
+        <div className="p-2.5 border-t border-[#E2E5DF] bg-[#F5F6F3]/80 shrink-0 text-center">
+          <Link
+            href="/admin/reports"
+            onClick={onClose}
+            className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-[#005B54] hover:text-[#003833] py-1 px-3 rounded-lg hover:bg-[#005B54]/[0.06] transition-all group tactile-press"
+          >
+            <span>Buka Pusat Tiket &amp; Laporan Spasial</span>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </div>
     </div>
   );
 }

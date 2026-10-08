@@ -59,14 +59,14 @@ export function AdminTopbar({
 
   const totalUnread = unreadTicketsCount + newPlacesCount;
   return (
-    <header className="h-[68px] bg-white border-b border-border-subtle px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-4 shrink-0 select-none">
+    <header className="h-[68px] bg-white/95 backdrop-blur-md border-b border-[#E2E5DF] px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-4 shrink-0 select-none sticky top-0 z-30">
       {/* Left: Mobile Menu Trigger + Page Title & Breadcrumb OR Search Bar if no title */}
       <div className="flex items-center gap-2.5 min-w-0 flex-1">
         {onOpenMobileMenu && (
           <button
             type="button"
             onClick={onOpenMobileMenu}
-            className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-text-700 hover:bg-surface-subtle border border-border-subtle transition-colors cursor-pointer shrink-0"
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl text-text-700 hover:bg-[#F5F6F3] border border-[#E2E5DF] transition-colors cursor-pointer shrink-0 tactile-press"
             title="Buka Menu"
           >
             <Menu className="w-5 h-5" />
@@ -74,7 +74,10 @@ export function AdminTopbar({
         )}
         {title ? (
           <div className="flex flex-col min-w-0">
-            <h1 className="text-base sm:text-lg font-bold text-text-950 truncate tracking-tight">
+            <h1
+              className="text-base sm:text-lg font-extrabold text-text-950 truncate tracking-[-0.02em]"
+              style={{ fontFamily: "var(--font-onest), 'Onest', sans-serif" }}
+            >
               {title}
             </h1>
             {subtitle && (
@@ -82,19 +85,19 @@ export function AdminTopbar({
             )}
           </div>
         ) : (
-          /* Wide Search bar when no title is given (Figma standard) */
+          /* Wide Search bar when no title is given */
           showSearch && (
             <div className="flex-1 max-w-2xl relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-400 pointer-events-none" />
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchValue}
                 onChange={(e) => onSearchChange?.(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full pl-10 pr-14 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-xl text-text-900 placeholder:text-text-400 transition-all focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700 shadow-xs"
+                className="w-full pl-10 pr-14 py-2 text-xs bg-[#F5F6F3] border border-[#E2E5DF] rounded-xl text-text-900 placeholder:text-text-500 transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] shadow-[inset_0_1px_2px_rgba(15,23,42,0.03)]"
               />
-              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono bg-white border border-border-strong text-text-500 px-1.5 py-0.5 rounded-xs shadow-xs">
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono font-medium bg-white border border-[#D5D9D0] text-text-600 px-1.5 py-0.5 rounded-md shadow-2xs">
                 ⌘K
               </span>
             </div>
@@ -105,16 +108,16 @@ export function AdminTopbar({
       {/* Center Search bar (when title is present) */}
       {title && showSearch && (
         <div className="flex-1 max-w-sm relative hidden md:block">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-400 pointer-events-none" />
           <input
             ref={searchInputRef}
             type="text"
             value={searchValue}
             onChange={(e) => onSearchChange?.(e.target.value)}
             placeholder={searchPlaceholder}
-            className="w-full pl-10 pr-14 py-2 text-xs bg-surface-subtle border border-border-subtle rounded-md text-text-900 placeholder:text-text-400 transition-all focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-700 focus:border-primary-700"
+            className="w-full pl-10 pr-14 py-2 text-xs bg-[#F5F6F3] border border-[#E2E5DF] rounded-xl text-text-900 placeholder:text-text-500 transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54]"
           />
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono bg-white border border-border-strong text-text-500 px-1 py-0.5 rounded-xs">
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono font-medium bg-white border border-[#D5D9D0] text-text-600 px-1.5 py-0.5 rounded-md">
             ⌘K
           </span>
         </div>
@@ -130,7 +133,7 @@ export function AdminTopbar({
             variant="outline"
             size="sm"
             onClick={onExport}
-            className="hidden sm:inline-flex rounded-md text-xs cursor-pointer"
+            className="hidden sm:inline-flex rounded-xl text-xs cursor-pointer tactile-press"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Ekspor Data</span>
@@ -150,10 +153,10 @@ export function AdminTopbar({
               aria-expanded={isNotificationOpen}
               aria-haspopup="true"
               className={cn(
-                'w-9 h-9 flex items-center justify-center rounded-xl border transition-colors cursor-pointer relative shadow-xs',
+                'w-9 h-9 flex items-center justify-center rounded-xl border transition-all cursor-pointer relative shadow-2xs tactile-press',
                 isNotificationOpen
-                  ? 'bg-primary-50 border-primary-300 text-primary-950 ring-2 ring-primary-500/20'
-                  : 'border-border-subtle hover:bg-surface-header text-text-500 hover:text-text-900'
+                  ? 'bg-[#005B54]/[0.08] border-[#005B54]/30 text-[#005B54] ring-2 ring-[#005B54]/15'
+                  : 'bg-white border-[#E2E5DF] hover:bg-[#F5F6F3] text-text-600 hover:text-text-950'
               )}
             >
               <Bell className="w-4 h-4" />
@@ -170,7 +173,7 @@ export function AdminTopbar({
         )}
 
         {/* Subtle Divider */}
-        <div className="h-6 w-px bg-border-subtle mx-0.5" />
+        <div className="h-6 w-px bg-[#E2E5DF] mx-0.5" />
 
         {/* Profile Avatar Button & Dropdown */}
         <div className="relative">
@@ -181,32 +184,21 @@ export function AdminTopbar({
               setIsNotificationOpen(false);
             }}
             className={cn(
-              'flex items-center gap-2 p-1 sm:px-2 sm:py-1 rounded-xl border transition-all cursor-pointer group',
+              'h-9 flex items-center gap-2 pl-1.5 pr-2.5 rounded-xl border transition-all cursor-pointer group tactile-press',
               isProfileDropdownOpen
-                ? 'bg-primary-50 border-primary-300 ring-2 ring-primary-500/20'
-                : 'hover:bg-surface-subtle border-border-subtle hover:border-border-strong'
+                ? 'bg-[#005B54]/[0.08] border-[#005B54]/30 ring-2 ring-[#005B54]/15'
+                : 'bg-white hover:bg-[#F5F6F3] border-[#E2E5DF] hover:border-[#CBD5E1] shadow-2xs'
             )}
-            title="Menu Profil & Akun"
+            title="Menu Akun"
             aria-expanded={isProfileDropdownOpen}
             aria-haspopup="true"
           >
-            <div className="relative shrink-0">
-              <div className="w-8 h-8 rounded-full bg-primary-900 flex items-center justify-center text-white text-xs font-bold shadow-xs group-hover:scale-105 transition-transform">
-                {profile.avatarInitials}
-              </div>
-              <span
-                className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"
-                title="Status: Online"
-              />
+            <div className="w-6 h-6 rounded-md bg-[#005B54] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+              {profile.avatarInitials}
             </div>
-            <div className="hidden lg:flex flex-col text-left pr-1 min-w-0">
-              <span className="text-xs font-semibold text-text-900 truncate max-w-[120px] group-hover:text-primary-950">
-                {profile.name}
-              </span>
-              <span className="text-[10px] text-text-500 truncate max-w-[120px]">
-                {profile.role.split(' ')[0]}
-              </span>
-            </div>
+            <span className="hidden sm:inline text-xs font-semibold text-text-900 truncate max-w-[130px] group-hover:text-[#005B54]">
+              {profile.name}
+            </span>
           </button>
 
           <AdminProfileDropdown

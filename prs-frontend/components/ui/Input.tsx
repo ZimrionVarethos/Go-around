@@ -29,10 +29,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
     const variantStyles = {
-      default: 'rounded-md text-sm py-2 px-3 bg-white border border-border-subtle',
+      default: 'rounded-lg text-sm h-10 px-3.5 bg-white border border-border-subtle',
       search:
-        'rounded-full text-sm py-2.5 px-4 bg-white border border-border-subtle shadow-sm',
-      pill: 'rounded-full text-sm py-2 px-3 bg-surface-subtle border border-border-subtle',
+        'rounded-lg text-sm h-10 px-4 bg-white border border-border-subtle shadow-2xs',
+      pill: 'rounded-full text-sm h-10 px-4 bg-surface-subtle border border-border-subtle',
     };
 
     return (

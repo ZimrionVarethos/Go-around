@@ -167,33 +167,53 @@ body {
     .xs\:block { display: block; }
   }
 
-  /* Impeccable Design Utilities: Frosted Glass Islands & Tactile Surfaces */
+  /* Impeccable & Taste-Skill Design Utilities: Double-Bezel, Tinted Shadows & Tactile Surfaces */
   .glass-island {
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 1);
+    border: 1px solid rgba(226, 229, 223, 0.9);
+    box-shadow: 0 14px 34px -6px rgba(0, 91, 84, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 1);
   }
 
   .glass-island-subtle {
-    background: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.86);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(241, 245, 249, 0.9);
-    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+    border: 1px solid rgba(226, 229, 223, 0.85);
+    box-shadow: 0 6px 18px -3px rgba(0, 91, 84, 0.05);
+  }
+
+  .shadow-tinted-teal {
+    box-shadow: 0 10px 26px -6px rgba(0, 91, 84, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .shadow-card-subtle {
+    box-shadow: 0 2px 8px -2px rgba(0, 91, 84, 0.045), 0 1px 2px 0 rgba(15, 23, 42, 0.025), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
   }
 
   .tactile-press {
-    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .tactile-press:active {
     transform: scale(0.98);
   }
 
   .subtle-border {
-    border: 1px solid rgba(226, 232, 240, 0.85);
+    border: 1px solid rgba(226, 229, 223, 0.95);
     box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 

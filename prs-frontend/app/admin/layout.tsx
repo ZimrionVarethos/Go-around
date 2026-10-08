@@ -41,6 +41,7 @@ export default function AdminLayout({
   const [prevPathname, setPrevPathname] = useState(pathname);
 
   const isLoginPage = pathname === '/admin/login';
+  const isSettingsPage = pathname.startsWith('/admin/settings');
 
   // Auth guard: if not authenticated and trying to access admin pages, redirect to login
   useEffect(() => {
@@ -60,12 +61,16 @@ export default function AdminLayout({
     return <>{children}</>;
   }
 
-  // Optional: show loading screen if mounted and unauthenticated before redirect finishes
-  if (hasMounted && !isAuthenticated) {
+  // Render clean background until client localStorage state is mounted (prevents SSR dummy data flash & removes loading screen)
+  if (!hasMounted || !isAuthenticated) {
+    return <div className="min-h-[100dvh] w-screen bg-[#F5F6F3]" />;
+  }
+
+  // Standalone full-page layout for /admin/settings (no AdminSidebar)
+  if (isSettingsPage) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-surface-subtle text-text-500 text-xs gap-2">
-        <span className="w-4 h-4 border-2 border-primary-800/30 border-t-primary-800 rounded-full animate-spin" />
-        <span>Mengalihkan ke halaman login admin...</span>
+      <div className="min-h-[100dvh] w-screen bg-[#F5F6F3] font-sans text-text-900 antialiased select-none">
+        {children}
       </div>
     );
   }
@@ -77,7 +82,7 @@ export default function AdminLayout({
         closeMobileMenu: () => setMobileMenuOpen(false),
       }}
     >
-      <div className="flex h-screen w-screen overflow-hidden bg-surface-subtle font-sans text-text-900 antialiased select-none">
+      <div className="flex h-[100dvh] w-screen overflow-hidden bg-[#F5F6F3] font-sans text-text-900 antialiased select-none">
         {/* 1. Desktop Sidebar (md+) */}
         <div className="hidden md:flex shrink-0">
           <AdminSidebar />
@@ -88,18 +93,18 @@ export default function AdminLayout({
           <div className="fixed inset-0 z-50 md:hidden flex">
             {/* Backdrop */}
             <div
-              className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity animate-in fade-in"
+              className="fixed inset-0 bg-[#090D14]/45 backdrop-blur-xs transition-opacity animate-in fade-in"
               onClick={() => setMobileMenuOpen(false)}
             />
             {/* Drawer content */}
-            <div className="relative z-10 w-[260px] h-full shadow-2xl animate-in slide-in-from-left duration-200">
+            <div className="relative z-10 w-[260px] h-full shadow-tinted-teal animate-in slide-in-from-left duration-200">
               <AdminSidebar onCloseMobile={() => setMobileMenuOpen(false)} className="w-full h-full" />
             </div>
           </div>
         )}
 
         {/* 3. Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden">
           <main
             className="flex-1 overflow-y-auto min-w-0"
             id="admin-content-scroll"

@@ -6,10 +6,8 @@ import { useRouter } from 'next/navigation';
 import {
   User,
   ShieldCheck,
-  Sliders,
   ExternalLink,
   LogOut,
-  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useAdminAuth } from '@/lib/admin-auth';
@@ -84,104 +82,61 @@ export function AdminProfileDropdown({
       role="menu"
       aria-orientation="vertical"
       className={cn(
-        'absolute z-50 w-72 rounded-2xl bg-white border border-border-subtle shadow-xl ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-150 select-none overflow-hidden',
+        'absolute z-50 w-56 bg-white rounded-xl border border-[#E2E5DF] shadow-tinted-teal overflow-hidden animate-in fade-in zoom-in-95 duration-150 select-none',
         getPlacementClasses(),
         className
       )}
     >
-      {/* 1. Header Profil Info */}
-      <div className="p-4 bg-gradient-to-br from-primary-50/70 via-surface-subtle to-white border-b border-border-subtle">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-11 h-11 rounded-full bg-primary-900 text-white font-bold text-sm flex items-center justify-center shadow-xs">
-              {profile.avatarInitials}
-            </div>
-            <span
-              className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white"
-              title="Aktif / Online"
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h4 className="text-sm font-bold text-text-950 truncate">
-                {profile.name}
-              </h4>
-            </div>
-            <p className="text-xs text-text-500 truncate mt-0.5">{profile.email}</p>
-            <div className="flex items-center gap-1 mt-1.5">
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-primary-100/80 text-primary-900 px-2 py-0.5 rounded-full border border-primary-200/50">
-                <Sparkles className="w-2.5 h-2.5 text-primary-700" />
-                {profile.role}
-              </span>
-            </div>
-          </div>
-        </div>
+      {/* 1. Compact Account Header */}
+      <div className="px-3.5 py-2.5 border-b border-[#E2E5DF] bg-[#F8F9F7]">
+        <p className="text-xs font-bold text-text-950 truncate">{profile.name}</p>
+        <p className="text-[11px] font-mono text-text-500 truncate mt-0.5">
+          {profile.email}
+        </p>
       </div>
 
-      {/* 2. Menu Items Navigation */}
+      {/* 2. Single-Line Menu Items */}
       <div className="p-1.5 space-y-0.5 text-xs text-text-700">
         <Link
           href="/admin/settings?tab=profile"
           onClick={onClose}
-          className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-subtle hover:text-text-950 transition-colors font-medium"
+          className="flex items-center gap-2.5 h-8 px-2.5 rounded-lg hover:bg-[#F5F6F3] hover:text-text-950 transition-colors font-medium group tactile-press"
         >
-          <User className="w-4 h-4 text-text-400" />
-          <div className="flex-1">
-            <span className="block">Pengaturan Profil</span>
-            <span className="text-[10px] text-text-400 font-normal">
-              Informasi akun & kontak
-            </span>
-          </div>
+          <User className="w-3.5 h-3.5 text-text-400 group-hover:text-[#005B54] transition-colors shrink-0" />
+          <span>Profil Akun</span>
         </Link>
 
         <Link
           href="/admin/settings?tab=security"
           onClick={onClose}
-          className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-subtle hover:text-text-950 transition-colors font-medium"
+          className="flex items-center gap-2.5 h-8 px-2.5 rounded-lg hover:bg-[#F5F6F3] hover:text-text-950 transition-colors font-medium group tactile-press"
         >
-          <ShieldCheck className="w-4 h-4 text-text-400" />
-          <div className="flex-1">
-            <span className="block">Keamanan & Sandi</span>
-            <span className="text-[10px] text-text-400 font-normal">
-              Ganti password & sesi
-            </span>
-          </div>
-        </Link>
-
-        <Link
-          href="/admin/settings?tab=preferences"
-          onClick={onClose}
-          className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-subtle hover:text-text-950 transition-colors font-medium"
-        >
-          <Sliders className="w-4 h-4 text-text-400" />
-          <div className="flex-1">
-            <span className="block">Preferensi WebGIS</span>
-            <span className="text-[10px] text-text-400 font-normal">
-              Basemap, buffer & notifikasi
-            </span>
-          </div>
+          <ShieldCheck className="w-3.5 h-3.5 text-text-400 group-hover:text-[#005B54] transition-colors shrink-0" />
+          <span>Kata Sandi</span>
         </Link>
       </div>
 
       {/* 3. Divider & Footer Actions */}
-      <div className="p-1.5 border-t border-border-subtle bg-surface-subtle/50 space-y-0.5">
+      <div className="p-1.5 border-t border-[#E2E5DF] space-y-0.5">
         <Link
           href="/"
-          target="_blank"
           onClick={onClose}
-          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-text-600 hover:text-primary-900 hover:bg-white transition-colors font-medium"
+          className="flex items-center justify-between gap-2 h-8 px-2.5 rounded-lg text-xs text-text-700 hover:text-[#005B54] hover:bg-[#F5F6F3] transition-colors font-medium tactile-press group"
         >
-          <ExternalLink className="w-4 h-4 text-text-400" />
-          <span>Lihat WebGIS Publik</span>
+          <span className="flex items-center gap-2.5">
+            <ExternalLink className="w-3.5 h-3.5 text-text-400 group-hover:text-[#005B54] shrink-0" />
+            <span>WebGIS Publik</span>
+          </span>
+          <span className="text-[10px] font-mono text-text-400 group-hover:text-[#005B54]">↗</span>
         </Link>
 
         <button
           type="button"
           onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors font-semibold cursor-pointer text-left"
+          className="w-full flex items-center gap-2.5 h-8 px-2.5 rounded-lg text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors font-semibold cursor-pointer text-left tactile-press"
         >
-          <LogOut className="w-4 h-4" />
-          <span>Keluar dari Portal Admin</span>
+          <LogOut className="w-3.5 h-3.5 shrink-0" />
+          <span>Keluar</span>
         </button>
       </div>
     </div>

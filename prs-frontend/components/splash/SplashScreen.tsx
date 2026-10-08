@@ -61,7 +61,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       }}
     >
       <header className={styles.topbar}>
-        <span className={styles.location}><span aria-hidden="true" />Bogor, Jawa Barat</span>
+        <span className={styles.location}><span aria-hidden="true" />Kota Bogor, Jawa Barat</span>
         <button ref={skipRef} className={styles.skip} type="button" onClick={onComplete}>
           Lewati
           <span className="sr-only"> animasi dan buka peta</span>
