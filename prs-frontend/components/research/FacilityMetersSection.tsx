@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Signal, Sparkles } from 'lucide-react';
+import { CellSignalFullIcon, SparkleIcon } from '@phosphor-icons/react';
 import { FACILITY_TIERS } from './research-data';
 
 export function FacilityMetersSection() {
@@ -39,7 +39,7 @@ export function FacilityMetersSection() {
                   : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-50'
               }`}
             >
-              <IconComp className="w-4 h-4" />
+              <IconComp size={16} weight="duotone" />
               <span>
                 {f.name.split(' ')[0]} {f.name.split(' ')[1] || ''}
               </span>
@@ -80,7 +80,7 @@ export function FacilityMetersSection() {
 
               <div className="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-500">
                 <span className="flex items-center gap-1.5">
-                  <Signal className="w-3.5 h-3.5 text-[#005B54]" />
+                  <CellSignalFullIcon size={14} weight="bold" className="text-[#005B54]" />
                   <span>Kategori #{idx + 1}</span>
                 </span>
                 <span className="text-[#005B54] font-semibold">Tercatat di Peta</span>
@@ -90,8 +90,8 @@ export function FacilityMetersSection() {
         </div>
 
         {/* Bottom Insight Banner */}
-        <div className="p-5 rounded-2xl bg-teal-50/70 border border-teal-200/80 flex items-center gap-3.5 shadow-2xs">
-          <Sparkles className="w-5 h-5 text-[#005B54] shrink-0" />
+        <div className="p-5 rounded-2xl bg-teal-50/70 border border-[#005B54] flex items-center gap-3.5 shadow-2xs">
+          <SparkleIcon size={20} weight="fill" className="text-[#005B54] shrink-0" />
           <p className="text-sm font-semibold text-teal-950 leading-relaxed">
             {currentFacility.insight}
           </p>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircleIcon } from '@phosphor-icons/react';
 import { STUDY_VIBES } from './research-data';
 
 export function StudyVibesSection() {
@@ -35,7 +35,7 @@ export function StudyVibesSection() {
               onClick={() => setActiveVibe(vibe.id)}
               className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between gap-4 cursor-pointer ${
                 isActive
-                  ? 'bg-white border-[#005B54] shadow-md ring-2 ring-[#005B54]/20'
+                  ? 'bg-white border-[#005B54] shadow-md'
                   : 'bg-stone-50 border-stone-200 hover:bg-white hover:border-stone-300'
               }`}
             >
@@ -47,7 +47,7 @@ export function StudyVibesSection() {
                       : 'bg-stone-200 text-stone-700'
                   }`}
                 >
-                  <IconComp className="w-5 h-5" />
+                  <IconComp size={20} weight="duotone" />
                 </div>
                 <span
                   className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${vibe.badgeColor}`}
@@ -113,7 +113,7 @@ export function StudyVibesSection() {
               ))}
             </div>
 
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 mt-2">
+            <div className="p-4 rounded-xl bg-emerald-50 border border-[#005B54] mt-2">
               <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-800 block mb-1">
                 Paling Pas Untuk:
               </span>
@@ -135,7 +135,7 @@ export function StudyVibesSection() {
                     key={i}
                     className="flex items-start gap-2.5 text-stone-700 font-medium"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <CheckCircleIcon size={16} weight="fill" className="text-emerald-600 shrink-0 mt-0.5" />
                     <span>{feat}</span>
                   </li>
                 ))}

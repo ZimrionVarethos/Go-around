@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronRight, Bus } from 'lucide-react';
+import { CaretRightIcon, BusIcon } from '@phosphor-icons/react';
 import { DISTRICT_RANKINGS } from './research-data';
 
 export function DistrictDistributionSection() {
@@ -40,7 +40,7 @@ export function DistrictDistributionSection() {
                   onClick={() => setSelectedDistrict(d.id)}
                   className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between gap-3 cursor-pointer ${
                     isSelected
-                      ? 'bg-white border-[#005B54] shadow-md ring-2 ring-[#005B54]/20'
+                      ? 'bg-white border-[#005B54] shadow-md'
                       : 'bg-stone-50 border-stone-200 hover:bg-white hover:border-stone-300'
                   }`}
                 >
@@ -68,7 +68,7 @@ export function DistrictDistributionSection() {
 
                   <div className="pt-2 border-t border-stone-200 text-[11px] font-medium text-stone-500 flex items-center justify-between">
                     <span>{d.transit}</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
+                    <CaretRightIcon size={14} weight="bold" className="text-stone-400" />
                   </div>
                 </button>
               );
@@ -161,7 +161,7 @@ export function DistrictDistributionSection() {
           <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-xs flex flex-col justify-between">
             <div>
               <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#005B54] flex items-center justify-center font-bold mb-4">
-                <Bus className="w-5 h-5" />
+                <BusIcon size={20} weight="duotone" />
               </div>
               <h3 className="text-base font-bold text-stone-900 mb-1">
                 IPB Kampus Baranangsiang
@@ -182,7 +182,7 @@ export function DistrictDistributionSection() {
           <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-xs flex flex-col justify-between">
             <div>
               <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#005B54] flex items-center justify-center font-bold mb-4">
-                <Bus className="w-5 h-5" />
+                <BusIcon size={20} weight="duotone" />
               </div>
               <h3 className="text-base font-bold text-stone-900 mb-1">
                 Sekolah Vokasi IPB (Cilibende)
@@ -203,7 +203,7 @@ export function DistrictDistributionSection() {
           <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-xs flex flex-col justify-between">
             <div>
               <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#005B54] flex items-center justify-center font-bold mb-4">
-                <Bus className="w-5 h-5" />
+                <BusIcon size={20} weight="duotone" />
               </div>
               <h3 className="text-base font-bold text-stone-900 mb-1">
                 Kampus IPB Gunung Gede &amp; Koridor Yasmin
