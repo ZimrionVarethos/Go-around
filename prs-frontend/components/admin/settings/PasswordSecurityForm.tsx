@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/Button';
 
 interface PasswordSecurityFormProps {
@@ -49,14 +49,14 @@ export function PasswordSecurityForm({ onUpdatePassword }: PasswordSecurityFormP
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             placeholder="Masukkan kata sandi saat ini"
-            className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+            className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:border-[#005B54] transition-all"
           />
           <button
             type="button"
             onClick={() => setShowCurrentPw(!showCurrentPw)}
             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-400 hover:text-text-700 p-1 cursor-pointer tactile-press"
           >
-            {showCurrentPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+            {showCurrentPw ? <EyeSlashIcon size={14} weight="bold" /> : <EyeIcon size={14} weight="bold" />}
           </button>
         </div>
       </div>
@@ -73,14 +73,14 @@ export function PasswordSecurityForm({ onUpdatePassword }: PasswordSecurityFormP
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Minimal 6 karakter"
-            className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+            className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:border-[#005B54] transition-all"
           />
           <button
             type="button"
             onClick={() => setShowNewPw(!showNewPw)}
             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-400 hover:text-text-700 p-1 cursor-pointer tactile-press"
           >
-            {showNewPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+            {showNewPw ? <EyeSlashIcon size={14} weight="bold" /> : <EyeIcon size={14} weight="bold" />}
           </button>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function PasswordSecurityForm({ onUpdatePassword }: PasswordSecurityFormP
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Ketik ulang kata sandi baru"
-            className="w-full h-9 px-3 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+            className="w-full h-9 px-3 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:border-[#005B54] transition-all"
           />
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 
 export type TicketStatusFilter = 'all' | 'open' | 'resolved' | 'dismissed';
@@ -35,13 +35,13 @@ export function TicketFilterToolbar({
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-500 pointer-events-none" />
+          <MagnifyingGlassIcon size={16} weight="bold" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-500 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari ID tiket, nama tempat, atau kendala fasilitas..."
-            className="w-full h-9 pl-9 pr-4 text-xs bg-[#F5F6F3] border border-[#E2E5DF] rounded-lg text-text-900 placeholder:text-text-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+            className="w-full h-9 pl-9 pr-4 text-xs bg-[#F5F6F3] border border-[#E2E5DF] rounded-lg text-text-900 placeholder:text-text-500 focus:bg-white focus:outline-none focus:border-[#005B54] transition-all"
           />
         </div>
 

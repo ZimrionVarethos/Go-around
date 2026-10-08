@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
-  FileText,
-  Coffee,
-  BarChart2,
-  Settings,
-  ExternalLink,
-  X,
-} from 'lucide-react';
+  ArrowSquareOutIcon,
+  ChartBarIcon,
+  CoffeeIcon,
+  FileTextIcon,
+  GearSixIcon,
+  SquaresFourIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 
 import { useAdminStore } from '@/lib/admin-store';
@@ -42,22 +42,22 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
   const { unreadTicketsCount, newPlacesCount } = useAdminStore();
 
   const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+    { href: '/admin', label: 'Dashboard', icon: SquaresFourIcon, exact: true },
     {
       href: '/admin/reports',
       label: 'Laporan & Tiket',
-      icon: FileText,
+      icon: FileTextIcon,
       badge: unreadTicketsCount > 0 ? `${unreadTicketsCount}` : undefined,
       badgeVariant: 'danger' as const,
     },
     {
       href: '/admin/places',
       label: 'Kelola Kafe',
-      icon: Coffee,
+      icon: CoffeeIcon,
       badge: newPlacesCount > 0 ? `${newPlacesCount}` : undefined,
       badgeVariant: 'danger' as const,
     },
-    { href: '/admin/analytics', label: 'Analisis Spasial', icon: BarChart2 },
+    { href: '/admin/analytics', label: 'Analisis Spasial', icon: ChartBarIcon },
   ];
 
   function isActive(href: string, exact?: boolean) {
@@ -109,7 +109,7 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
             className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-text-400 hover:text-text-700 hover:bg-[#F5F6F3] transition-colors cursor-pointer shrink-0 tactile-press"
             title="Tutup Menu"
           >
-            <X className="w-4 h-4" />
+            <XIcon size={16} weight="bold" />
           </button>
         )}
       </div>
@@ -133,8 +133,10 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
               )}
             >
               <item.icon
+                size={16}
+                weight={active ? 'duotone' : 'regular'}
                 className={cn(
-                  'w-4 h-4 shrink-0 transition-colors',
+                  'shrink-0 transition-colors',
                   active ? 'text-[#005B54]' : 'text-text-400'
                 )}
               />
@@ -154,7 +156,7 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
           className="flex items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-text-700 hover:text-[#005B54] hover:bg-white rounded-xl border border-transparent hover:border-[#E2E5DF] transition-all tactile-press group"
         >
           <span className="flex items-center gap-2">
-            <ExternalLink className="w-3.5 h-3.5 text-text-400 group-hover:text-[#005B54] transition-colors" />
+            <ArrowSquareOutIcon size={14} weight="duotone" className="text-text-400 group-hover:text-[#005B54] transition-colors" />
             <span>Lihat WebGIS Publik</span>
           </span>
           <span className="text-[10px] font-mono text-text-400 group-hover:text-[#005B54]">↗</span>
@@ -169,9 +171,11 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
               : 'bg-white text-text-700 hover:text-text-950 border border-[#E2E5DF] hover:border-[#CBD5E1] shadow-2xs'
           )}
         >
-          <Settings
+          <GearSixIcon
+            size={16}
+            weight={pathname.startsWith('/admin/settings') ? 'duotone' : 'regular'}
             className={cn(
-              'w-4 h-4 shrink-0 transition-transform',
+              'shrink-0 transition-transform',
               pathname.startsWith('/admin/settings') ? 'text-[#005B54]' : 'text-text-500'
             )}
           />

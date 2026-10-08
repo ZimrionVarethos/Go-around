@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar } from 'lucide-react';
+import { CalendarBlankIcon } from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 
 export type TimeRange = '7d' | '30d' | '90d' | 'all';
@@ -21,7 +21,7 @@ export function AnalyticsFilterToolbar({ timeRange, setTimeRange }: AnalyticsFil
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2.5 border-b border-[#E2E5DF]">
       <div className="flex items-center gap-2 text-text-800">
-        <Calendar className="w-4 h-4 text-[#005B54]" />
+        <CalendarBlankIcon size={16} weight="duotone" className="text-[#005B54]" />
         <span className="text-xs font-bold">Periode Observasi Data Spasial</span>
       </div>
 

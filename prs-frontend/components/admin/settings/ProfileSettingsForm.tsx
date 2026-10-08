@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { RotateCcw } from 'lucide-react';
+import { ArrowCounterClockwiseIcon } from '@phosphor-icons/react';
 import type { AdminProfile } from '@/lib/admin-auth';
 import { Button } from '@/components/ui/Button';
 
@@ -47,7 +47,7 @@ export function ProfileSettingsForm({
           onClick={onReset}
           className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-[#E2E5DF] bg-white hover:bg-[#F5F6F3] text-xs font-medium text-text-700 transition-colors cursor-pointer shrink-0 tactile-press"
         >
-          <RotateCcw className="w-3 h-3 text-text-500" />
+          <ArrowCounterClockwiseIcon size={13} weight="bold" className="text-text-500" />
           <span>Reset Default</span>
         </button>
       </div>
@@ -85,7 +85,7 @@ export function ProfileSettingsForm({
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full h-9 px-3 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+            className="w-full h-9 px-3 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:border-[#005B54] transition-all"
             placeholder="Nama lengkap"
           />
         </div>
@@ -106,7 +106,7 @@ export function ProfileSettingsForm({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full h-9 px-3 text-xs font-mono bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+            className="w-full h-9 px-3 text-xs font-mono bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:border-[#005B54] transition-all"
             placeholder="admin@goaround.id"
           />
         </div>
@@ -126,7 +126,7 @@ export function ProfileSettingsForm({
             type="text"
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="w-full h-9 px-3 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+            className="w-full h-9 px-3 text-xs bg-white border border-[#CBD5E1] rounded-lg text-text-900 placeholder:text-text-400 focus:outline-none focus:border-[#005B54] transition-all"
             placeholder="Admin WebGIS Kota Bogor"
           />
         </div>

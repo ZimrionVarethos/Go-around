@@ -2,10 +2,10 @@
 
 import { useState, useMemo } from 'react';
 import {
-  Plus,
-  Download,
-  CheckCircle2,
-} from 'lucide-react';
+  CheckCircleIcon,
+  DownloadSimpleIcon,
+  PlusIcon,
+} from '@phosphor-icons/react';
 import { AdminTopbar } from '@/components/layout/AdminTopbar';
 import { useAdminLayout } from '../layout';
 import { useAdminStore, PlaceItem } from '@/lib/admin-store';
@@ -279,7 +279,7 @@ export default function AdminPlacesPage() {
               onClick={handleExportGIS}
               className="bg-white hover:bg-[#F5F6F3] border border-[#E2E5DF] text-text-700 text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer tactile-press"
             >
-              <Download className="w-3.5 h-3.5 text-text-500" />
+              <DownloadSimpleIcon size={14} weight="bold" className="text-text-500" />
               <span className="hidden sm:inline">Ekspor GeoJSON</span>
               <span className="sm:hidden">GeoJSON</span>
             </button>
@@ -288,7 +288,7 @@ export default function AdminPlacesPage() {
               onClick={handleOpenCreate}
               className="bg-[#005B54] hover:bg-[#004741] text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs tactile-press"
             >
-              <Plus className="w-4 h-4" />
+              <PlusIcon size={15} weight="bold" />
               <span className="hidden sm:inline">Tambah Kafe</span>
               <span className="sm:hidden">Tambah</span>
             </button>
@@ -311,7 +311,7 @@ export default function AdminPlacesPage() {
 
           {/* Right Spatial Reference Metadata */}
           <div className="self-start lg:self-center inline-flex items-center gap-2 bg-white border border-[#E2E5DF] shadow-2xs px-3 py-1.5 rounded-lg text-xs text-text-700">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#005B54] shrink-0" />
+            <CheckCircleIcon size={15} weight="duotone" className="text-[#005B54] shrink-0" />
             <span className="font-mono font-semibold text-text-900">SRS: EPSG:4326</span>
             <span className="text-text-300">·</span>
             <span className="text-text-500">Buffer Kampus Aktif</span>

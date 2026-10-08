@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import { DownloadSimpleIcon } from '@phosphor-icons/react';
 import { AdminTopbar } from '@/components/layout/AdminTopbar';
 import { useAdminLayout } from '../layout';
 import { useAdminStore } from '@/lib/admin-store';
@@ -40,7 +40,7 @@ export default function AdminAnalyticsPage() {
             onClick={handleExport}
             className="bg-white hover:bg-[#F5F6F3] border border-[#E2E5DF] text-text-700 text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs tactile-press"
           >
-            <Download className="w-3.5 h-3.5 text-text-500" />
+            <DownloadSimpleIcon size={14} weight="bold" className="text-text-500" />
             <span className="hidden sm:inline">Ekspor Analisis</span>
             <span className="sm:hidden">Ekspor</span>
           </button>

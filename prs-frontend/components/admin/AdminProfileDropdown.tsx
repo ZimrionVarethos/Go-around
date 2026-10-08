@@ -4,11 +4,11 @@ import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  User,
-  ShieldCheck,
-  ExternalLink,
-  LogOut,
-} from 'lucide-react';
+  ArrowSquareOutIcon,
+  ShieldCheckIcon,
+  SignOutIcon,
+  UserIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import { useAdminAuth } from '@/lib/admin-auth';
 
@@ -102,7 +102,7 @@ export function AdminProfileDropdown({
           onClick={onClose}
           className="flex items-center gap-2.5 h-8 px-2.5 rounded-lg hover:bg-[#F5F6F3] hover:text-text-950 transition-colors font-medium group tactile-press"
         >
-          <User className="w-3.5 h-3.5 text-text-400 group-hover:text-[#005B54] transition-colors shrink-0" />
+          <UserIcon size={14} weight="duotone" className="text-text-400 group-hover:text-[#005B54] transition-colors shrink-0" />
           <span>Profil Akun</span>
         </Link>
 
@@ -111,7 +111,7 @@ export function AdminProfileDropdown({
           onClick={onClose}
           className="flex items-center gap-2.5 h-8 px-2.5 rounded-lg hover:bg-[#F5F6F3] hover:text-text-950 transition-colors font-medium group tactile-press"
         >
-          <ShieldCheck className="w-3.5 h-3.5 text-text-400 group-hover:text-[#005B54] transition-colors shrink-0" />
+          <ShieldCheckIcon size={14} weight="duotone" className="text-text-400 group-hover:text-[#005B54] transition-colors shrink-0" />
           <span>Kata Sandi</span>
         </Link>
       </div>
@@ -124,7 +124,7 @@ export function AdminProfileDropdown({
           className="flex items-center justify-between gap-2 h-8 px-2.5 rounded-lg text-xs text-text-700 hover:text-[#005B54] hover:bg-[#F5F6F3] transition-colors font-medium tactile-press group"
         >
           <span className="flex items-center gap-2.5">
-            <ExternalLink className="w-3.5 h-3.5 text-text-400 group-hover:text-[#005B54] shrink-0" />
+            <ArrowSquareOutIcon size={14} weight="duotone" className="text-text-400 group-hover:text-[#005B54] shrink-0" />
             <span>WebGIS Publik</span>
           </span>
           <span className="text-[10px] font-mono text-text-400 group-hover:text-[#005B54]">↗</span>
@@ -135,7 +135,7 @@ export function AdminProfileDropdown({
           onClick={handleLogout}
           className="w-full flex items-center gap-2.5 h-8 px-2.5 rounded-lg text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors font-semibold cursor-pointer text-left tactile-press"
         >
-          <LogOut className="w-3.5 h-3.5 shrink-0" />
+          <SignOutIcon size={14} weight="bold" className="shrink-0" />
           <span>Keluar</span>
         </button>
       </div>

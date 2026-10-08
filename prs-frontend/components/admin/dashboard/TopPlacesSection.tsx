@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Star } from 'lucide-react';
+import { StarIcon } from '@phosphor-icons/react';
 import { PlaceItem } from '@/lib/admin-store';
 import { formatStarRating, formatNugasScore } from '@/lib/utils';
 
@@ -51,7 +51,7 @@ export function TopPlacesSection({ places }: TopPlacesSectionProps) {
 
               <div className="shrink-0 flex items-center gap-2 text-right">
                 <div className="inline-flex items-center gap-1 text-xs font-bold text-text-900 tabular-nums">
-                  <Star className="w-3.5 h-3.5 fill-[#ECC457] text-[#ECC457]" />
+                  <StarIcon size={14} weight="fill" className="text-[#ECC457]" />
                   <span>{formatStarRating(place.score)}</span>
                   <span className="text-[10px] font-normal text-text-400">/ 5</span>
                 </div>

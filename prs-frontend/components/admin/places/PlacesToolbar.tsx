@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  ChevronDown,
-  Wifi,
-  Zap,
-  Banknote,
-  Clock,
-  Table as TableIcon,
-  LayoutGrid,
-  X,
-  SlidersHorizontal,
-} from 'lucide-react';
+  CaretDownIcon,
+  ClockIcon,
+  MoneyIcon,
+  PlugChargingIcon,
+  SlidersHorizontalIcon,
+  SquaresFourIcon,
+  TableIcon,
+  WifiHighIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 
 export interface PlacesToolbarProps {
@@ -64,7 +64,7 @@ export function PlacesToolbar({
           <select
             value={selectedDistrict}
             onChange={(e) => setSelectedDistrict(e.target.value)}
-            className="appearance-none h-9 bg-[#F5F6F3] hover:bg-white border border-[#E2E5DF] text-text-900 text-xs font-semibold pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] cursor-pointer transition-all"
+            className="appearance-none h-9 bg-[#F5F6F3] hover:bg-white border border-[#E2E5DF] text-text-900 text-xs font-semibold pl-3 pr-8 rounded-lg focus:outline-none focus:border-[#005B54] cursor-pointer transition-all"
           >
             {districts.map((d) => (
               <option key={d.id} value={d.id}>
@@ -72,7 +72,7 @@ export function PlacesToolbar({
               </option>
             ))}
           </select>
-          <ChevronDown className="w-3.5 h-3.5 text-text-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <CaretDownIcon size={14} weight="bold" className="text-text-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* Dropdown Filter Status Tayang */}
@@ -80,7 +80,7 @@ export function PlacesToolbar({
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="appearance-none h-9 bg-[#F5F6F3] hover:bg-white border border-[#E2E5DF] text-text-900 text-xs font-semibold pl-8 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] cursor-pointer transition-all"
+            className="appearance-none h-9 bg-[#F5F6F3] hover:bg-white border border-[#E2E5DF] text-text-900 text-xs font-semibold pl-8 pr-8 rounded-lg focus:outline-none focus:border-[#005B54] cursor-pointer transition-all"
           >
             {statuses.map((s) => (
               <option key={s.id} value={s.id}>
@@ -88,8 +88,8 @@ export function PlacesToolbar({
               </option>
             ))}
           </select>
-          <SlidersHorizontal className="w-3.5 h-3.5 text-text-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-text-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <SlidersHorizontalIcon size={14} weight="bold" className="text-text-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <CaretDownIcon size={14} weight="bold" className="text-text-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* Divider */}
@@ -107,9 +107,9 @@ export function PlacesToolbar({
                 : 'bg-white text-text-700 border-[#E2E5DF] hover:bg-[#F5F6F3]'
             )}
           >
-            <Wifi className={cn('w-3.5 h-3.5', quickFilters.wifi50 ? 'text-white' : 'text-text-500')} />
+            <WifiHighIcon size={14} weight="bold" className={quickFilters.wifi50 ? 'text-white' : 'text-[#005B54]'} />
             <span>Wi-Fi &gt; 50 Mbps</span>
-            {quickFilters.wifi50 && <X className="w-3 h-3 ml-0.5" />}
+            {quickFilters.wifi50 && <XIcon size={12} weight="bold" className="ml-0.5" />}
           </button>
 
           <button
@@ -122,9 +122,9 @@ export function PlacesToolbar({
                 : 'bg-white text-text-700 border-[#E2E5DF] hover:bg-[#F5F6F3]'
             )}
           >
-            <Zap className={cn('w-3.5 h-3.5', quickFilters.plug80 ? 'text-white' : 'text-text-500')} />
+            <PlugChargingIcon size={14} weight="duotone" className={quickFilters.plug80 ? 'text-white' : 'text-[#005B54]'} />
             <span>Colokan &gt; 80%</span>
-            {quickFilters.plug80 && <X className="w-3 h-3 ml-0.5" />}
+            {quickFilters.plug80 && <XIcon size={12} weight="bold" className="ml-0.5" />}
           </button>
 
           <button
@@ -137,9 +137,9 @@ export function PlacesToolbar({
                 : 'bg-white text-text-700 border-[#E2E5DF] hover:bg-[#F5F6F3]'
             )}
           >
-            <Banknote className={cn('w-3.5 h-3.5', quickFilters.budget25k ? 'text-white' : 'text-text-500')} />
+            <MoneyIcon size={14} weight="duotone" className={quickFilters.budget25k ? 'text-white' : 'text-emerald-600'} />
             <span>&lt; Rp 25rb</span>
-            {quickFilters.budget25k && <X className="w-3 h-3 ml-0.5" />}
+            {quickFilters.budget25k && <XIcon size={12} weight="bold" className="ml-0.5" />}
           </button>
 
           <button
@@ -152,9 +152,9 @@ export function PlacesToolbar({
                 : 'bg-white text-text-700 border-[#E2E5DF] hover:bg-[#F5F6F3]'
             )}
           >
-            <Clock className={cn('w-3.5 h-3.5', quickFilters.open24h ? 'text-white' : 'text-text-500')} />
+            <ClockIcon size={14} weight="duotone" className={quickFilters.open24h ? 'text-white' : 'text-amber-600'} />
             <span>24 Jam</span>
-            {quickFilters.open24h && <X className="w-3 h-3 ml-0.5" />}
+            {quickFilters.open24h && <XIcon size={12} weight="bold" className="ml-0.5" />}
           </button>
         </div>
       </div>
@@ -171,7 +171,7 @@ export function PlacesToolbar({
               : 'text-text-600 hover:text-text-900'
           )}
         >
-          <TableIcon className="w-3.5 h-3.5" />
+          <TableIcon size={14} weight="duotone" />
           <span>Tabel</span>
         </button>
         <button
@@ -184,7 +184,7 @@ export function PlacesToolbar({
               : 'text-text-600 hover:text-text-900'
           )}
         >
-          <LayoutGrid className="w-3.5 h-3.5" />
+          <SquaresFourIcon size={14} weight="duotone" />
           <span>Grid</span>
         </button>
       </div>

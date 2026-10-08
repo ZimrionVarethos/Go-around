@@ -3,17 +3,21 @@
 
 import { useState } from 'react';
 import {
-  Edit2,
-  Trash2,
-  MapPin,
-  Wifi,
-  Volume2,
-  Check,
-  ClipboardCheck,
-  ChevronLeft,
-  ChevronRight,
-  Crosshair,
-} from 'lucide-react';
+  CaretLeftIcon,
+  CaretRightIcon,
+  CheckIcon,
+  ClipboardTextIcon,
+  CrosshairIcon,
+  MapPinIcon,
+  PencilSimpleIcon,
+  StarIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
+import {
+  DynamicAcousticIcon,
+  DynamicPlugIcon,
+  DynamicWifiIcon,
+} from '@/components/ui/FacilityIcons';
 import { PlaceItem } from '@/lib/admin-store';
 import { cn } from '@/lib/cn';
 import { formatStarRating, formatNugasScore } from '@/lib/utils';
@@ -178,7 +182,7 @@ export function PlacesTable({
                           </span>
                         </div>
                         <div className="flex items-center gap-1 text-[11px] text-text-500 mt-1 truncate">
-                          <MapPin className="w-3 h-3 text-text-400 shrink-0" />
+                          <MapPinIcon size={12} weight="fill" className="text-text-400 shrink-0" />
                           <span className="truncate">{place.address}</span>
                         </div>
                       </div>
@@ -198,7 +202,7 @@ export function PlacesTable({
                         title="Salin titik koordinat GIS"
                         className="w-6 h-6 rounded-lg text-[#005B54] hover:bg-[#005B54]/[0.08] border border-transparent hover:border-[#005B54]/20 flex items-center justify-center transition-all cursor-pointer shrink-0 tactile-press"
                       >
-                        <MapPin className="w-3.5 h-3.5" />
+                        <MapPinIcon size={14} weight="duotone" />
                       </button>
                     </div>
                   </td>
@@ -206,12 +210,12 @@ export function PlacesTable({
                   {/* WiFi Speed */}
                   <td className="py-4 px-4">
                     <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-900 tabular-nums">
-                      <Wifi className="w-3.5 h-3.5 text-[#005B54]" />
+                      <DynamicWifiIcon mbps={place.wifi} size={15} />
                       <span>{place.wifi} Mbps</span>
                     </div>
                   </td>
 
-                  {/* Colokan Listrik (Structured Telemetry Pill instead of repetitive progress bars) */}
+                  {/* Colokan Listrik */}
                   <td className="py-4 px-4">
                     <div className="flex flex-col items-start gap-1">
                       <span
@@ -222,6 +226,7 @@ export function PlacesTable({
                             : 'bg-[#F5F6F3] text-text-800 border-[#E2E5DF]'
                         )}
                       >
+                        <DynamicPlugIcon plugPercent={place.plug} size={13} />
                         <span>{place.plug}% Meja</span>
                       </span>
                       <span className="text-[11px] text-text-500 truncate">
@@ -240,16 +245,17 @@ export function PlacesTable({
                     </div>
                   </td>
 
-                  {/* Akustik & Skor (Normalized 5-Star Scale + Nugas Suitability Index) */}
+                  {/* Akustik & Skor */}
                   <td className="py-4 px-4">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-1.5 text-xs text-text-700 font-medium">
-                        <Volume2 className="w-3.5 h-3.5 text-text-400 shrink-0" />
+                        <DynamicAcousticIcon acousticLabel={place.acoustic} size={14} className="shrink-0" />
                         <span className="truncate">{place.acoustic || 'Tenang'}</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-[11px] tabular-nums">
-                        <span className="font-bold text-text-900">
-                          <span className="text-[#D97706]">★</span> {formatStarRating(place.score)}
+                        <span className="font-bold text-text-900 inline-flex items-center gap-0.5">
+                          <StarIcon size={12} weight="fill" className="text-[#D97706]" />
+                          {formatStarRating(place.score)}
                         </span>
                         <span className="text-text-400">/ 5</span>
                         <span className="text-text-300">·</span>
@@ -286,7 +292,7 @@ export function PlacesTable({
                             title="Lakukan audit dan verifikasi tempat ini"
                             className="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all cursor-pointer shadow-2xs tactile-press"
                           >
-                            <ClipboardCheck className="w-3.5 h-3.5" />
+                            <ClipboardTextIcon size={14} weight="duotone" />
                             <span>Audit</span>
                           </button>
                           <button
@@ -295,7 +301,7 @@ export function PlacesTable({
                             title="Salin Koordinat Spasial"
                             className="p-1.5 text-text-400 hover:text-[#005B54] hover:bg-[#005B54]/[0.08] rounded-lg transition-colors cursor-pointer tactile-press"
                           >
-                            <Crosshair className="w-3.5 h-3.5" />
+                            <CrosshairIcon size={14} weight="bold" />
                           </button>
                         </>
                       ) : (
@@ -306,7 +312,7 @@ export function PlacesTable({
                             title="Edit data kafe"
                             className="p-1.5 text-text-400 hover:text-[#005B54] hover:bg-[#005B54]/[0.08] rounded-lg transition-colors cursor-pointer tactile-press"
                           >
-                            <Edit2 className="w-3.5 h-3.5" />
+                            <PencilSimpleIcon size={14} weight="bold" />
                           </button>
                           <button
                             type="button"
@@ -314,7 +320,7 @@ export function PlacesTable({
                             title="Salin Koordinat Spasial"
                             className="p-1.5 text-text-400 hover:text-[#005B54] hover:bg-[#005B54]/[0.08] rounded-lg transition-colors cursor-pointer tactile-press"
                           >
-                            <Crosshair className="w-3.5 h-3.5" />
+                            <CrosshairIcon size={14} weight="bold" />
                           </button>
                           <button
                             type="button"
@@ -322,7 +328,7 @@ export function PlacesTable({
                             title="Hapus / Arsipkan"
                             className="p-1.5 text-text-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer tactile-press"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <TrashIcon size={14} weight="bold" />
                           </button>
                         </>
                       )}
@@ -349,7 +355,7 @@ export function PlacesTable({
             onClick={() => onBatchVerify?.(selectedIds)}
             className="bg-white hover:bg-[#F5F6F3] disabled:opacity-40 disabled:cursor-not-allowed border border-[#E2E5DF] text-text-800 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap tactile-press"
           >
-            <Check className="w-3.5 h-3.5 text-emerald-600" />
+            <CheckIcon size={14} weight="bold" className="text-emerald-600" />
             <span>Verifikasi Masal</span>
           </button>
           <button
@@ -394,7 +400,7 @@ export function PlacesTable({
               className="w-8 h-8 rounded-lg border border-[#E2E5DF] bg-white hover:bg-[#F5F6F3] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-text-700 cursor-pointer shadow-2xs transition-colors tactile-press"
               title="Halaman Sebelumnya"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <CaretLeftIcon size={15} weight="bold" />
             </button>
             {getPageNumbers().map((p, idx) =>
               typeof p === 'number' ? (
@@ -424,7 +430,7 @@ export function PlacesTable({
               className="w-8 h-8 rounded-lg border border-[#E2E5DF] bg-white hover:bg-[#F5F6F3] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-text-700 cursor-pointer shadow-2xs transition-colors tactile-press"
               title="Halaman Berikutnya"
             >
-              <ChevronRight className="w-4 h-4" />
+              <CaretRightIcon size={15} weight="bold" />
             </button>
           </div>
         </div>

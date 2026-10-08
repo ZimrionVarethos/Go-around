@@ -1,6 +1,6 @@
 'use client';
 
-import { X } from 'lucide-react';
+import { XIcon } from '@phosphor-icons/react';
 import { AdminTicketItem } from '@/lib/admin-store';
 
 interface TicketDetailModalProps {
@@ -47,7 +47,7 @@ export function TicketDetailModal({
             onClick={onClose}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-text-400 hover:text-text-700 hover:bg-[#F0F2EE] transition-colors cursor-pointer tactile-press"
           >
-            <X className="w-4 h-4" />
+            <XIcon size={16} weight="bold" />
           </button>
         </div>
 
@@ -83,7 +83,7 @@ export function TicketDetailModal({
               value={noteInput}
               onChange={(e) => setNoteInput(e.target.value)}
               placeholder="Tuliskan hasil verifikasi lapangan atau pembaruan atribut fasilitas..."
-              className="w-full mt-1.5 p-3 text-xs bg-white border border-[#E2E5DF] rounded-lg text-text-900 placeholder:text-text-500 focus:outline-none focus:ring-2 focus:ring-[#005B54]/15 focus:border-[#005B54] transition-all"
+              className="w-full mt-1.5 p-3 text-xs bg-white border border-[#E2E5DF] rounded-lg text-text-900 placeholder:text-text-500 focus:outline-none focus:border-[#005B54] transition-all"
             />
           </div>
         </div>

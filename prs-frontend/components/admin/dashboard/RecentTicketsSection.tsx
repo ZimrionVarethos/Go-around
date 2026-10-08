@@ -1,7 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowUpRight, Check, X } from 'lucide-react';
+import {
+  ArrowUpRightIcon,
+  CheckIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { AdminTicketItem } from '@/lib/admin-store';
 import { cn } from '@/lib/cn';
 
@@ -32,7 +36,7 @@ export function RecentTicketsSection({
           className="text-xs font-semibold text-[#005B54] hover:text-[#003833] px-2.5 py-1.5 rounded-lg hover:bg-[#005B54]/[0.06] flex items-center gap-1 transition-all shrink-0 group tactile-press"
         >
           <span>Semua Tiket</span>
-          <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          <ArrowUpRightIcon size={14} weight="bold" className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </Link>
       </div>
 
@@ -88,7 +92,7 @@ export function RecentTicketsSection({
               <div className="shrink-0 flex items-center gap-1.5 self-end sm:self-center">
                 {isResolved ? (
                   <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
-                    <Check className="w-3 h-3" /> Selesai
+                    <CheckIcon size={12} weight="bold" /> Selesai
                   </span>
                 ) : isDismissed ? (
                   <span className="text-[11px] text-text-400 font-medium px-2 py-0.5">
@@ -102,7 +106,7 @@ export function RecentTicketsSection({
                       className="px-2.5 py-1.5 bg-[#005B54] hover:bg-[#004741] text-white text-xs font-semibold rounded-lg transition-all cursor-pointer flex items-center gap-1 tactile-press shadow-2xs"
                       title="Tandai Selesai"
                     >
-                      <Check className="w-3.5 h-3.5" />
+                      <CheckIcon size={14} weight="bold" />
                       <span>Selesai</span>
                     </button>
                     <button
@@ -111,7 +115,7 @@ export function RecentTicketsSection({
                       className="p-1.5 text-text-400 hover:text-text-700 hover:bg-[#F5F6F3] rounded-lg transition-colors cursor-pointer tactile-press"
                       title="Abaikan Laporan"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      <XIcon size={14} weight="bold" />
                     </button>
                   </>
                 )}

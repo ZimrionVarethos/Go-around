@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check } from 'lucide-react';
+import { CheckIcon } from '@phosphor-icons/react';
 import { AdminTopbar } from '@/components/layout/AdminTopbar';
 import { useAdminLayout } from '../layout';
 import { useAdminStore, AdminTicketItem } from '@/lib/admin-store';
@@ -102,7 +102,7 @@ export default function AdminReportsPage() {
               }}
               className="bg-white hover:bg-[#F5F6F3] border border-[#E2E5DF] text-text-700 text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer tactile-press tabular-nums"
             >
-              <Check className="w-3.5 h-3.5 text-emerald-600" />
+              <CheckIcon size={14} weight="bold" className="text-emerald-600" />
               <span className="hidden sm:inline">Tandai Dibaca ({unreadTicketsCount})</span>
               <span className="sm:hidden">Dibaca</span>
             </button>

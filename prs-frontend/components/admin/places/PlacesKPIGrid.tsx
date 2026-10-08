@@ -1,6 +1,11 @@
 'use client';
 
-import { MapPin, CheckCircle2, AlertTriangle, Star } from 'lucide-react';
+import {
+  CheckCircleIcon,
+  MapPinIcon,
+  StarIcon,
+  WarningIcon,
+} from '@phosphor-icons/react';
 import { formatStarRating } from '@/lib/utils';
 
 interface PlacesKPIGridProps {
@@ -24,7 +29,7 @@ export function PlacesKPIGrid({
         <div>
           <div className="flex items-center justify-between text-text-600">
             <p className="text-xs font-semibold">Total Kafe Terdata</p>
-            <MapPin className="w-4 h-4 text-[#005B54]" />
+            <MapPinIcon size={16} weight="duotone" className="text-[#005B54]" />
           </div>
           <div className="flex items-baseline gap-2 mt-2.5">
             <span className="text-2xl sm:text-[26px] font-extrabold text-text-950 tracking-tight tabular-nums">
@@ -51,7 +56,7 @@ export function PlacesKPIGrid({
         <div>
           <div className="flex items-center justify-between text-text-600">
             <p className="text-xs font-semibold">Terverifikasi Penuh</p>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <CheckCircleIcon size={16} weight="duotone" className="text-emerald-600" />
           </div>
           <div className="flex items-baseline gap-2 mt-2.5">
             <span className="text-2xl sm:text-[26px] font-extrabold text-text-950 tracking-tight tabular-nums">
@@ -72,7 +77,7 @@ export function PlacesKPIGrid({
         <div>
           <div className="flex items-center justify-between text-text-600">
             <p className="text-xs font-semibold">Perlu Verifikasi</p>
-            <AlertTriangle className="w-4 h-4 text-amber-600" />
+            <WarningIcon size={16} weight="duotone" className="text-amber-600" />
           </div>
           <div className="flex items-baseline gap-2 mt-2.5">
             <span className="text-2xl sm:text-[26px] font-extrabold text-text-950 tracking-tight tabular-nums">
@@ -93,7 +98,7 @@ export function PlacesKPIGrid({
         <div>
           <div className="flex items-center justify-between text-text-600">
             <p className="text-xs font-semibold">Rata-rata Rating Kafe</p>
-            <Star className="w-4 h-4 fill-[#ECC457] text-[#ECC457]" />
+            <StarIcon size={16} weight="fill" className="text-[#ECC457]" />
           </div>
           <div className="flex items-baseline gap-1.5 mt-2.5">
             <span className="text-2xl sm:text-[26px] font-extrabold text-text-950 tracking-tight tabular-nums">

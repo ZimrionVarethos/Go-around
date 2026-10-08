@@ -1,6 +1,13 @@
 'use client';
 
-import { FileText, Check, X, MapPin, Eye, MessageSquare } from 'lucide-react';
+import {
+  ChatTextIcon,
+  CheckIcon,
+  EyeIcon,
+  FileTextIcon,
+  MapPinIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { AdminTicketItem } from '@/lib/admin-store';
 import { cn } from '@/lib/cn';
 
@@ -20,7 +27,7 @@ export function TicketCardList({
   if (tickets.length === 0) {
     return (
       <div className="bg-white rounded-xl border border-[#E2E5DF] shadow-card-subtle p-10 text-center space-y-1.5">
-        <FileText className="w-8 h-8 text-text-400 mx-auto" />
+        <FileTextIcon size={32} weight="duotone" className="text-text-400 mx-auto" />
         <h4 className="text-sm font-bold text-text-900">Tidak ada tiket laporan yang sesuai</h4>
         <p className="text-xs text-text-500 max-w-sm mx-auto">
           Sesuaikan filter status, kategori, atau kata kunci pencarian untuk melihat tiket lainnya.
@@ -71,7 +78,7 @@ export function TicketCardList({
                   )}
                 </div>
 
-                {/* Semantic Workflow Status Badge (Pill with status dot) */}
+                {/* Semantic Workflow Status Badge */}
                 <div className="flex items-center gap-2">
                   {isResolved ? (
                     <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
@@ -96,13 +103,13 @@ export function TicketCardList({
                 </span>
               </div>
 
-              {/* Col 2: Place Name, Location & Category Tag (rectangular tag, distinct from status pill) */}
+              {/* Col 2: Place Name, Location & Category Tag */}
               <div className="lg:col-span-3 min-w-0 space-y-1">
                 <h3 className="text-sm font-bold text-text-950 truncate">
                   {t.cafeName}
                 </h3>
                 <p className="text-xs text-text-600 flex items-center gap-1 truncate">
-                  <MapPin className="w-3 h-3 text-text-400 shrink-0" />
+                  <MapPinIcon size={12} weight="fill" className="text-text-400 shrink-0" />
                   <span className="truncate">{t.location}</span>
                 </p>
                 <div className="pt-0.5">
@@ -130,20 +137,20 @@ export function TicketCardList({
                   <span className="lg:hidden tabular-nums">Dilaporkan {t.timeAgo}</span>
                   {t.internalNote && (
                     <span className="inline-flex items-center gap-1 text-[#005B54] font-semibold bg-teal-50/60 border border-teal-200/70 px-1.5 py-0.5 rounded">
-                      <MessageSquare className="w-3 h-3" /> Catatan Tersimpan
+                      <ChatTextIcon size={12} weight="duotone" /> Catatan Tersimpan
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Col 4: Moderation Actions */}
-              <div className="lg:col-span-3 flex items-center justify-end gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-[#E2E5DF]">
+              <div className="lg:col-span-3 flex items-center justify-end gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-[#E2E5DF] flex-wrap">
                 <button
                   type="button"
                   onClick={() => onOpenModal(t)}
                   className="text-xs font-semibold text-text-700 hover:text-[#005B54] hover:bg-[#F5F6F3] px-2.5 py-1.5 rounded-lg border border-[#E2E5DF] transition-colors flex items-center gap-1.5 cursor-pointer tactile-press"
                 >
-                  <Eye className="w-3.5 h-3.5" />
+                  <EyeIcon size={14} weight="duotone" />
                   <span>Detail &amp; Catatan</span>
                 </button>
 
@@ -162,7 +169,7 @@ export function TicketCardList({
                       onClick={() => onResolve(t.id, t.cafeName)}
                       className="bg-[#005B54] hover:bg-[#004741] text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs tactile-press"
                     >
-                      <Check className="w-3.5 h-3.5" />
+                      <CheckIcon size={14} weight="bold" />
                       <span>Validasi Selesai</span>
                     </button>
                     <button
@@ -171,7 +178,7 @@ export function TicketCardList({
                       className="p-1.5 text-text-400 hover:text-text-700 hover:bg-[#F0F2EE] rounded-lg transition-colors cursor-pointer tactile-press"
                       title="Abaikan Tiket"
                     >
-                      <X className="w-4 h-4" />
+                      <XIcon size={15} weight="bold" />
                     </button>
                   </>
                 )}

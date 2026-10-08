@@ -1,4 +1,9 @@
-import { Coffee, AlertTriangle, MapPin, Users } from 'lucide-react';
+import {
+  CoffeeIcon,
+  MapPinIcon,
+  UsersIcon,
+  WarningIcon,
+} from '@phosphor-icons/react';
 
 interface AdminKPICardsProps {
   totalPlaces: number;
@@ -25,7 +30,7 @@ export function AdminKPICards({ totalPlaces, activeTicketsCount, kpi }: AdminKPI
         <div className="flex items-center justify-between text-text-500">
           <span className="text-xs font-semibold text-text-700">Total Tempat Nugas</span>
           <div className="w-7 h-7 rounded-lg bg-[#005B54]/[0.07] border border-[#005B54]/15 flex items-center justify-center">
-            <Coffee className="w-3.5 h-3.5 text-[#005B54]" />
+            <CoffeeIcon size={15} weight="duotone" className="text-[#005B54]" />
           </div>
         </div>
         <div className="mt-3 flex items-baseline gap-2">
@@ -49,7 +54,7 @@ export function AdminKPICards({ totalPlaces, activeTicketsCount, kpi }: AdminKPI
         <div className="flex items-center justify-between text-text-500">
           <span className="text-xs font-semibold text-text-700">Tiket Terbuka</span>
           <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200/80 flex items-center justify-center">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+            <WarningIcon size={15} weight="duotone" className="text-amber-600" />
           </div>
         </div>
         <div className="mt-3 flex items-baseline gap-2">
@@ -73,7 +78,7 @@ export function AdminKPICards({ totalPlaces, activeTicketsCount, kpi }: AdminKPI
         <div className="flex items-center justify-between text-text-500">
           <span className="text-xs font-semibold text-text-700">Usulan Spot Baru</span>
           <div className="w-7 h-7 rounded-lg bg-[#F5F6F3] border border-[#E2E5DF] flex items-center justify-center">
-            <MapPin className="w-3.5 h-3.5 text-[#005B54]" />
+            <MapPinIcon size={15} weight="duotone" className="text-[#005B54]" />
           </div>
         </div>
         <div className="mt-3 flex items-baseline gap-2">
@@ -97,7 +102,7 @@ export function AdminKPICards({ totalPlaces, activeTicketsCount, kpi }: AdminKPI
         <div className="flex items-center justify-between text-text-500">
           <span className="text-xs font-semibold text-text-700">Kunjungan WebGIS</span>
           <div className="w-7 h-7 rounded-lg bg-[#F5F6F3] border border-[#E2E5DF] flex items-center justify-center">
-            <Users className="w-3.5 h-3.5 text-text-600" />
+            <UsersIcon size={15} weight="duotone" className="text-text-600" />
           </div>
         </div>
         <div className="mt-3 flex items-baseline gap-2">

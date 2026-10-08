@@ -4,11 +4,11 @@ import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
-  ArrowLeft,
-  User,
-  ShieldCheck,
-  LogOut,
-} from 'lucide-react';
+  ArrowLeftIcon,
+  ShieldCheckIcon,
+  SignOutIcon,
+  UserIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import {
   useAdminAuth,
@@ -93,9 +93,9 @@ function SettingsContent() {
     router.push('/admin/login');
   };
 
-  const navTabs: { id: TabKey; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'profile', label: 'Profil Akun', icon: User },
-    { id: 'security', label: 'Kata Sandi', icon: ShieldCheck },
+  const navTabs = [
+    { id: 'profile' as const, label: 'Profil Akun', icon: UserIcon },
+    { id: 'security' as const, label: 'Kata Sandi', icon: ShieldCheckIcon },
   ];
 
   return (
@@ -108,7 +108,7 @@ function SettingsContent() {
               href="/admin"
               className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-[#E2E5DF] bg-white hover:bg-[#F5F6F3] text-xs font-semibold text-text-700 hover:text-text-950 transition-colors shrink-0 tactile-press"
             >
-              <ArrowLeft className="w-3.5 h-3.5 text-text-500" />
+              <ArrowLeftIcon size={14} weight="bold" className="text-text-500" />
               <span>Kembali ke Dashboard</span>
             </Link>
             <span className="h-4 w-px bg-[#E2E5DF] hidden sm:block" />
@@ -122,7 +122,7 @@ function SettingsContent() {
             <div className="w-6 h-6 rounded-md bg-[#005B54] text-white text-[11px] font-bold flex items-center justify-center shrink-0">
               {profile.avatarInitials}
             </div>
-            <span className="font-mono text-[11px] text-text-600 truncate max-w-[180px]">
+            <span className="font-mono text-[11px] text-text-600 truncate max-w-[140px] sm:max-w-[180px]">
               {profile.email}
             </span>
           </div>
@@ -151,8 +151,10 @@ function SettingsContent() {
                     )}
                   >
                     <Icon
+                      size={14}
+                      weight={active ? 'duotone' : 'regular'}
                       className={cn(
-                        'w-3.5 h-3.5 shrink-0',
+                        'shrink-0',
                         active ? 'text-[#005B54]' : 'text-text-400'
                       )}
                     />
@@ -168,7 +170,7 @@ function SettingsContent() {
                 onClick={handleLogout}
                 className="w-full flex items-center gap-2.5 h-9 px-3 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50/80 transition-colors cursor-pointer text-left tactile-press"
               >
-                <LogOut className="w-3.5 h-3.5 shrink-0" />
+                <SignOutIcon size={14} weight="bold" className="shrink-0" />
                 <span>Keluar Sesi</span>
               </button>
             </div>

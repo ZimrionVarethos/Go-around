@@ -2,14 +2,18 @@
 'use client';
 
 import {
-  MapPin,
-  Wifi,
-  Volume2,
-  Edit2,
-  Trash2,
-  Crosshair,
-  ClipboardCheck,
-} from 'lucide-react';
+  ClipboardTextIcon,
+  CrosshairIcon,
+  MapPinIcon,
+  PencilSimpleIcon,
+  StarIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
+import {
+  DynamicAcousticIcon,
+  DynamicPlugIcon,
+  DynamicWifiIcon,
+} from '@/components/ui/FacilityIcons';
 import { PlaceItem } from '@/lib/admin-store';
 import { formatStarRating, formatNugasScore } from '@/lib/utils';
 
@@ -76,7 +80,7 @@ export function PlacesGrid({
 
               {/* Standardized 5-Star Rating Top Right */}
               <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-md text-xs font-bold text-text-900 flex items-center gap-1 tabular-nums">
-                <span className="text-[#D97706]">★</span>
+                <StarIcon size={12} weight="fill" className="text-[#D97706]" />
                 <span>{formatStarRating(place.score)}</span>
                 <span className="text-[10px] font-normal text-text-400">/ 5</span>
               </div>
@@ -85,7 +89,7 @@ export function PlacesGrid({
               <div className="absolute bottom-3 left-3 right-3 text-white">
                 <h3 className="text-sm font-bold drop-shadow-xs truncate">{place.name}</h3>
                 <div className="flex items-center gap-1 text-[11px] text-white/90 truncate mt-0.5">
-                  <MapPin className="w-3 h-3 shrink-0" />
+                  <MapPinIcon size={12} weight="fill" className="shrink-0" />
                   <span className="truncate">{place.address}</span>
                 </div>
               </div>
@@ -96,24 +100,25 @@ export function PlacesGrid({
               {/* GIS Coordinates & WiFi */}
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-1 font-mono text-[11px] text-text-700 tabular-nums bg-[#F5F6F3] border border-[#E2E5DF] px-2 py-0.5 rounded-md">
-                  <MapPin className="w-3 h-3 text-[#005B54]" />
+                  <MapPinIcon size={12} weight="fill" className="text-[#005B54]" />
                   <span>
                     {place.lat.toFixed(4)}, {place.lng.toFixed(4)}
                   </span>
                 </div>
                 <div className="inline-flex items-center gap-1 text-xs font-semibold text-text-900 tabular-nums">
-                  <Wifi className="w-3.5 h-3.5 text-[#005B54]" />
+                  <DynamicWifiIcon mbps={place.wifi} size={15} />
                   <span>{place.wifi} Mbps</span>
                 </div>
               </div>
 
-              {/* Colokan & Price Telemetry Strip (replaces repetitive progress bar) */}
+              {/* Colokan & Price Telemetry Strip */}
               <div className="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-[#F5F6F3] border border-[#E2E5DF] text-xs">
                 <div>
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-text-500 block">
                     Colokan Listrik
                   </span>
-                  <div className="mt-0.5 flex items-baseline gap-1">
+                  <div className="mt-0.5 flex items-center gap-1">
+                    <DynamicPlugIcon plugPercent={place.plug} size={14} />
                     <strong className="text-text-950 font-bold tabular-nums">{place.plug}%</strong>
                     <span className="text-[11px] text-text-500 truncate">
                       ({place.plug >= 80 ? 'Banyak' : 'Cukup'})
@@ -132,8 +137,8 @@ export function PlacesGrid({
 
               {/* Acoustics & Nugas Index */}
               <div className="flex items-center justify-between text-xs pt-2 border-t border-[#E2E5DF]">
-                <div className="flex items-center gap-1 text-text-600 font-medium">
-                  <Volume2 className="w-3.5 h-3.5 text-text-400" />
+                <div className="flex items-center gap-1.5 text-text-600 font-medium">
+                  <DynamicAcousticIcon acousticLabel={place.acoustic} size={14} />
                   <span>{place.acoustic || 'Kondusif'}</span>
                 </div>
                 <span className="text-[#005B54] font-semibold text-[11px] tabular-nums">
@@ -150,7 +155,7 @@ export function PlacesGrid({
               onClick={() => onLocatePlace?.(place)}
               className="text-xs text-[#005B54] hover:underline font-semibold flex items-center gap-1 cursor-pointer tactile-press"
             >
-              <Crosshair className="w-3.5 h-3.5" />
+              <CrosshairIcon size={14} weight="bold" />
               <span>Salin Koordinat</span>
             </button>
 
@@ -161,7 +166,7 @@ export function PlacesGrid({
                   onClick={() => onToggleStatus(place)}
                   className="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1 transition-colors cursor-pointer tactile-press"
                 >
-                  <ClipboardCheck className="w-3.5 h-3.5" />
+                  <ClipboardTextIcon size={14} weight="duotone" />
                   <span>Audit</span>
                 </button>
               ) : (
@@ -172,7 +177,7 @@ export function PlacesGrid({
                     className="p-1.5 text-text-500 hover:text-[#005B54] hover:bg-white rounded-md transition-colors cursor-pointer tactile-press"
                     title="Edit Data"
                   >
-                    <Edit2 className="w-3.5 h-3.5" />
+                    <PencilSimpleIcon size={14} weight="bold" />
                   </button>
                   <button
                     type="button"
@@ -180,7 +185,7 @@ export function PlacesGrid({
                     className="p-1.5 text-text-500 hover:text-rose-600 hover:bg-white rounded-md transition-colors cursor-pointer tactile-press"
                     title="Hapus"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <TrashIcon size={14} weight="bold" />
                   </button>
                 </>
               )}

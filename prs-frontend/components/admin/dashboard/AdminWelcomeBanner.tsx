@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FileText, Coffee } from 'lucide-react';
+import { CoffeeIcon, FileTextIcon } from '@phosphor-icons/react';
 
 interface AdminWelcomeBannerProps {
   activeTicketsCount: number;
@@ -28,19 +28,19 @@ export function AdminWelcomeBanner({ activeTicketsCount }: AdminWelcomeBannerPro
         </p>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0 flex-wrap">
         <Link
           href="/admin/reports"
           className="bg-[#005B54] hover:bg-[#004741] text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 tactile-press shadow-2xs"
         >
-          <FileText className="w-3.5 h-3.5" />
+          <FileTextIcon size={14} weight="duotone" />
           <span className="tabular-nums">Tinjau Laporan ({activeTicketsCount})</span>
         </Link>
         <Link
           href="/admin/places"
           className="bg-white hover:bg-[#EFECE1] text-slate-800 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all border border-[#D5D3C8] flex items-center gap-1.5 tactile-press shadow-2xs"
         >
-          <Coffee className="w-3.5 h-3.5 text-[#005B54]" />
+          <CoffeeIcon size={14} weight="duotone" className="text-[#005B54]" />
           <span>Kelola Kafe</span>
         </Link>
       </div>
