@@ -10,12 +10,12 @@ interface PlacesKPIGridProps {
 }
 
 export function PlacesKPIGrid({
-  totalPlaces = 108,
-  verifiedPlaces = 96,
-  reviewPlaces = 12,
+  totalPlaces = 13,
+  verifiedPlaces = 12,
+  reviewPlaces = 1,
 }: PlacesKPIGridProps) {
   const verifiedPct = totalPlaces > 0 ? ((verifiedPlaces / totalPlaces) * 100).toFixed(1) : '0.0';
-  const avgScore = 9.1; // Internal 0-10 composite score -> 4.6 / 5 star equivalent
+  const avgScore = 8.9; // Internal 0-10 composite score -> 4.5 / 5 star equivalent
 
   return (
     <div className="bg-white rounded-xl border border-[#E2E5DF] shadow-card-subtle grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E5DF] overflow-hidden">
@@ -36,11 +36,13 @@ export function PlacesKPIGrid({
           </div>
         </div>
         <div className="mt-3.5 pt-2.5 border-t border-[#E2E5DF] flex items-center justify-between text-[11px] text-text-500 tabular-nums">
-          <span>Tengah: 38</span>
+          <span>Timur: 4</span>
           <span>·</span>
-          <span>Timur: 32</span>
+          <span>Tengah: 3</span>
           <span>·</span>
-          <span>Utara: 24</span>
+          <span>Utara: 3</span>
+          <span>·</span>
+          <span>Lainnya: 3</span>
         </div>
       </div>
 

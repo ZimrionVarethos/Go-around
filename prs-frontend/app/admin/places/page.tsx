@@ -53,6 +53,7 @@ export default function AdminPlacesPage() {
   const [formData, setFormData] = useState<PlaceFormData>({
     name: '',
     address: '',
+    district: 'Bogor Tengah',
     lat: -6.598,
     lng: 106.805,
     wifi: 50,
@@ -60,6 +61,9 @@ export default function AdminPlacesPage() {
     price: 'Rp 20.000+',
     score: 9.0,
     status: 'verified',
+    imageUrl: '',
+    acoustic: 'Kondusif',
+    is24Hours: false,
   });
 
   const toggleQuickFilter = (key: 'wifi50' | 'plug80' | 'budget25k' | 'open24h') => {
@@ -111,6 +115,7 @@ export default function AdminPlacesPage() {
     setFormData({
       name: '',
       address: '',
+      district: 'Bogor Tengah',
       lat: -6.598,
       lng: 106.805,
       wifi: 60,
@@ -118,6 +123,9 @@ export default function AdminPlacesPage() {
       price: 'Rp 22.000+',
       score: 9.2,
       status: 'verified',
+      imageUrl: '',
+      acoustic: 'Kondusif',
+      is24Hours: false,
     });
     setModalMode('create');
   };
@@ -127,6 +135,7 @@ export default function AdminPlacesPage() {
     setFormData({
       name: place.name,
       address: place.address,
+      district: place.district || 'Bogor Tengah',
       lat: place.lat,
       lng: place.lng,
       wifi: place.wifi,
@@ -134,6 +143,9 @@ export default function AdminPlacesPage() {
       price: place.price,
       score: place.score,
       status: place.status,
+      imageUrl: place.imageUrl || '',
+      acoustic: place.acoustic || 'Kondusif',
+      is24Hours: Boolean(place.is24Hours),
     });
     setModalMode('edit');
   };
@@ -146,18 +158,32 @@ export default function AdminPlacesPage() {
     }
 
     if (modalMode === 'create') {
-      const newCode = `KF-0${places.length + 1}`.slice(-6);
+      const nextNum = String(places.length + 1).padStart(3, '0');
+      const newCode = `KF-${nextNum}`;
       addPlace({
         code: newCode,
         ...formData,
-        district: 'Bogor Tengah',
+        district: formData.district || 'Bogor Tengah',
         plugLabel: formData.plug >= 80 ? 'Hampir tiap meja' : 'Cukup memadai',
         priceCategory: 'Ramah Mahasiswa',
-        acoustic: 'Kondusif',
+        acoustic: formData.acoustic || 'Kondusif',
+        imageUrl:
+          formData.imageUrl?.trim() ||
+          'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&auto=format&fit=crop&q=80',
+        is24Hours: Boolean(formData.is24Hours),
       });
       showToast(`Tempat "${formData.name}" ditambahkan ke direktori GIS.`, 'success', 3000);
     } else if (modalMode === 'edit' && editingPlace) {
-      updatePlace({ ...editingPlace, ...formData, isUnread: false });
+      updatePlace({
+        ...editingPlace,
+        ...formData,
+        district: formData.district || editingPlace.district || 'Bogor Tengah',
+        plugLabel: formData.plug >= 80 ? 'Hampir tiap meja' : 'Cukup memadai',
+        acoustic: formData.acoustic || editingPlace.acoustic || 'Kondusif',
+        imageUrl: formData.imageUrl?.trim() || editingPlace.imageUrl,
+        is24Hours: Boolean(formData.is24Hours),
+        isUnread: false,
+      });
       showToast(`Data "${formData.name}" berhasil diperbarui.`, 'success', 3000);
     }
 
