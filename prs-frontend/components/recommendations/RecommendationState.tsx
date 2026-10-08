@@ -1,4 +1,10 @@
-import { AlertTriangle, MapPinned, SearchX } from 'lucide-react';
+'use client';
+
+import {
+  MagnifyingGlassIcon,
+  MapPinAreaIcon,
+  WarningIcon,
+} from '@phosphor-icons/react';
 import { PlaceCardSkeleton } from '@/components/ui/States';
 
 export function RecommendationLoadingState() {
@@ -19,7 +25,7 @@ export function RecommendationEmptyState({
 }) {
   return (
     <div className="flex flex-col items-center px-5 py-9 text-center">
-      <SearchX className="h-7 w-7 text-slate-400" aria-hidden="true" />
+      <MagnifyingGlassIcon size={28} weight="duotone" className="text-slate-400" aria-hidden="true" />
       <h3 className="mt-3 text-sm font-bold text-slate-900">Belum ada tempat yang cocok</h3>
       <p className="mt-1 max-w-64 text-xs leading-relaxed text-slate-500">
         {query
@@ -40,7 +46,7 @@ export function RecommendationEmptyState({
 export function RecommendationErrorState({ onRetry }: { onRetry?: () => void }) {
   return (
     <div className="flex flex-col items-center px-5 py-9 text-center" role="alert">
-      <AlertTriangle className="h-7 w-7 text-rose-600" aria-hidden="true" />
+      <WarningIcon size={28} weight="duotone" className="text-rose-600" aria-hidden="true" />
       <h3 className="mt-3 text-sm font-bold text-slate-900">Rekomendasi belum bisa dimuat</h3>
       <p className="mt-1 max-w-64 text-xs leading-relaxed text-slate-500">
         Kriteria kamu tetap tersimpan. Coba hubungkan kembali beberapa saat lagi.
@@ -61,7 +67,7 @@ export function RecommendationErrorState({ onRetry }: { onRetry?: () => void }) 
 export function RecommendationIdleState({ onStart }: { onStart: () => void }) {
   return (
     <div className="flex flex-col items-center px-5 py-9 text-center">
-      <MapPinned className="h-7 w-7 text-[#005B54]" aria-hidden="true" />
+      <MapPinAreaIcon size={28} weight="duotone" className="text-[#005B54]" aria-hidden="true" />
       <h3 className="mt-3 text-sm font-bold text-slate-900">Temukan tempat nugas yang pas</h3>
       <p className="mt-1 max-w-64 text-xs leading-relaxed text-slate-500">
         Atur jarak, budget, dan fasilitas yang kamu butuhkan.

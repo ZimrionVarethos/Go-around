@@ -340,7 +340,12 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       <MapView
         features={mapFeatures}
         selectedSlug={selectedSlug}
-        onMarkerClick={(slug) => setSelectedSlug(slug)}
+        onMarkerClick={(slug) => {
+          setSelectedSlug(slug);
+          if (typeof window !== 'undefined' && window.innerWidth < 768) {
+            setIsCollapsed(true);
+          }
+        }}
         onBoundsChange={(b) => setBbox(b)}
         tileLayer={tileLayer}
         userLocation={userLocation}
@@ -348,7 +353,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       />
 
       {/* Floating Filter Bar (Below topbar) */}
-      <div className="absolute top-[76px] sm:top-[88px] left-0 right-0 sm:left-6 sm:right-auto z-[400] pointer-events-auto px-3 sm:px-0">
+      <div className="absolute top-[76px] sm:top-[88px] left-0 right-0 sm:left-6 sm:right-6 md:right-auto z-[400] pointer-events-auto px-3 sm:px-0">
         <FilterBar
           filters={filters}
           onFilterChange={setFilters}
@@ -363,11 +368,16 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       </div>
 
       {/* Floating Left Sidebar Panel ("Rekomendasi Nugas Bogor")
-          - Mobile: bottom sheet (bottom-0, left-0, right-0, max-h-[55vh])
+          - Mobile: bottom sheet (bottom-0, left-0, right-0, max-h-[62vh])
           - Desktop: left sidebar as usual */}
       <RecommendationPanel
         isCollapsed={isCollapsed}
-        onToggleCollapse={setIsCollapsed}
+        onToggleCollapse={(collapsed) => {
+          setIsCollapsed(collapsed);
+          if (!collapsed && typeof window !== 'undefined' && window.innerWidth < 768) {
+            setSelectedSlug(null);
+          }
+        }}
         view={panelView}
         onViewChange={setPanelView}
         sortTab={sortTab}
@@ -399,7 +409,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       {/* Floating Right Selected Place Detail Drawer
           - Mobile: bottom sheet full-width above footer
           - Desktop: right side panel */}
-      {selectedSlug && recommendationResponse?.meta.source === 'api' && (
+      {selectedSlug && (
         <>
           {/* Desktop drawer (md+) */}
           <div className="hidden md:block absolute top-[88px] right-6 z-[400] pointer-events-auto">
@@ -423,7 +433,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
 
       {/* Mobile Floating Legend (shown conditionally) */}
       {showLegend && (
-        <div className="sm:hidden absolute top-[76px] right-3 z-[450] pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
+        <div className="sm:hidden absolute top-[124px] right-3 z-[450] pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
           <MapLegend onClose={() => setShowLegend(false)} />
         </div>
       )}
@@ -432,11 +442,11 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
           - Legend appears on desktop/tablet when toggled; shift left on md when drawer open */}
       <div
         className={cn(
-          'absolute bottom-3.5 z-[350] flex items-end gap-3 pointer-events-auto transition-all duration-300',
+          'absolute bottom-3.5 right-3 sm:right-6 z-[350] flex items-end gap-3 pointer-events-auto transition-all duration-300',
           // Desktop: shift left when detail drawer is open
-          selectedSlug && recommendationResponse?.meta.source === 'api'
-            ? 'right-6 md:right-[456px]'
-            : 'right-6'
+          selectedSlug
+            ? 'md:right-[396px] lg:right-[456px]'
+            : 'md:right-6'
         )}
       >
         {/* Suitability Legend - desktop only (conditional) */}

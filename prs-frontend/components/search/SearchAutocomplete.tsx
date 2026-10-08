@@ -2,14 +2,14 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import {
-  AlertCircle,
-  ArrowRight,
-  LoaderCircle,
-  MapPin,
-  Search,
-  Sparkles,
-  X,
-} from 'lucide-react';
+  ArrowRightIcon,
+  CircleNotchIcon,
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  SparkleIcon,
+  WarningCircleIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { useSearchSuggestions } from '@/hooks/useSearchSuggestions';
 import { cn } from '@/lib/cn';
 import type {
@@ -149,14 +149,14 @@ export function SearchAutocomplete({
         className={cn(
           'flex h-full items-center rounded-xl bg-white border transition-all',
           tone === 'need'
-            ? 'bg-[#F4FAF8] border-[#005B54]/25 hover:border-[#005B54]/50 focus-within:border-[#005B54] focus-within:ring-2 focus-within:ring-[#005B54]/15 focus-within:bg-white'
-            : 'border-slate-200/90 hover:border-slate-300 focus-within:border-[#005B54] focus-within:ring-2 focus-within:ring-[#005B54]/15',
+            ? 'bg-[#F4FAF8] border-[#005B54]/25 hover:border-[#005B54]/50 focus-within:border-[#005B54] focus-within:bg-white'
+            : 'border-slate-200/90 hover:border-slate-300 focus-within:border-[#005B54]',
         )}
       >
         {tone === 'need' ? (
-          <Sparkles className="ml-3 h-4 w-4 shrink-0 text-[#005B54]" aria-hidden="true" />
+          <SparkleIcon size={16} weight="fill" className="ml-3 shrink-0 text-[#005B54]" aria-hidden="true" />
         ) : (
-          <Search className="ml-3 h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+          <MagnifyingGlassIcon size={16} weight="bold" className="ml-3 shrink-0 text-slate-500" aria-hidden="true" />
         )}
         <input
           type="search"
@@ -179,7 +179,7 @@ export function SearchAutocomplete({
           className="h-full min-w-0 flex-1 bg-transparent px-2 text-xs font-medium text-slate-900 caret-[#005B54] outline-none placeholder:text-slate-500 [&::-webkit-search-cancel-button]:hidden"
         />
         {(isLoading || isFetching) && (
-          <LoaderCircle className="mr-2 h-3.5 w-3.5 shrink-0 animate-spin text-[#005B54]" aria-label="Memuat saran" />
+          <CircleNotchIcon size={14} weight="bold" className="mr-2 shrink-0 animate-spin text-[#005B54]" aria-label="Memuat saran" />
         )}
         {value && !(isLoading || isFetching) && (
           <button
@@ -192,7 +192,7 @@ export function SearchAutocomplete({
             className="mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54]"
             aria-label="Hapus pencarian"
           >
-            <X className="h-3.5 w-3.5" aria-hidden="true" />
+            <XIcon size={14} weight="bold" aria-hidden="true" />
           </button>
         )}
         {value && (
@@ -201,7 +201,7 @@ export function SearchAutocomplete({
             className="mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#005B54] text-white hover:bg-[#004741] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54] focus-visible:ring-offset-1"
             aria-label={mode === 'place' ? 'Cari tempat' : 'Cari berdasarkan kebutuhan'}
           >
-            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            <ArrowRightIcon size={14} weight="bold" aria-hidden="true" />
           </button>
         )}
       </div>
@@ -220,7 +220,7 @@ export function SearchAutocomplete({
           <div id={listboxId} role="listbox" className="max-h-72 overflow-y-auto py-1.5">
             {isError ? (
               <div className="flex items-start gap-2.5 px-3.5 py-4 text-xs text-amber-800">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <WarningCircleIcon size={16} weight="duotone" className="mt-0.5 shrink-0" aria-hidden="true" />
                 <span>Saran belum dapat dimuat. Kamu tetap bisa menekan Enter untuk mencari.</span>
               </div>
             ) : !isLoading && !isFetching && suggestions.length === 0 ? (
@@ -251,9 +251,9 @@ export function SearchAutocomplete({
                       : 'bg-[#E8F8F5] text-[#005B54]',
                   )}>
                     {suggestion.kind === 'place' ? (
-                      <MapPin className="h-4 w-4" aria-hidden="true" />
+                      <MapPinIcon size={16} weight="duotone" aria-hidden="true" />
                     ) : (
-                      <Sparkles className="h-4 w-4" aria-hidden="true" />
+                      <SparkleIcon size={16} weight="fill" aria-hidden="true" />
                     )}
                   </span>
                   <span className="min-w-0 flex-1">

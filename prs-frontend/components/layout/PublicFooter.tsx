@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ExternalLink } from 'lucide-react';
+import { ArrowSquareOutIcon } from '@phosphor-icons/react';
 
 export function PublicFooter() {
   return (
@@ -29,7 +29,7 @@ export function PublicFooter() {
           >
             <Image src="/saweria.png" alt="Saweria" width={18} height={18} className="w-4.5 h-4.5 object-contain" />
             <span>Dukung Riset</span>
-            <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+            <ArrowSquareOutIcon size={14} weight="bold" className="opacity-70" />
           </a>
           <Link
             href="/tentang-riset"
@@ -63,7 +63,7 @@ export function PublicFooter() {
           >
             <Image src="/saweria.png" alt="Saweria" width={20} height={20} className="w-5 h-5 object-contain" />
             <span>Dukung Riset</span>
-            <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+            <ArrowSquareOutIcon size={14} weight="bold" className="opacity-80" />
           </a>
         </div>
 

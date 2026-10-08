@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/cn';
-import { X } from 'lucide-react';
+import { XIcon } from '@phosphor-icons/react';
 import React, { useEffect } from 'react';
 
 export interface DrawerProps {
@@ -61,7 +61,7 @@ export function Drawer({
             className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
             aria-label="Tutup panel"
           >
-            <X className="w-4 h-4" />
+            <XIcon weight="bold" className="w-4 h-4" />
           </button>
         </div>
 

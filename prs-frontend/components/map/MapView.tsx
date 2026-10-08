@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -17,17 +17,16 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-// Clean SVG Icons for Leaflet Markers (No OS Emojis)
+// Clean Phosphor SVG Icons for Leaflet Markers (CoffeeIcon & PlugChargingIcon)
 const SVG_COFFEE = `
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h12Z"/>
-    <path d="M6 2v2"/><path d="M17 11h1a3 3 0 0 1 3 3v0a3 3 0 0 1-3 3h-1"/>
+  <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
+    <path d="M80,56V24a8,8,0,0,1,16,0V56a8,8,0,0,1-16,0Zm40,8a8,8,0,0,0,8-8V24a8,8,0,0,0-16,0V56A8,8,0,0,0,120,64Zm32,0a8,8,0,0,0,8-8V24a8,8,0,0,0-16,0V56A8,8,0,0,0,152,64Zm96,56v8a40,40,0,0,1-37.51,39.91,96.59,96.59,0,0,1-27,40.09H208a8,8,0,0,1,0,16H32a8,8,0,0,1,0-16H56.54A96.3,96.3,0,0,1,24,136V88a8,8,0,0,1,8-8H208A40,40,0,0,1,248,120Zm-16,0a24,24,0,0,0-16-22.62V136a95.78,95.78,0,0,1-1.85,18.75A24,24,0,0,0,232,128V120Z"/>
   </svg>
 `;
 
 const SVG_ZAP = `
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
+    <path d="M224,88H200V40a8,8,0,0,0-16,0V88H144V40a8,8,0,0,0-16,0V88H96V40a8,8,0,0,0-16,0V88H56a16,16,0,0,0-16,16v24a88.14,88.14,0,0,0,72,86.52V240a8,8,0,0,0,16,0V214.52A88.14,88.14,0,0,0,200,128V104h24a8,8,0,0,0,0-16Zm-72.55,51L135,171.89a8,8,0,0,1-14.31-7.16L131.06,144H112a8,8,0,0,1-7.15-11.58l16-32a8,8,0,1,1,14.3,7.16L124.94,128H144a8,8,0,0,1,7.45,11Z"/>
   </svg>
 `;
 
@@ -147,15 +146,21 @@ function BoundsTracker({
 }: {
   onBoundsChange: (bounds: { north: number; south: number; east: number; west: number }) => void;
 }) {
+  const lastKeyRef = useRef<string>('');
   const map = useMapEvents({
     moveend: () => {
       const b = map.getBounds();
-      onBoundsChange({
-        north: b.getNorth(),
-        south: b.getSouth(),
-        east: b.getEast(),
-        west: b.getWest(),
-      });
+      const next = {
+        north: Number(b.getNorth().toFixed(4)),
+        south: Number(b.getSouth().toFixed(4)),
+        east: Number(b.getEast().toFixed(4)),
+        west: Number(b.getWest().toFixed(4)),
+      };
+      const key = `${next.north}:${next.south}:${next.east}:${next.west}`;
+      if (key !== lastKeyRef.current) {
+        lastKeyRef.current = key;
+        onBoundsChange(next);
+      }
     },
   });
   return null;
@@ -212,15 +217,25 @@ function MapReadyEmitter({ onMapReady }: { onMapReady?: (map: L.Map) => void }) 
   return null;
 }
 
-// Component to smoothly pan the map when a place is selected
+// Component to smoothly pan the map once when a new place is selected
 function MapFlyTo({ selectedSlug, features }: { selectedSlug?: string | null; features: PlaceGeoJsonFeature[] }) {
   const map = useMap();
+  const lastFlownSlugRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (!selectedSlug) return;
+    if (!selectedSlug) {
+      lastFlownSlugRef.current = null;
+      return;
+    }
+    if (lastFlownSlugRef.current === selectedSlug) {
+      return;
+    }
     const target = features.find((f) => f.properties.slug === selectedSlug);
     if (target) {
+      lastFlownSlugRef.current = selectedSlug;
       const { lat, lng } = latLngFromFeature(target);
-      map.flyTo([lat, lng], 16, { duration: 1.2 });
+      map.stop();
+      map.flyTo([lat, lng], 16, { duration: 0.85 });
     }
   }, [selectedSlug, features, map]);
   return null;
@@ -274,7 +289,7 @@ export default function MapView({
       {/* User GPS location pin */}
       {userLocation && (
         <Marker position={userLocation} icon={USER_LOCATION_PIN}>
-          <Popup className="custom-leaflet-popup">
+          <Popup className="custom-leaflet-popup" autoPan={false}>
             <div className="p-1 font-sans text-xs">
               <p className="font-bold text-sky-700">
                 Lokasi Anda Saat Ini
@@ -314,7 +329,7 @@ export default function MapView({
               click: () => onMarkerClick(slug),
             }}
           >
-            <Popup className="custom-leaflet-popup">
+            <Popup className="custom-leaflet-popup" autoPan={false}>
               <div
                 onClick={() => onMarkerClick(slug)}
                 className="cursor-pointer min-w-[180px] p-1 font-sans"

@@ -1,4 +1,11 @@
-import { Banknote, CircleDot, MapPin, Search } from 'lucide-react';
+'use client';
+
+import {
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  MoneyIcon,
+  TargetIcon,
+} from '@phosphor-icons/react';
 import { formatRupiahFull } from '@/lib/utils';
 import type { RecommendationRequest } from '@/lib/recommendations';
 
@@ -22,23 +29,23 @@ export function RecommendationCriteriaSummary({
     <div className="flex flex-wrap gap-1.5" aria-label="Ringkasan kriteria aktif">
       {(request.search_query || request.natural_language_query) && (
         <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-[#EBF5F3] px-2.5 py-1 text-[11px] font-semibold text-[#005B54] border border-[#005B54]/20">
-          <Search className="h-3 w-3 shrink-0" aria-hidden="true" />
+          <MagnifyingGlassIcon size={12} weight="bold" className="shrink-0" aria-hidden="true" />
           <span className="truncate">
             “{request.search_query ?? request.natural_language_query}”
           </span>
         </span>
       )}
       <span className="inline-flex items-center gap-1 rounded-full bg-[#EBF5F3] px-2.5 py-1 text-[11px] font-semibold text-[#005B54] border border-[#005B54]/20">
-        <CircleDot className="h-3 w-3" aria-hidden="true" />
+        <TargetIcon size={12} weight="duotone" aria-hidden="true" />
         {PRESET_LABELS[request.preset]}
       </span>
       <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 ring-1 ring-slate-200">
-        <MapPin className="h-3 w-3" aria-hidden="true" />
+        <MapPinIcon size={12} weight="duotone" className="text-[#005B54]" aria-hidden="true" />
         Maks. {request.radius_km} km
       </span>
       {request.max_price !== null && (
         <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 ring-1 ring-slate-200">
-          <Banknote className="h-3 w-3" aria-hidden="true" />
+          <MoneyIcon size={12} weight="duotone" className="text-emerald-600" aria-hidden="true" />
           {formatRupiahFull(request.max_price)}
         </span>
       )}

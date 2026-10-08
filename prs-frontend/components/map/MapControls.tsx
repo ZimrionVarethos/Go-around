@@ -1,7 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Locate, Plus, Minus, Layers, Compass, Info, X, Map as MapIcon, Globe, Sun } from 'lucide-react';
+import {
+  CompassIcon,
+  CrosshairIcon,
+  GlobeHemisphereWestIcon,
+  InfoIcon,
+  MapTrifoldIcon,
+  MinusIcon,
+  PlusIcon,
+  StackIcon,
+  SunIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import type { ToastType } from '@/hooks/useToast';
 
@@ -48,10 +59,10 @@ export function MapControls({
 }: MapControlsProps) {
   const [showLayerMenu, setShowLayerMenu] = useState(false);
 
-  const layerOptions: { id: TileLayerType; name: string; desc: string; icon: typeof MapIcon }[] = [
-    { id: 'osm', name: 'Standar (OSM)', desc: 'Peta jalan umum OSM', icon: MapIcon },
-    { id: 'satellite', name: 'Satelit', desc: 'Citra foto udara Esri', icon: Globe },
-    { id: 'carto', name: 'Terang Minimal', desc: 'Gaya bersih Carto Positron', icon: Sun },
+  const layerOptions: { id: TileLayerType; name: string; desc: string; icon: typeof MapTrifoldIcon }[] = [
+    { id: 'osm', name: 'Standar (OSM)', desc: 'Peta jalan umum OSM', icon: MapTrifoldIcon },
+    { id: 'satellite', name: 'Satelit', desc: 'Citra foto udara Esri', icon: GlobeHemisphereWestIcon },
+    { id: 'carto', name: 'Terang Minimal', desc: 'Gaya bersih Carto Positron', icon: SunIcon },
   ];
 
   const handleSelectLayer = (id: TileLayerType, name: string) => {
@@ -89,12 +100,12 @@ export function MapControls({
               className="fixed inset-0 z-40 cursor-default"
               onClick={() => setShowLayerMenu(false)}
             />
-            <div className="absolute right-12 bottom-0 z-50 w-72 bg-white rounded-2xl border border-gray-200/90 shadow-2xl p-3.5 animate-in fade-in zoom-in-95 duration-150 select-none">
+            <div className="absolute right-12 bottom-0 z-50 w-72 max-w-[calc(100vw-72px)] bg-white rounded-2xl border border-gray-200/90 shadow-2xl p-3.5 animate-in fade-in zoom-in-95 duration-150 select-none">
               {/* Popover Header */}
               <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-gray-100">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-lg bg-[#EAFBF7] flex items-center justify-center text-[#005B54]">
-                    <Layers className="w-3.5 h-3.5" />
+                    <StackIcon size={15} weight="duotone" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-gray-900 leading-tight">Peta Dasar (Basemap)</h4>
@@ -107,7 +118,7 @@ export function MapControls({
                   title="Tutup Menu"
                   className="w-5 h-5 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <XIcon size={14} weight="bold" />
                 </button>
               </div>
 
@@ -128,7 +139,7 @@ export function MapControls({
                           : 'bg-gray-50/80 border-gray-200/80 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                       )}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon size={16} weight="duotone" />
                       <span className="leading-tight">{opt.name}</span>
                     </button>
                   );
@@ -145,11 +156,11 @@ export function MapControls({
           className={cn(
             'w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer relative z-40 tactile-press',
             showLayerMenu
-              ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)] ring-2 ring-[#005B54]/20'
-              : 'glass-island text-slate-700 hover:text-[#005B54] hover:border-[#005B54]/30'
+              ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)]'
+              : 'glass-island text-slate-700 hover:text-[#005B54] hover:border-[#005B54]'
           )}
         >
-          <Layers className="w-4 h-4" />
+          <StackIcon size={17} weight="duotone" />
         </button>
       </div>
 
@@ -158,9 +169,9 @@ export function MapControls({
         type="button"
         title="Lokasi Anda (GPS)"
         onClick={onLocate}
-        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54]/30 transition-all cursor-pointer tactile-press"
+        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54] transition-all cursor-pointer tactile-press"
       >
-        <Locate className="w-4 h-4" />
+        <CrosshairIcon size={17} weight="bold" />
       </button>
 
       {/* 3. Zoom In */}
@@ -168,9 +179,9 @@ export function MapControls({
         type="button"
         title="Perbesar Peta (+)"
         onClick={handleZoomIn}
-        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54]/30 transition-all cursor-pointer tactile-press"
+        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54] transition-all cursor-pointer tactile-press"
       >
-        <Plus className="w-4 h-4" />
+        <PlusIcon size={17} weight="bold" />
       </button>
 
       {/* 4. Zoom Out */}
@@ -178,9 +189,9 @@ export function MapControls({
         type="button"
         title="Perkecil Peta (-)"
         onClick={handleZoomOut}
-        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54]/30 transition-all cursor-pointer tactile-press"
+        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54] transition-all cursor-pointer tactile-press"
       >
-        <Minus className="w-4 h-4" />
+        <MinusIcon size={17} weight="bold" />
       </button>
 
       {/* 5. Compass */}
@@ -188,9 +199,9 @@ export function MapControls({
         type="button"
         title="Reset ke Pusat Bogor (Utara ↑)"
         onClick={onResetCompass}
-        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54]/30 transition-all cursor-pointer tactile-press"
+        className="w-10 h-10 glass-island rounded-xl flex items-center justify-center text-slate-700 hover:text-[#005B54] hover:border-[#005B54] transition-all cursor-pointer tactile-press"
       >
-        <Compass className="w-4 h-4" />
+        <CompassIcon size={17} weight="duotone" />
       </button>
     </div>
   );
@@ -211,14 +222,14 @@ export function MapLegend({ onClose, className }: MapLegendProps = {}) {
   ];
 
   return (
-    <div className={cn('glass-island rounded-2xl shadow-xl p-3.5 w-72 select-none border border-slate-100', className)}>
+    <div className={cn('glass-island rounded-2xl shadow-xl p-3.5 w-72 max-w-[calc(100vw-24px)] select-none border border-slate-100', className)}>
       {/* Title with Info icon and optional close button */}
       <div className="flex items-center justify-between mb-2.5 pb-1.5 border-b border-slate-100">
         <div className="flex items-center gap-1.5">
           <h4 className="text-xs font-extrabold text-slate-900 tracking-tight">
             Legenda Peta Go-around
           </h4>
-          <Info className="w-3.5 h-3.5 text-slate-400 cursor-pointer hover:text-slate-600" />
+          <InfoIcon size={14} weight="duotone" className="text-slate-400 cursor-pointer hover:text-slate-600" />
         </div>
         {onClose && (
           <button
@@ -227,7 +238,7 @@ export function MapLegend({ onClose, className }: MapLegendProps = {}) {
             title="Tutup Legenda"
             className="w-5 h-5 flex items-center justify-center rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
-            <X className="w-3.5 h-3.5" />
+            <XIcon size={14} weight="bold" />
           </button>
         )}
       </div>

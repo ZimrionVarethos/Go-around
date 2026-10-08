@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import {
-  MapPinPlus,
-  AlertTriangle,
-  SlidersHorizontal,
-  Search,
-  Sparkles,
-  Menu,
-  X,
-} from 'lucide-react';
+  ListIcon,
+  MagnifyingGlassIcon,
+  MapPinPlusIcon,
+  SlidersHorizontalIcon,
+  SparkleIcon,
+  WarningIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import { useToast, type ToastType } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
@@ -105,7 +105,7 @@ export function PublicTopbar({
                       : 'text-gray-600 hover:text-gray-900'
                   )}
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#005B54]" />
+                  <SparkleIcon size={14} weight="fill" className="text-[#005B54]" />
                   <span>Pencarian AI</span>
                 </button>
                 <button
@@ -118,7 +118,7 @@ export function PublicTopbar({
                       : 'text-gray-600 hover:text-gray-900'
                   )}
                 >
-                  <Search className="w-3.5 h-3.5" />
+                  <MagnifyingGlassIcon size={14} weight="bold" />
                   <span>Cari Biasa</span>
                 </button>
               </div>
@@ -128,7 +128,7 @@ export function PublicTopbar({
                 onClick={() => setMobileSearchOpen(false)}
                 className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <XIcon size={16} weight="bold" />
               </button>
             </div>
 
@@ -170,9 +170,9 @@ export function PublicTopbar({
                 setMobileSearchMode('ai');
                 setMobileSearchOpen(true);
               }}
-              className="h-9 px-2.5 flex items-center gap-1.5 rounded-[10px] bg-gradient-to-r from-[#EAFBF7] to-[#E2F7F2] border border-[#A7F3D0] text-[#005B54] text-xs font-semibold hover:bg-[#d8f4e6] active:scale-95 transition-all cursor-pointer shrink-0"
+              className="h-9 px-2.5 flex items-center gap-1.5 rounded-[10px] bg-gradient-to-r from-[#EAFBF7] to-[#E2F7F2] border border-[#005B54] text-[#005B54] text-xs font-semibold hover:bg-[#d8f4e6] active:scale-95 transition-all cursor-pointer shrink-0"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#005B54] shrink-0" />
+              <SparkleIcon size={14} weight="fill" className="text-[#005B54] shrink-0" />
               <span className="text-[11px] font-bold">Cari AI</span>
               <span className="text-[9px] font-extrabold bg-[#005B54] text-white px-1 py-0.5 rounded-[4px] leading-none">
                 AI
@@ -189,7 +189,7 @@ export function PublicTopbar({
               title="Cari Cafe / Lokasi"
               className="w-9 h-9 flex items-center justify-center rounded-[10px] bg-gray-50 hover:bg-gray-100 active:bg-gray-200 text-gray-700 border border-gray-200 transition-colors cursor-pointer shrink-0"
             >
-              <Search className="w-4 h-4" />
+              <MagnifyingGlassIcon size={16} weight="bold" />
             </button>
           </div>
 
@@ -228,11 +228,11 @@ export function PublicTopbar({
               className={cn(
                 'w-9 h-9 flex items-center justify-center rounded-[10px] border transition-all cursor-pointer relative',
                 isCriteriaOpen
-                  ? 'bg-[#005B54] text-white border-[#005B54] shadow-xs ring-2 ring-[#005B54]/20'
+                  ? 'bg-[#005B54] text-white border-[#005B54] shadow-xs'
                   : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'
               )}
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontalIcon size={16} weight="bold" />
               {activeFilterCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#005B54] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
                   {activeFilterCount}
@@ -249,7 +249,7 @@ export function PublicTopbar({
             href="/tambah-tempat"
             className="hidden md:flex h-[40px] items-center gap-1.5 px-2.5 lg:px-3.5 text-xs font-semibold rounded-[12px] bg-[#005B54] text-white hover:bg-[#004741] transition-all shadow-xs cursor-pointer shrink-0"
           >
-            <MapPinPlus className="w-4 h-4 stroke-[2.2]" />
+            <MapPinPlusIcon size={16} weight="bold" />
             <span className="hidden xl:inline">Tambah Tempat</span>
             <span className="inline xl:hidden">Tambah</span>
           </Link>
@@ -259,7 +259,7 @@ export function PublicTopbar({
             href="/lapor-fasilitas"
             className="hidden md:flex h-[40px] items-center gap-1.5 px-2.5 lg:px-3.5 text-xs font-semibold rounded-[12px] bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] hover:bg-[#fee2e2] transition-all cursor-pointer shrink-0"
           >
-            <AlertTriangle className="w-4 h-4 text-[#DC2626] stroke-[2.2] shrink-0" />
+            <WarningIcon size={16} weight="duotone" className="text-[#DC2626] shrink-0" />
             <span className="hidden xl:inline">Lapor Fasilitas</span>
             <span className="inline xl:hidden">Lapor</span>
           </Link>
@@ -270,7 +270,7 @@ export function PublicTopbar({
             title="Menu"
             className="md:hidden w-9 h-9 flex items-center justify-center rounded-[10px] bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 transition-colors cursor-pointer shrink-0"
           >
-            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            {mobileMenuOpen ? <XIcon size={16} weight="bold" /> : <ListIcon size={16} weight="bold" />}
           </button>
         </div>
 
@@ -288,7 +288,7 @@ export function PublicTopbar({
                 className="w-full flex items-center justify-between text-xs text-gray-700 p-2.5 rounded-xl hover:bg-gray-50 border border-gray-100 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="w-4 h-4 text-[#005B54]" />
+                  <SlidersHorizontalIcon size={16} weight="bold" className="text-[#005B54]" />
                   <span className="font-semibold">Filter GIS & Preferensi</span>
                 </div>
                 {activeFilterCount > 0 && (
@@ -305,7 +305,7 @@ export function PublicTopbar({
                 onClick={() => setMobileMenuOpen(false)}
                 className="h-[40px] flex items-center justify-center gap-2 text-xs font-semibold rounded-[10px] bg-[#005B54] text-white hover:bg-[#004741] transition-all"
               >
-                <MapPinPlus className="w-4 h-4 stroke-[2.2]" />
+                <MapPinPlusIcon size={16} weight="bold" />
                 <span>Tambah Tempat Baru</span>
               </Link>
               <Link
@@ -313,7 +313,7 @@ export function PublicTopbar({
                 onClick={() => setMobileMenuOpen(false)}
                 className="h-[40px] flex items-center justify-center gap-2 text-xs font-semibold rounded-[10px] bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] hover:bg-[#fee2e2] transition-all"
               >
-                <AlertTriangle className="w-4 h-4 text-[#DC2626] stroke-[2.2]" />
+                <WarningIcon size={16} weight="duotone" className="text-[#DC2626]" />
                 <span>Lapor & Koreksi Fasilitas</span>
               </Link>
             </div>

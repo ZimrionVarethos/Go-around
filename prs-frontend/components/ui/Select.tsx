@@ -1,5 +1,5 @@
 import { cn } from '@/lib/cn';
-import { ChevronDown } from 'lucide-react';
+import { CaretDownIcon } from '@phosphor-icons/react';
 import { forwardRef, SelectHTMLAttributes } from 'react';
 
 export interface SelectOption {
@@ -51,7 +51,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               : children}
           </select>
           <div className="absolute right-3 pointer-events-none text-text-400 flex items-center">
-            <ChevronDown className="w-4 h-4" />
+            <CaretDownIcon weight="bold" className="w-4 h-4" />
           </div>
         </div>
         {error ? (

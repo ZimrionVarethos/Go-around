@@ -1,6 +1,12 @@
 'use client';
 
-import { Banknote, Blend, MapPin, MoonStar, Wifi } from 'lucide-react';
+import {
+  MapPinIcon,
+  MoneyIcon,
+  MoonStarsIcon,
+  SlidersIcon,
+  WifiHighIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import type { RecommendationPreset } from '@/lib/recommendations';
 
@@ -8,37 +14,37 @@ const PRESETS: Array<{
   id: Exclude<RecommendationPreset, 'custom'>;
   label: string;
   description: string;
-  icon: typeof Blend;
+  icon: typeof SlidersIcon;
 }> = [
   {
     id: 'balanced',
     label: 'Seimbang',
     description: 'Semua kebutuhan dipertimbangkan',
-    icon: Blend,
+    icon: SlidersIcon,
   },
   {
     id: 'nearby',
     label: 'Paling dekat',
     description: 'Utamakan jarak dari lokasimu',
-    icon: MapPin,
+    icon: MapPinIcon,
   },
   {
     id: 'budget',
     label: 'Paling hemat',
     description: 'Cari harga yang ramah kantong',
-    icon: Banknote,
+    icon: MoneyIcon,
   },
   {
     id: 'study',
     label: 'Fokus nugas',
     description: 'Wi-Fi dan colokan lebih penting',
-    icon: Wifi,
+    icon: WifiHighIcon,
   },
   {
     id: 'quiet',
     label: 'Tenang',
     description: 'Prioritaskan suasana kondusif',
-    icon: MoonStar,
+    icon: MoonStarsIcon,
   },
 ];
 
@@ -57,7 +63,7 @@ export function PreferencePresetSelector({
       <p className="mt-1 text-xs leading-relaxed text-slate-500">
         Pilih satu titik awal. Bobotnya masih bisa kamu atur manual.
       </p>
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-3 grid grid-cols-1 min-[360px]:grid-cols-2 gap-2">
         {PRESETS.map((preset) => {
           const Icon = preset.icon;
           const isSelected = value === preset.id;
@@ -73,11 +79,11 @@ export function PreferencePresetSelector({
                 isSelected
                   ? 'bg-[#E8F8F5] text-[#004741] ring-1 ring-[#005B54]'
                   : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300',
-                preset.id === 'balanced' && 'col-span-2',
+                preset.id === 'balanced' && 'min-[360px]:col-span-2',
               )}
             >
               <span className="flex items-center gap-2">
-                <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <Icon size={16} weight={isSelected ? 'fill' : 'duotone'} className="shrink-0" aria-hidden="true" />
                 <span className="text-xs font-bold">{preset.label}</span>
               </span>
               <span className={cn(

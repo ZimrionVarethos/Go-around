@@ -1,16 +1,17 @@
 'use client';
 
 import {
-  CircleHelp,
-  Image as ImageIcon,
-  MapPin,
-  Navigation,
-  Share2,
-  Star,
-  Volume2,
-  Wifi,
-  Zap,
-} from 'lucide-react';
+  ImageIcon,
+  MapPinIcon,
+  NavigationArrowIcon,
+  QuestionIcon,
+  StarIcon,
+} from '@phosphor-icons/react';
+import {
+  DynamicAcousticIcon,
+  DynamicPlugIcon,
+  DynamicWifiIcon,
+} from '@/components/ui/FacilityIcons';
 import type { PlaceListItem } from '@/lib/types';
 import type { RecommendationPlace } from '@/lib/recommendations';
 import {
@@ -147,15 +148,39 @@ export function PlaceCard({
     onToast?.(`Membuka navigasi ke ${place.name}…`, 'info');
   };
 
-  const handleShare = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    const shareUrl = `${window.location.origin}/?place=${place.slug}`;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      onToast?.('Tautan lokasi berhasil disalin.', 'success');
-    }).catch(() => {
-      onToast?.('Tautan belum bisa disalin.', 'error');
-    });
-  };
+  const metricItems = [
+    {
+      key: 'wifi',
+      copy: metrics.wifi,
+      icon: (
+        <DynamicWifiIcon
+          speedMbps={place.wifi_speed_mbps}
+          quality={place.wifi_quality}
+          size={isSelected ? 16 : 14}
+        />
+      ),
+    },
+    {
+      key: 'plug',
+      copy: metrics.plug,
+      icon: (
+        <DynamicPlugIcon
+          availability={place.plug_availability}
+          size={isSelected ? 16 : 14}
+        />
+      ),
+    },
+    {
+      key: 'quiet',
+      copy: metrics.quiet,
+      icon: (
+        <DynamicAcousticIcon
+          noiseLevel={place.noise_level}
+          size={isSelected ? 16 : 14}
+        />
+      ),
+    },
+  ];
 
   return (
     <article
@@ -174,7 +199,7 @@ export function PlaceCard({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={place.image_url} alt="" className="h-full w-full object-cover" />
           ) : (
-            <ImageIcon className="h-5 w-5" aria-hidden="true" />
+            <ImageIcon size={20} weight="duotone" aria-hidden="true" />
           )}
           <span className="absolute bottom-1 left-1 rounded-md bg-slate-950/85 px-1.5 py-0.5 text-[9px] font-extrabold text-white">
             #{rank}
@@ -200,7 +225,7 @@ export function PlaceCard({
           </div>
 
           <p className="mt-1 flex items-center gap-1 truncate text-xs font-medium text-slate-500">
-            <MapPin className="h-3.5 w-3.5 shrink-0 text-[#005B54]" aria-hidden="true" />
+            <MapPinIcon size={14} weight="fill" className="shrink-0 text-[#005B54]" aria-hidden="true" />
             <span className="truncate">{place.subdistrict}{distance ? ` · ${distance}` : ''}</span>
           </p>
 
@@ -218,7 +243,7 @@ export function PlaceCard({
 
           {place.google_rating !== null && (
             <p className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600 tabular-nums">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-500" aria-hidden="true" />
+              <StarIcon size={12} weight="fill" className="text-amber-500" aria-hidden="true" />
               <span>{place.google_rating.toFixed(1)} / 5</span>
               {place.total_google_reviews !== null && (
                 <span className="font-medium text-slate-400">({place.total_google_reviews.toLocaleString('id-ID')})</span>
@@ -230,28 +255,23 @@ export function PlaceCard({
 
       <div className={isSelected
         ? 'grid grid-cols-3 divide-x divide-slate-200 rounded-xl bg-slate-50 px-1 py-2.5'
-        : 'flex items-center gap-2 overflow-hidden border-t border-slate-100 pt-2 text-[11px]'}>
-        {[
-          { key: 'wifi', icon: Wifi, copy: metrics.wifi },
-          { key: 'plug', icon: Zap, copy: metrics.plug },
-          { key: 'quiet', icon: Volume2, copy: metrics.quiet },
-        ].map((metric) => {
-          const Icon = metric.icon;
-          return isSelected ? (
+        : 'flex flex-wrap items-center gap-x-2.5 gap-y-1 border-t border-slate-100 pt-2 text-[11px]'}>
+        {metricItems.map((metric) => (
+          isSelected ? (
             <div key={metric.key} className="min-w-0 px-1 text-center">
               <p className="flex items-center justify-center gap-1 text-[11px] font-extrabold text-slate-900">
-                <Icon className="h-3.5 w-3.5 shrink-0 text-[#005B54]" aria-hidden="true" />
+                {metric.icon}
                 <span className="truncate">{metric.copy.value}</span>
               </p>
               <p className="mt-0.5 truncate text-[9px] font-medium text-slate-500">{metric.copy.detail}</p>
             </div>
           ) : (
             <span key={metric.key} className="inline-flex shrink-0 items-center gap-1 font-medium text-slate-600">
-              <Icon className="h-3 w-3 text-[#005B54]" aria-hidden="true" />
+              {metric.icon}
               {metric.copy.value}
             </span>
-          );
-        })}
+          )
+        ))}
       </div>
 
       {isSelected && recommendation && (
@@ -280,7 +300,7 @@ export function PlaceCard({
 
           {recommendation.warnings.map((warning) => (
             <p key={warning} className="flex items-start gap-1.5 text-[10px] leading-relaxed text-amber-800">
-              <CircleHelp className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
+              <QuestionIcon size={13} weight="bold" className="mt-0.5 shrink-0" aria-hidden="true" />
               {warning}
             </p>
           ))}
@@ -294,16 +314,8 @@ export function PlaceCard({
             onClick={handleRoute}
             className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#005B54] px-3 text-xs font-bold text-white transition-colors hover:bg-[#004741] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54] focus-visible:ring-offset-2"
           >
-            <Navigation className="h-3.5 w-3.5" aria-hidden="true" />
+            <NavigationArrowIcon size={14} weight="fill" aria-hidden="true" />
             Buka rute
-          </button>
-          <button
-            type="button"
-            onClick={handleShare}
-            aria-label={`Bagikan ${place.name}`}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 ring-1 ring-slate-200 transition-colors hover:bg-slate-50 hover:text-[#005B54] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54]"
-          >
-            <Share2 className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       )}

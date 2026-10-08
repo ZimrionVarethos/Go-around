@@ -1,5 +1,5 @@
 import { cn } from '@/lib/cn';
-import { AlertTriangle, FolderOpen } from 'lucide-react';
+import { WarningIcon, FolderOpenIcon } from '@phosphor-icons/react';
 import React from 'react';
 
 // Generic Skeleton element
@@ -50,7 +50,7 @@ export function TableRowSkeleton({ cols = 6 }: { cols?: number }) {
 
 // Empty state
 export function EmptyState({
-  icon = <FolderOpen className="w-6 h-6" />,
+  icon = <FolderOpenIcon weight="duotone" className="w-6 h-6" />,
   title,
   description,
   action,
@@ -87,7 +87,7 @@ export function ErrorState({
   return (
     <div className={cn('flex flex-col items-center justify-center gap-3 py-12 px-6 text-center', className)}>
       <div className="w-12 h-12 rounded-full bg-danger-bg flex items-center justify-center text-danger-base">
-        <AlertTriangle className="w-6 h-6" />
+        <WarningIcon weight="duotone" className="w-6 h-6" />
       </div>
       <p className="text-sm font-semibold text-text-900">{message}</p>
       {onRetry && (

@@ -1,14 +1,20 @@
 'use client';
 
 import { Toast } from '@/hooks/useToast';
-import { CheckCircle2, XCircle, Info, AlertTriangle, X } from 'lucide-react';
+import {
+  CheckCircleIcon,
+  XCircleIcon,
+  InfoIcon,
+  WarningIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 
 const icons = {
-  success: <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />,
-  error: <XCircle className="w-4 h-4 text-red-500 shrink-0" />,
-  info: <Info className="w-4 h-4 text-blue-500 shrink-0" />,
-  warning: <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />,
+  success: <CheckCircleIcon weight="fill" className="w-4 h-4 text-emerald-500 shrink-0" />,
+  error: <XCircleIcon weight="fill" className="w-4 h-4 text-red-500 shrink-0" />,
+  info: <InfoIcon weight="fill" className="w-4 h-4 text-blue-500 shrink-0" />,
+  warning: <WarningIcon weight="fill" className="w-4 h-4 text-amber-500 shrink-0" />,
 };
 
 const colors = {
@@ -27,12 +33,12 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none">
+    <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none w-[calc(100vw-24px)] sm:w-auto items-center">
       {toasts.map((toast) => (
         <div
           key={toast.id}
           className={cn(
-            'flex items-center gap-2.5 px-4 py-2.5 rounded-xl border shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-3 duration-200 pointer-events-auto min-w-[220px] max-w-[340px]',
+            'flex items-center gap-2.5 px-4 py-2.5 rounded-xl border shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-3 duration-200 pointer-events-auto min-w-[220px] max-w-[calc(100vw-24px)] sm:max-w-[360px]',
             colors[toast.type]
           )}
         >
@@ -40,9 +46,10 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
           <span className="flex-1 text-[13px] leading-tight">{toast.message}</span>
           <button
             onClick={() => onDismiss(toast.id)}
-            className="text-current opacity-50 hover:opacity-100 transition-opacity cursor-pointer shrink-0"
+            className="text-current opacity-50 hover:opacity-100 transition-opacity cursor-pointer shrink-0 p-1"
+            aria-label="Tutup notifikasi"
           >
-            <X className="w-3.5 h-3.5" />
+            <XIcon weight="bold" className="w-3.5 h-3.5" />
           </button>
         </div>
       ))}

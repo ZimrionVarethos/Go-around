@@ -2,16 +2,16 @@
 
 import { useState } from 'react';
 import {
-  ArrowLeft,
-  Check,
-  ChevronsDown,
-  ChevronsLeft,
-  ChevronsRight,
-  ChevronsUp,
-  Download,
-  Map as MapIcon,
-  SlidersHorizontal,
-} from 'lucide-react';
+  ArrowLeftIcon,
+  CaretDoubleDownIcon,
+  CaretDoubleLeftIcon,
+  CaretDoubleRightIcon,
+  CaretDoubleUpIcon,
+  CheckIcon,
+  DownloadSimpleIcon,
+  MapTrifoldIcon,
+  SlidersHorizontalIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import {
   DEFAULT_RECOMMENDATION_REQUEST,
@@ -97,18 +97,18 @@ export function RecommendationPanel({
         type="button"
         onClick={() => onToggleCollapse(false)}
         className={cn(
-          'absolute bottom-[44px] left-1/2 z-[400] flex -translate-x-1/2 items-center gap-2.5 rounded-full bg-white/95 px-4 py-2 text-left shadow-[0_10px_26px_-14px_rgba(15,23,42,0.65)] ring-1 ring-slate-200 backdrop-blur-md transition-shadow hover:shadow-[0_14px_30px_-14px_rgba(0,91,84,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54] md:bottom-auto md:left-6 md:top-[138px] md:translate-x-0 md:rounded-2xl md:px-3.5 md:py-2.5',
+          'absolute bottom-[44px] left-1/2 z-[400] flex -translate-x-1/2 items-center gap-2.5 rounded-full bg-white/95 px-4 py-2 text-left shadow-[0_10px_26px_-14px_rgba(15,23,42,0.65)] ring-1 ring-slate-200 backdrop-blur-md transition-shadow hover:shadow-[0_14px_30px_-14px_rgba(0,91,84,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54] md:bottom-auto md:left-6 md:top-[138px] md:translate-x-0 md:rounded-2xl md:px-3.5 md:py-2.5 whitespace-nowrap max-w-[calc(100vw-24px)]',
           className,
         )}
         aria-label="Buka panel rekomendasi"
       >
-        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#E8F8F5] text-[#005B54]">
-          <ChevronsUp className="h-4 w-4 md:hidden" aria-hidden="true" />
-          <ChevronsRight className="hidden h-4 w-4 md:block" aria-hidden="true" />
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#E8F8F5] text-[#005B54]">
+          <CaretDoubleUpIcon size={15} weight="bold" className="md:hidden" aria-hidden="true" />
+          <CaretDoubleRightIcon size={15} weight="bold" className="hidden md:block" aria-hidden="true" />
         </span>
-        <span className="text-xs font-extrabold tracking-tight text-slate-900">Rekomendasi Nugas</span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#E8F8F5] px-2 py-0.5 text-[11px] font-bold text-[#005B54]">
-          <Check className="h-2.5 w-2.5 stroke-[3]" aria-hidden="true" />
+        <span className="text-xs font-extrabold tracking-tight text-slate-900 truncate">Rekomendasi Nugas</span>
+        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#E8F8F5] px-2 py-0.5 text-[11px] font-bold text-[#005B54]">
+          <CheckIcon size={11} weight="bold" aria-hidden="true" />
           {spotCount} spot
         </span>
       </button>
@@ -121,7 +121,7 @@ export function RecommendationPanel({
       className={cn(
         'absolute bottom-0 left-0 right-0 z-[400] flex max-h-[62vh] flex-col overflow-hidden rounded-t-2xl bg-white shadow-[0_18px_48px_-18px_rgba(15,23,42,0.55)] ring-1 ring-slate-200 pointer-events-auto',
         view === 'criteria' && 'max-h-[82vh]',
-        'md:bottom-3.5 md:left-6 md:right-auto md:top-[138px] md:max-h-none md:w-[430px] md:rounded-2xl',
+        'md:bottom-3.5 md:left-6 md:right-auto md:top-[138px] md:max-h-none md:w-[370px] lg:w-[430px] md:rounded-2xl',
         className,
       )}
     >
@@ -141,7 +141,7 @@ export function RecommendationPanel({
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54]"
                 aria-label="Kembali ke hasil rekomendasi"
               >
-                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                <ArrowLeftIcon size={16} weight="bold" aria-hidden="true" />
               </button>
             )}
             <div className="min-w-0">
@@ -168,7 +168,7 @@ export function RecommendationPanel({
             className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54] md:flex"
             aria-label="Ciutkan panel rekomendasi"
           >
-            <ChevronsLeft className="h-4 w-4" aria-hidden="true" />
+            <CaretDoubleLeftIcon size={16} weight="bold" aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -176,7 +176,7 @@ export function RecommendationPanel({
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54] md:hidden"
             aria-label="Ciutkan panel rekomendasi"
           >
-            <ChevronsDown className="h-4 w-4" aria-hidden="true" />
+            <CaretDoubleDownIcon size={16} weight="bold" aria-hidden="true" />
           </button>
         </div>
       </header>
@@ -251,8 +251,8 @@ export function RecommendationPanel({
             )}
           </div>
 
-          <footer className="flex shrink-0 items-center justify-between border-t border-slate-100 bg-white px-4 py-2.5 text-xs text-slate-600">
-            <div className="flex items-center gap-2">
+          <footer className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-slate-100 bg-white px-4 py-2.5 text-xs text-slate-600">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={onToggleLegend}
@@ -263,7 +263,7 @@ export function RecommendationPanel({
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
                 )}
               >
-                <MapIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                <MapTrifoldIcon size={15} weight="duotone" aria-hidden="true" />
                 Legenda
               </button>
               <button
@@ -271,7 +271,7 @@ export function RecommendationPanel({
                 onClick={() => setView('criteria')}
                 className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 font-semibold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54]"
               >
-                <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
+                <SlidersHorizontalIcon size={15} weight="bold" aria-hidden="true" />
                 Kriteria
               </button>
             </div>
@@ -280,7 +280,7 @@ export function RecommendationPanel({
               onClick={onDownloadGeoJson}
               className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[#E8F8F5] px-2.5 font-bold text-[#005B54] transition-colors hover:bg-[#D4F2EC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54]"
             >
-              <Download className="h-3.5 w-3.5" aria-hidden="true" />
+              <DownloadSimpleIcon size={15} weight="bold" aria-hidden="true" />
               GeoJSON
             </button>
           </footer>

@@ -1,6 +1,13 @@
 'use client';
 
-import { Zap, Headphones, Banknote, Clock, SlidersHorizontal, X } from 'lucide-react';
+import {
+  ClockIcon,
+  HeadphonesIcon,
+  MoneyIcon,
+  PlugChargingIcon,
+  SlidersHorizontalIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import type { PlaceFilters } from '@/lib/types';
 import {
@@ -145,25 +152,29 @@ export function FilterBar({
   return (
     <div
       className={cn(
-        'flex items-center gap-2 select-none overflow-x-auto no-scrollbar',
+        'flex items-center gap-2 select-none overflow-x-auto no-scrollbar pb-0.5',
         className
       )}
     >
-      {/* 1. Colokan Tiap Meja (Active by default in Figma design) */}
+      {/* 1. Colokan Tiap Meja */}
       <button
         type="button"
         onClick={togglePlug}
         className={cn(
           'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 tactile-press',
           isPlugActive
-            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)] ring-2 ring-[#005B54]/20'
+            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)]'
             : 'glass-island-subtle text-slate-700 hover:text-slate-900 hover:border-slate-300'
         )}
       >
-        <Zap className={cn('w-3.5 h-3.5', isPlugActive ? 'text-amber-300 fill-amber-300' : 'text-amber-500')} />
+        <PlugChargingIcon
+          size={15}
+          weight="fill"
+          className={cn(isPlugActive ? 'text-amber-300' : 'text-amber-500')}
+        />
         <span>Colokan Tiap Meja</span>
         {isPlugActive ? (
-          <X className="w-3.5 h-3.5 text-white/80 hover:text-white" />
+          <XIcon size={14} weight="bold" className="text-white/80 hover:text-white" />
         ) : null}
       </button>
 
@@ -174,13 +185,17 @@ export function FilterBar({
         className={cn(
           'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 tactile-press',
           isQuietActive
-            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)] ring-2 ring-[#005B54]/20'
+            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)]'
             : 'glass-island-subtle text-slate-700 hover:text-slate-900 hover:border-slate-300'
         )}
       >
-        <Headphones className={cn('w-3.5 h-3.5', isQuietActive ? 'text-white' : 'text-teal-700')} />
+        <HeadphonesIcon
+          size={15}
+          weight="duotone"
+          className={cn(isQuietActive ? 'text-white' : 'text-teal-700')}
+        />
         <span>Tenang &amp; Kondusif (&lt; 45dB)</span>
-        {isQuietActive && <X className="w-3.5 h-3.5 text-white/80" />}
+        {isQuietActive && <XIcon size={14} weight="bold" className="text-white/80" />}
       </button>
 
       {/* 3. Es Kopi < Rp25.000 */}
@@ -190,13 +205,17 @@ export function FilterBar({
         className={cn(
           'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 tactile-press',
           isBudgetActive
-            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)] ring-2 ring-[#005B54]/20'
+            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)]'
             : 'glass-island-subtle text-slate-700 hover:text-slate-900 hover:border-slate-300'
         )}
       >
-        <Banknote className={cn('w-3.5 h-3.5', isBudgetActive ? 'text-white' : 'text-emerald-600')} />
+        <MoneyIcon
+          size={15}
+          weight="duotone"
+          className={cn(isBudgetActive ? 'text-white' : 'text-emerald-600')}
+        />
         <span>Es Kopi &lt; Rp25.000</span>
-        {isBudgetActive && <X className="w-3.5 h-3.5 text-white/80" />}
+        {isBudgetActive && <XIcon size={14} weight="bold" className="text-white/80" />}
       </button>
 
       {/* 4. Buka 24 Jam Nonstop */}
@@ -206,13 +225,17 @@ export function FilterBar({
         className={cn(
           'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 tactile-press',
           is24HoursActive
-            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)] ring-2 ring-[#005B54]/20'
+            ? 'bg-[#005B54] text-white shadow-[0_4px_12px_rgba(0,91,84,0.3)]'
             : 'glass-island-subtle text-slate-700 hover:text-slate-900 hover:border-slate-300'
         )}
       >
-        <Clock className={cn('w-3.5 h-3.5', is24HoursActive ? 'text-white' : 'text-amber-500')} />
+        <ClockIcon
+          size={15}
+          weight="duotone"
+          className={cn(is24HoursActive ? 'text-white' : 'text-amber-500')}
+        />
         <span>Buka 24 Jam Nonstop</span>
-        {is24HoursActive && <X className="w-3.5 h-3.5 text-white/80" />}
+        {is24HoursActive && <XIcon size={14} weight="bold" className="text-white/80" />}
       </button>
 
       {/* 5. Reset Filter */}
@@ -221,7 +244,7 @@ export function FilterBar({
         onClick={resetFilters}
         className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold glass-island-subtle text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-all cursor-pointer shrink-0 ml-auto tactile-press"
       >
-        <SlidersHorizontal className="w-3.5 h-3.5 text-teal-700" />
+        <SlidersHorizontalIcon size={15} weight="bold" className="text-teal-700" />
         <span>Reset Filter</span>
       </button>
 

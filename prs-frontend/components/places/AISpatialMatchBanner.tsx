@@ -1,6 +1,10 @@
 'use client';
 
-import { Sparkles, SlidersHorizontal, Trophy } from 'lucide-react';
+import {
+  SlidersHorizontalIcon,
+  SparkleIcon,
+  TrophyIcon,
+} from '@phosphor-icons/react';
 import type { RecommendationRequest } from '@/lib/recommendations';
 import { RecommendationCriteriaSummary } from '@/components/recommendations';
 
@@ -61,7 +65,7 @@ export function AISpatialMatchBanner({
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2.5">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#005B54] text-white shadow-xs">
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+            <SparkleIcon size={15} weight="fill" aria-hidden="true" />
           </span>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
@@ -83,7 +87,7 @@ export function AISpatialMatchBanner({
           title="Atur kriteria manual"
           className="inline-flex min-h-7 shrink-0 items-center gap-1 rounded-lg px-2 text-[11px] font-bold text-[#005B54] hover:bg-white border border-transparent hover:border-[#005B54]/20 transition-all cursor-pointer"
         >
-          <SlidersHorizontal className="h-3 w-3" aria-hidden="true" />
+          <SlidersHorizontalIcon size={13} weight="bold" aria-hidden="true" />
           <span>Atur</span>
         </button>
       </div>
@@ -95,7 +99,7 @@ export function AISpatialMatchBanner({
       {topPlaceName && (
         <div className="mt-3 flex items-center justify-between border-t border-[#005B54]/10 pt-2.5 text-[11px]">
           <span className="flex items-center gap-1.5 text-slate-600 min-w-0">
-            <Trophy className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-hidden="true" />
+            <TrophyIcon size={15} weight="duotone" className="shrink-0 text-amber-500" aria-hidden="true" />
             <span className="truncate">
               Pilihan teratas: <strong className="font-bold text-slate-900">{topPlaceName}</strong>
             </span>

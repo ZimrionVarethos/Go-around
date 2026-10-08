@@ -1,5 +1,5 @@
 import { cn } from '@/lib/cn';
-import { Check } from 'lucide-react';
+import { CheckIcon } from '@phosphor-icons/react';
 import { forwardRef, InputHTMLAttributes, ReactNode } from 'react';
 
 export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
@@ -59,7 +59,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                   : 'bg-white border-border-strong peer-focus-visible:ring-2 peer-focus-visible:ring-primary-700'
               )}
             >
-              {checked && <Check className="w-3 h-3 stroke-[3]" />}
+              {checked && <CheckIcon weight="bold" className="w-3 h-3" />}
             </div>
           </div>
           {icon && <div className="text-primary-700 shrink-0 mt-0.5">{icon}</div>}
@@ -99,7 +99,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                 : 'bg-white border-border-strong hover:border-text-400 peer-focus-visible:ring-2 peer-focus-visible:ring-primary-700'
             )}
           >
-            {checked && <Check className="w-3 h-3 stroke-[3]" />}
+            {checked && <CheckIcon weight="bold" className="w-3 h-3" />}
           </div>
         </div>
         <div className="flex flex-col">
