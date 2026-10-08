@@ -204,6 +204,33 @@ RateLimiter::for('analytics-track', function (Request $request) {
   'photo_menu'      => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
   ```
 
+### 4.8. Optimasi Performa Query Spasial & Pembatasan Marker Viewport (Wajib untuk Ratusan Titik CSV)
+Saat data hasil *scraping* CSV Kota Bogor sudah masuk hingga ratusan titik kafe, me-render seluruh marker `L.divIcon` sekaligus di peta Leaflet akan membebani DOM di browser HP. Oleh karena itu, Backend **wajib** menerapkan 3 optimasi berikut pada `SpatialSearchService.php` dan database:
+
+1. **Hard-Cap Jumlah Titik per Viewport (`GET /api/v1/places/bbox`)**:
+   - Di `SpatialSearchService::searchInBoundingBox()`, kunci batas `limit` maksimal **80–100 titik per layar** (jangan biarkan parameter `?limit=` tanpa batas atas) dan prioritaskan tempat yang sudah terverifikasi serta memiliki skor tertinggi:
+     ```php
+     $safeLimit = min(max((int) $request->input('limit', 80), 1), 100);
+
+     return $query
+         ->orderByDesc('is_verified')
+         ->orderByDesc('nugas_score')
+         ->limit($safeLimit)
+         ->get();
+     ```
+   - Dengan cara ini, saat pengguna melakukan *zoom out* di peta Kota Bogor, hanya 80–100 tempat terbaik di area layar tersebut yang dikirim ke Frontend, dan ketika pengguna melakukan *zoom in* ke kecamatan/jalan tertentu, titik-titik kafe lainnya di area tersebut akan muncul secara dinamis.
+
+2. **Composite Index Spasial pada Tabel `places`**:
+   - Tambahkan composite index pada migrasi tabel `places` agar query `inBoundingBox` saat pengguna menggeser peta (*pan/zoom*) tetap dieksekusi di bawah `< 15 ms` tanpa *full table scan*:
+     ```php
+     Schema::table('places', function (Blueprint $table) {
+         $table->index(['status', 'latitude', 'longitude', 'nugas_score'], 'places_spatial_bbox_idx');
+     });
+     ```
+
+3. **Diet Payload GeoJSON (`bbox` vs `show`)**:
+   - Pada endpoint `GET /api/v1/places/bbox` dan `GET /api/v1/places/nearby`, hanya muat kolom ringkas yang dibutuhkan oleh pin peta & kartu daftar samping (hindari `with(['reviews'])` atau teks ulasan panjang). Relasi lengkap (`reviews`, deskripsi detail) hanya dimuat saat pengguna mengklik satu tempat (`GET /api/v1/places/{idOrSlug}`).
+
 ---
 
 ## 5. Kontrak Lengkap Endpoint REST API
@@ -340,10 +367,12 @@ Agar struktur folder Laravel tetap rapi dan standar, berikut daftar file yang pe
   - `2026_08_27_000001_add_admin_fields_to_users_table.php`
   - `2026_08_27_000002_create_facility_reports_table.php`
   - `2026_08_27_000003_create_spatial_analytics_events_table.php`
-- [ ] **Models (`app/Models/`)**:
+  - `2026_08_27_000004_add_spatial_bbox_index_to_places_table.php` (composite index `['status', 'latitude', 'longitude', 'nugas_score']`)
+- [ ] **Models & Services (`app/Models/` & `app/Services/`)**:
   - Update `User.php` (tambahkan `HasApiTokens` dari Laravel Sanctum)
   - Buat `FacilityReport.php`
   - Buat `SpatialAnalyticsEvent.php`
+  - Update `SpatialSearchService.php` (terapkan *hard-cap* `limit` maksimal 80–100 titik per viewport pada `searchInBoundingBox` dengan urutan prioritas `is_verified DESC, nugas_score DESC`)
 - [ ] **Artisan Command Import CSV (`app/Console/Commands/`)**:
   - Buat `ImportBogorPlacesCommand.php` (`php artisan goaround:import-csv`) untuk mengimpor CSV Scraping Peta + CSV Survey Form Mahasiswa.
 - [ ] **Controllers (`app/Http/Controllers/Api/`)**:
