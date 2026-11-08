@@ -10,6 +10,7 @@ class Contribution extends Model
     use HasFactory;
 
     protected $fillable = [
+        'code',
         'name',
         'address',
         'subdistrict',
@@ -24,6 +25,9 @@ class Contribution extends Model
         'submitter_name',
         'submitter_email',
         'status',
+        'image_url',
+        'category_name',
+        'evidence_photos',
     ];
 
     protected $casts = [

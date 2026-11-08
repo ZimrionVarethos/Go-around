@@ -14,6 +14,7 @@ class Place extends Model
     use HasFactory;
 
     protected $fillable = [
+        'code',
         'category_id',
         'name',
         'slug',

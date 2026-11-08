@@ -26,8 +26,10 @@ class PlaceGeoJsonResource extends JsonResource
             ],
             'properties' => [
                 'id' => $this->id,
+                'code' => $this->code ?: 'KF-' . str_pad((string)$this->id, 3, '0', STR_PAD_LEFT),
                 'name' => $this->name,
                 'slug' => $this->slug,
+                'recommendation_score' => (float) ($this->custom_recommendation_score ?? $this->nugas_score),
                 'category' => $this->whenLoaded('category', function () {
                     return [
                         'id' => $this->category->id,
