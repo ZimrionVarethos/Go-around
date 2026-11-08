@@ -1,5 +1,6 @@
 import { httpRecommendationGateway } from './http-gateway';
 import { mockRecommendationGateway } from './mock-gateway';
+import { supabaseRecommendationGateway } from './supabase-gateway';
 import { normalizeRecommendationRequest } from './presets';
 import type {
   RecommendationGateway,
@@ -10,7 +11,9 @@ import type {
 const recommendationGateway: RecommendationGateway =
   process.env.NEXT_PUBLIC_RECOMMENDATION_SOURCE === 'api'
     ? httpRecommendationGateway
-    : mockRecommendationGateway;
+    : process.env.NEXT_PUBLIC_RECOMMENDATION_SOURCE === 'mock'
+    ? mockRecommendationGateway
+    : supabaseRecommendationGateway;
 
 export function getRecommendations(
   request: RecommendationRequest,
