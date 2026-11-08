@@ -321,12 +321,12 @@ export default function MapView({
             icon={createPinIcon(markerScore, isSelected, iconType, isRecommendation)}
             zIndexOffset={isSelected ? 1000 : Math.round(markerScore ?? 0)}
             eventHandlers={{
-              click: () => onMarkerClick(slug),
+              click: () => onMarkerClick(slug || String(feature.id)),
             }}
           >
             <Popup className="custom-leaflet-popup">
               <div
-                onClick={() => onMarkerClick(slug)}
+                onClick={() => onMarkerClick(slug || String(feature.id))}
                 className="cursor-pointer min-w-[180px] p-1 font-sans"
               >
                 {image_url && (

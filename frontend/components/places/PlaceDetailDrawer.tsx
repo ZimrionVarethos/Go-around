@@ -20,12 +20,14 @@ import {
 } from 'lucide-react';
 import { formatNugasScore, formatRupiah, getScoreTier, formatOperationalHours } from '@/lib/utils';
 import { cn } from '@/lib/cn';
+import { formatPlaceDetail } from '@/lib/supabase-api';
 import Link from 'next/link';
 import { useState } from 'react';
 import type { ToastType } from '@/hooks/useToast';
 
 export interface PlaceDetailDrawerProps {
   slug: string | null;
+  initialPlace?: any;
   onClose: () => void;
   /** When true, renders as a bottom sheet (full-width, rounded top) for mobile */
   isMobileSheet?: boolean;
@@ -34,13 +36,14 @@ export interface PlaceDetailDrawerProps {
 
 export function PlaceDetailDrawer({
   slug,
+  initialPlace,
   onClose,
   isMobileSheet = false,
   onToast,
 }: PlaceDetailDrawerProps) {
   const {
     data: placeResponse,
-    isLoading,
+    isLoading: isQueryLoading,
     isError,
     refetch,
   } = usePlaceDetail(slug);
@@ -48,7 +51,11 @@ export function PlaceDetailDrawer({
 
   if (!slug) return null;
 
-  const place = placeResponse?.data;
+  // Prefer fetched detail, fallback to formatted initialPlace
+  const rawPlace = placeResponse?.data ?? (initialPlace ? formatPlaceDetail(initialPlace) : null);
+  const place = rawPlace ? (rawPlace.economics ? rawPlace : formatPlaceDetail(rawPlace)) : null;
+
+  const isLoading = isQueryLoading && !place;
 
   if (isLoading) {
     return (

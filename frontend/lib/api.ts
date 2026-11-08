@@ -19,7 +19,10 @@ import { ApiError as ApiErrorClass } from '@/lib/types';
 import { supabaseApi } from './supabase-api';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
-const USE_SUPABASE = process.env.NEXT_PUBLIC_DATA_SOURCE === 'supabase' || !process.env.NEXT_PUBLIC_API_URL;
+const USE_SUPABASE =
+  process.env.NEXT_PUBLIC_DATA_SOURCE === 'supabase' ||
+  !process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_DATA_SOURCE !== 'api';
 
 // ─── Base fetcher ──────────────────────────────────────────────────────────────
 

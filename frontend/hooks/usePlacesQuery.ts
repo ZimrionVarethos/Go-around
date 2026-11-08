@@ -88,6 +88,7 @@ export function usePlaceDetail(idOrSlug: string | null) {
     queryFn: () => placesApi.detail(idOrSlug!),
     staleTime: 5 * 60 * 1000,
     enabled: !!idOrSlug,
+    retry: 1,
   });
 }
 

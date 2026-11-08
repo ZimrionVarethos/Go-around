@@ -297,7 +297,7 @@ export default function Mapbox3DView({
         .addTo(map);
 
       el.addEventListener('click', () => {
-        onMarkerClick(p.slug);
+        onMarkerClick(p.slug || String(p.id));
       });
 
       markersRef.current.push(marker);

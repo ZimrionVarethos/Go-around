@@ -430,12 +430,13 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       {/* Floating Right Selected Place Detail Drawer
           - Mobile: bottom sheet full-width above footer
           - Desktop: right side panel */}
-      {selectedSlug && recommendationResponse?.meta.source === 'api' && (
+      {selectedSlug && (
         <>
           {/* Desktop drawer (md+) */}
           <div className="hidden md:block absolute top-[88px] right-6 z-[400] pointer-events-auto">
             <PlaceDetailDrawer
               slug={selectedSlug}
+              initialPlace={places.find((p) => p.slug === selectedSlug || String(p.id) === selectedSlug)}
               onClose={() => setSelectedSlug(null)}
               onToast={showToast}
             />
@@ -444,6 +445,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
           <div className="md:hidden absolute bottom-0 left-0 right-0 z-[450] pointer-events-auto">
             <PlaceDetailDrawer
               slug={selectedSlug}
+              initialPlace={places.find((p) => p.slug === selectedSlug || String(p.id) === selectedSlug)}
               onClose={() => setSelectedSlug(null)}
               isMobileSheet
               onToast={showToast}
@@ -465,7 +467,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
         className={cn(
           'absolute bottom-3.5 z-[350] flex items-end gap-3 pointer-events-auto transition-all duration-300',
           // Desktop: shift left when detail drawer is open
-          selectedSlug && recommendationResponse?.meta.source === 'api'
+          selectedSlug
             ? 'right-6 md:right-[456px]'
             : 'right-6'
         )}
