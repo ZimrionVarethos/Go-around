@@ -199,6 +199,14 @@
 
     <!-- ── Floating Right Map Controls ── -->
     <div class="absolute right-4 bottom-6 z-20 flex flex-col gap-2 pointer-events-auto">
+        <!-- 3D Realistic Buildings Toggle -->
+        <button type="button" 
+                @click="toggle3D()" 
+                :title="is3D ? 'Ubah ke Mode Datar 2D' : 'Aktifkan Mode Realistis 3D'"
+                class="w-11 h-11 bg-white hover:bg-teal-50 border border-gray-200 text-[#005B54] rounded-2xl shadow-md flex items-center justify-center font-black text-xs transition-all cursor-pointer">
+            <span x-text="is3D ? '3D' : '2D'" class="tracking-tighter"></span>
+        </button>
+
         <!-- Geolocation Button -->
         <button type="button" 
                 @click="locateUser()" 
@@ -210,7 +218,7 @@
         <!-- Basemap Toggle -->
         <button type="button" 
                 @click="toggleBasemap()" 
-                title="Ganti Peta (OSM / Dark Matter)"
+                title="Ganti Peta (Mapbox 3D / OpenStreetMap / Citra Satelit)"
                 class="w-11 h-11 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-2xl shadow-md flex items-center justify-center transition-all cursor-pointer">
             <i data-lucide="layers" class="w-5 h-5"></i>
         </button>
@@ -427,9 +435,11 @@
     function webgisApp() {
         return {
             map: null,
-            markersLayer: null,
-            tileLayer: null,
-            currentBasemap: 'osm',
+            mapboxToken: '{{ $mapboxToken }}',
+            currentBasemap: 'mapbox', // 'mapbox' | 'osm' | 'satellite'
+            is3D: true,
+            activeMarkers: [],
+            userMarker: null,
             allPlaces: @json($placesJson),
             filteredPlaces: [],
             selectedPlace: null,
@@ -475,17 +485,28 @@
             },
 
             initMap() {
-                // Center Kota Bogor
-                this.map = L.map('map', {
-                    center: [-6.598, 106.805],
-                    zoom: 14,
-                    zoomControl: false,
+                if (!this.mapboxToken) {
+                    console.warn('Mapbox Token tidak ditemukan di database.');
+                }
+                mapboxgl.accessToken = this.mapboxToken;
+
+                this.map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v12',
+                    center: [106.805, -6.598], // [lng, lat] Kota Bogor
+                    zoom: 14.3,
+                    pitch: 52, // 3D Realistic tilt
+                    bearing: -15,
+                    antialias: true
                 });
 
-                L.control.zoom({ position: 'bottomright' }).addTo(this.map);
+                // Add standard zoom and pitch control on bottom right
+                this.map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'bottom-right');
 
-                this.setBasemap('osm');
-                this.markersLayer = L.layerGroup().addTo(this.map);
+                // Add 3D Building Extrusions layer on style load
+                this.map.on('style.load', () => {
+                    this.apply3DBuildings();
+                });
 
                 // Initial render of all places
                 this.filterPlaces();
@@ -496,32 +517,165 @@
                 this.$watch('activeTab', () => this.filterPlaces());
             },
 
-            setBasemap(type) {
-                if (this.tileLayer) {
-                    this.map.removeLayer(this.tileLayer);
+            apply3DBuildings() {
+                if (this.currentBasemap !== 'mapbox') return;
+                if (!this.map || this.map.getLayer('3d-buildings-extrusion')) return;
+
+                const layers = this.map.getStyle().layers;
+                let labelLayerId;
+                if (layers) {
+                    for (let i = 0; i < layers.length; i++) {
+                        if (layers[i].type === 'symbol' && layers[i].layout && layers[i].layout['text-field']) {
+                            labelLayerId = layers[i].id;
+                            break;
+                        }
+                    }
                 }
 
-                if (type === 'dark') {
-                    this.tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                        attribution: '&copy; CartoDB &copy; OpenStreetMap',
-                        maxZoom: 19
-                    }).addTo(this.map);
-                    this.currentBasemap = 'dark';
-                } else {
-                    this.tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; OpenStreetMap contributors',
-                        maxZoom: 19
-                    }).addTo(this.map);
+                try {
+                    this.map.addLayer(
+                        {
+                            'id': '3d-buildings-extrusion',
+                            'source': 'composite',
+                            'source-layer': 'building',
+                            'filter': ['==', 'extrude', 'true'],
+                            'type': 'fill-extrusion',
+                            'minzoom': 13.5,
+                            'paint': {
+                                'fill-extrusion-color': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['get', 'height'],
+                                    0, '#E2E8F0',
+                                    25, '#CBD5E1',
+                                    60, '#94A3B8'
+                                ],
+                                'fill-extrusion-height': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['zoom'],
+                                    13.5, 0,
+                                    15, ['get', 'height']
+                                ],
+                                'fill-extrusion-base': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['zoom'],
+                                    13.5, 0,
+                                    15, ['get', 'min_height']
+                                ],
+                                'fill-extrusion-opacity': 0.85
+                            }
+                        },
+                        labelLayerId
+                    );
+                } catch (e) {
+                    console.log('3D layer info:', e);
+                }
+            },
+
+            setBasemap(type) {
+                if (type === 'mapbox') {
+                    this.currentBasemap = 'mapbox';
+                    this.map.setStyle('mapbox://styles/mapbox/streets-v12');
+                    this.map.once('style.load', () => {
+                        this.apply3DBuildings();
+                        this.renderMarkers();
+                    });
+                    if (this.is3D) {
+                        this.map.easeTo({ pitch: 52, duration: 800 });
+                    }
+                    this.showToast('Basemap: Mapbox Realistic 3D Buildings 🏙️', 'info');
+                } else if (type === 'osm') {
                     this.currentBasemap = 'osm';
+                    this.map.setStyle({
+                        version: 8,
+                        sources: {
+                            'osm-tiles': {
+                                type: 'raster',
+                                tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                                tileSize: 256,
+                                attribution: '&copy; OpenStreetMap contributors'
+                            }
+                        },
+                        layers: [
+                            {
+                                id: 'osm-layer',
+                                type: 'raster',
+                                source: 'osm-tiles',
+                                minzoom: 0,
+                                maxzoom: 19
+                            }
+                        ]
+                    });
+                    this.map.once('style.load', () => {
+                        this.renderMarkers();
+                    });
+                    this.map.easeTo({ pitch: 0, bearing: 0, duration: 800 });
+                    this.is3D = false;
+                    this.showToast('Basemap: Standar OpenStreetMap ☀️', 'info');
+                } else if (type === 'satellite') {
+                    this.currentBasemap = 'satellite';
+                    this.map.setStyle({
+                        version: 8,
+                        sources: {
+                            'satellite-tiles': {
+                                type: 'raster',
+                                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                                tileSize: 256,
+                                attribution: '&copy; Esri, Maxar, Earthstar Geographics'
+                            }
+                        },
+                        layers: [
+                            {
+                                id: 'satellite-layer',
+                                type: 'raster',
+                                source: 'satellite-tiles',
+                                minzoom: 0,
+                                maxzoom: 19
+                            }
+                        ]
+                    });
+                    this.map.once('style.load', () => {
+                        this.renderMarkers();
+                    });
+                    this.showToast('Basemap: Citra Satelit Esri (Gratis) 🛰️', 'info');
                 }
             },
 
             toggleBasemap() {
-                this.setBasemap(this.currentBasemap === 'osm' ? 'dark' : 'osm');
+                if (this.currentBasemap === 'mapbox') {
+                    this.setBasemap('osm');
+                } else if (this.currentBasemap === 'osm') {
+                    this.setBasemap('satellite');
+                } else {
+                    this.setBasemap('mapbox');
+                }
+            },
+
+            toggle3D() {
+                this.is3D = !this.is3D;
+                if (this.is3D) {
+                    if (this.currentBasemap !== 'mapbox') {
+                        this.setBasemap('mapbox');
+                    } else {
+                        this.map.easeTo({ pitch: 55, bearing: -15, duration: 800 });
+                    }
+                    this.showToast('Mode 3D Realistis Aktif 🏙️', 'info');
+                } else {
+                    this.map.easeTo({ pitch: 0, bearing: 0, duration: 800 });
+                    this.showToast('Mode Datar 2D Aktif 🗺️', 'info');
+                }
             },
 
             resetMapView() {
-                this.map.flyTo([-6.598, 106.805], 14, { duration: 1 });
+                this.map.flyTo({
+                    center: [106.805, -6.598],
+                    zoom: 14.3,
+                    pitch: this.is3D ? 52 : 0,
+                    bearing: this.is3D ? -15 : 0,
+                    duration: 1200
+                });
             },
 
             locateUser() {
@@ -533,22 +687,28 @@
                     (pos) => {
                         const lat = pos.coords.latitude;
                         const lng = pos.coords.longitude;
-                        this.map.flyTo([lat, lng], 15, { duration: 1.2 });
+                        this.map.flyTo({ center: [lng, lat], zoom: 16.5, pitch: this.is3D ? 50 : 0, duration: 1200 });
 
-                        const userIcon = L.divIcon({
-                            className: 'user-pos-marker',
-                            html: `<div class="w-5 h-5 rounded-full bg-blue-600 border-2 border-white shadow-lg ring-4 ring-blue-400/40 animate-pulse"></div>`,
-                            iconSize: [20, 20],
-                            iconAnchor: [10, 10]
-                        });
-                        L.marker([lat, lng], { icon: userIcon }).addTo(this.map).bindPopup('<b>Lokasi Anda</b>').openPopup();
+                        if (this.userMarker) {
+                            this.userMarker.remove();
+                        }
+                        const el = document.createElement('div');
+                        el.className = 'w-5 h-5 rounded-full bg-blue-600 border-2 border-white shadow-lg ring-4 ring-blue-400/40 animate-pulse';
+                        this.userMarker = new mapboxgl.Marker({ element: el })
+                            .setLngLat([lng, lat])
+                            .setPopup(new mapboxgl.Popup({ offset: 12 }).setHTML('<b>Lokasi Anda</b>'))
+                            .addTo(this.map);
                     },
-                    () => alert('Gagal mendeteksi lokasi otomatis. Pastikan izin GPS aktif.')
+                    () => alert('Gagal mendeteksi lokasi GPS. Pastikan izin lokasi browser aktif.')
                 );
             },
 
             renderMarkers() {
-                this.markersLayer.clearLayers();
+                if (!this.map) return;
+
+                // Clear previous markers
+                this.activeMarkers.forEach(m => m.remove());
+                this.activeMarkers = [];
 
                 this.filteredPlaces.forEach((p, idx) => {
                     const pinColorClass = p.category?.slug === 'warkop-modern' ? 'marker-budget' :
@@ -561,48 +721,65 @@
 
                     const displayScore = p.computed_score ?? (p.nugas_score > 10 ? (p.nugas_score / 10).toFixed(1) : Number(p.nugas_score).toFixed(1));
 
-                    const customIcon = L.divIcon({
-                        className: 'custom-cafe-icon',
-                        html: `<div class="cafe-marker-pin ${pinColorClass} w-9 h-9 text-xs font-black relative flex items-center justify-center">
-                                  ${rankBadge}
-                                  <span>${displayScore}</span>
-                               </div>`,
-                        iconSize: [36, 36],
-                        iconAnchor: [18, 18],
-                        popupAnchor: [0, -18]
-                    });
-
-                    const marker = L.marker([p.latitude, p.longitude], { icon: customIcon });
+                    const el = document.createElement('div');
+                    el.className = 'custom-cafe-icon';
+                    el.innerHTML = `
+                        <div class="cafe-marker-wrapper">
+                            <div class="cafe-marker-pin ${pinColorClass}">
+                                ${rankBadge}
+                                <span>${displayScore}</span>
+                            </div>
+                            <div class="cafe-marker-pointer pointer-${pinColorClass}"></div>
+                        </div>
+                    `;
 
                     const rankPopupHeader = (this.activeTab === 'nugas')
                         ? `<div class="inline-block bg-amber-100 text-amber-900 text-[10px] font-extrabold px-1.5 py-0.5 rounded mb-1">Peringkat #${idx + 1} Rekomendasi</div>`
                         : '';
 
                     const popupContent = `
-                        <div class="p-2.5 max-w-[210px] space-y-1 text-left font-sans">
+                        <div class="p-3 max-w-[220px] space-y-1.5 text-left font-sans">
                             ${rankPopupHeader}
                             <h4 class="font-bold text-xs text-gray-900 leading-tight">${p.name}</h4>
                             <p class="text-[10px] text-gray-500">${p.subdistrict}</p>
-                            <div class="flex items-center justify-between text-[11px] font-bold text-[#005B54] pt-1 border-t border-gray-100">
+                            <div class="flex items-center justify-between text-[11px] font-bold text-[#005B54] pt-1.5 border-t border-gray-100">
                                 <span>WiFi ${p.wifi_speed_mbps} Mbps</span>
                                 <span>Skor: ${displayScore}</span>
                             </div>
                         </div>
                     `;
 
-                    marker.bindPopup(popupContent);
-                    marker.on('click', () => {
+                    const popup = new mapboxgl.Popup({ offset: [0, -44], closeButton: false })
+                        .setHTML(popupContent);
+
+                    const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+                        .setLngLat([parseFloat(p.longitude), parseFloat(p.latitude)])
+                        .setPopup(popup)
+                        .addTo(this.map);
+
+                    el.addEventListener('click', () => {
                         this.selectPlace(p);
                     });
 
-                    this.markersLayer.addLayer(marker);
+                    this.activeMarkers.push(marker);
                 });
             },
 
             selectPlace(place) {
                 this.selectedPlace = place;
-                this.map.flyTo([place.latitude, place.longitude], 16, { duration: 0.8 });
+                if (this.map) {
+                    this.map.flyTo({
+                        center: [parseFloat(place.longitude), parseFloat(place.latitude)],
+                        zoom: 16.5,
+                        pitch: this.is3D ? 55 : 0,
+                        duration: 1000
+                    });
+                }
                 setTimeout(() => lucide.createIcons(), 60);
+            },
+
+            showToast(msg, type = 'info') {
+                window.dispatchEvent(new CustomEvent('notify-toast', { detail: { msg, type } }));
             },
 
             toggleFilter(key) {
@@ -689,5 +866,9 @@
             }
         };
     }
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('webgisApp', webgisApp);
+    });
 </script>
 @endpush

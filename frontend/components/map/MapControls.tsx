@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Locate, Plus, Minus, Layers, Compass, Info, X, Map as MapIcon, Globe, Sun } from 'lucide-react';
+import { Locate, Plus, Minus, Layers, Compass, Info, X, Map as MapIcon, Globe, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import type { ToastType } from '@/hooks/useToast';
 
-export type TileLayerType = 'osm' | 'satellite' | 'carto';
+export type TileLayerType = 'mapbox' | 'osm' | 'satellite' | 'dark' | 'carto';
 
 export interface SpatialOverlays {
   buffer: boolean;
@@ -49,9 +49,9 @@ export function MapControls({
   const [showLayerMenu, setShowLayerMenu] = useState(false);
 
   const layerOptions: { id: TileLayerType; name: string; desc: string; icon: typeof MapIcon }[] = [
-    { id: 'osm', name: 'Standar (OSM)', desc: 'Peta jalan umum OSM', icon: MapIcon },
-    { id: 'satellite', name: 'Satelit', desc: 'Citra foto udara Esri', icon: Globe },
-    { id: 'carto', name: 'Terang Minimal', desc: 'Gaya bersih Carto Positron', icon: Sun },
+    { id: 'mapbox', name: 'Mapbox 3D', desc: 'Peta 3D Realistis dengan gedung', icon: MapIcon },
+    { id: 'osm', name: 'Standar (OSM)', desc: 'Peta jalan umum OSM (Gratis)', icon: MapIcon },
+    { id: 'satellite', name: 'Citra Satelit', desc: 'Foto udara Esri World Imagery (Gratis)', icon: Globe },
   ];
 
   const handleSelectLayer = (id: TileLayerType, name: string) => {

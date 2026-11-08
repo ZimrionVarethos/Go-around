@@ -135,8 +135,8 @@ function createPinIcon(
         "></div>
       </div>
     `,
-    iconSize: [32, 38],
-    iconAnchor: [16, 36],
+    iconSize: [32, 36],
+    iconAnchor: [16, 34],
     popupAnchor: [0, -34],
   });
 }
@@ -163,10 +163,20 @@ function BoundsTracker({
 
 // Tile Layer configurations
 const TILE_LAYERS: Record<TileLayerType, { url: string; attribution: string; maxZoom: number }> = {
+  mapbox: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; Mapbox',
+    maxZoom: 19,
+  },
   osm: {
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
+  },
+  dark: {
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 20,
   },
   satellite: {
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',

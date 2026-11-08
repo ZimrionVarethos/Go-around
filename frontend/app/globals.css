@@ -137,8 +137,22 @@ body {
 }
 
 /* Elegant WebGIS styling: soften harsh OSM lines and harmonize with Forest Teal theme */
+.leaflet-pane img,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  max-width: none !important;
+  max-height: none !important;
+}
+
 .leaflet-tile {
   filter: saturate(0.78) brightness(1.03) contrast(0.98);
+}
+
+.leaflet-zoom-anim .custom-marker-pin,
+.leaflet-zoom-anim .custom-selected-pin,
+.leaflet-zoom-anim .custom-user-location-pin {
+  transition: none !important;
 }
 
 .leaflet-container {

@@ -38,6 +38,10 @@
         }
     </script>
     
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -56,24 +60,91 @@
             overflow-x: hidden;
         }
 
-        /* Marker Neon & Pin Styles */
+        /* Leaflet & Tailwind Integration Reset */
+        .leaflet-pane img,
+        .leaflet-tile,
+        .leaflet-marker-icon,
+        .leaflet-marker-shadow {
+            max-width: none !important;
+            max-height: none !important;
+        }
+        .custom-cafe-icon {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        /* Dark Map Filter (No API Key Required, full OSM zoom up to 19) */
+        .dark-map-active .leaflet-tile-pane {
+            filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(95%);
+        }
+
+        /* Mapbox Popup Styling */
+        .mapboxgl-popup-content {
+            padding: 0 !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        }
+        .mapboxgl-popup-tip {
+            border-top-color: #ffffff !important;
+        }
+
+        /* Marker Neon & Pin Styles with Exact Coordinate Pinpoint */
+        .cafe-marker-wrapper {
+            position: relative;
+            width: 36px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.28));
+            transform-origin: bottom center;
+        }
         .cafe-marker-pin {
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 9999px;
-            box-shadow: 0 4px 12px rgba(0, 91, 84, 0.35);
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            cursor: pointer;
+            font-size: 11px;
+            font-weight: 800;
+            z-index: 2;
         }
-        .cafe-marker-pin:hover {
-            transform: scale(1.15) translateY(-3px);
+        .cafe-marker-pointer {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 8px solid #005B54;
+            margin-top: -2px;
+            z-index: 1;
+        }
+        .cafe-marker-wrapper:hover {
+            transform: scale(1.12) translateY(-4px);
             z-index: 1000 !important;
+            transition: transform 0.15s ease-out;
         }
+        /* Disable transition during zoom to prevent drifting */
+        .leaflet-zoom-anim .cafe-marker-wrapper,
+        .leaflet-zoom-anim .cafe-marker-pin,
+        .leaflet-zoom-anim .leaflet-marker-icon {
+            transition: none !important;
+        }
+
         .marker-budget { background: linear-gradient(135deg, #10B981, #059669); color: white; border: 2.5px solid #ffffff; }
+        .pointer-marker-budget { border-top-color: #059669 !important; }
+
         .marker-cozy { background: linear-gradient(135deg, #005B54, #0F756E); color: white; border: 2.5px solid #ffffff; }
+        .pointer-marker-cozy { border-top-color: #005B54 !important; }
+
         .marker-coworking { background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; border: 2.5px solid #ffffff; }
+        .pointer-marker-coworking { border-top-color: #4F46E5 !important; }
+
         .marker-library { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white; border: 2.5px solid #ffffff; }
+        .pointer-marker-library { border-top-color: #7C3AED !important; }
 
         /* Custom Scrollbars */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -98,7 +169,9 @@
         this.toastType = type;
         setTimeout(() => this.toastMsg = '', 4000);
     }
-}" x-init="if (toastMsg) setTimeout(() => toastMsg = '', 4000)">
+}" 
+x-init="if (toastMsg) setTimeout(() => toastMsg = '', 4000)"
+@notify-toast.window="showToast($event.detail.msg, $event.detail.type)">
 
     <!-- Topbar Navigation -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/90 shadow-xs px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -140,13 +213,8 @@
             </a>
         </nav>
 
-        <!-- Right Side CTA / Admin Link -->
+        <!-- Right Side CTA (Admin hidden for security) -->
         <div class="flex items-center gap-2">
-            <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-bold rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all shadow-2xs">
-                <i data-lucide="shield-check" class="w-4 h-4 text-[#005B54]"></i>
-                <span class="hidden sm:inline">Portal</span> Admin
-            </a>
-
             <!-- Mobile Hamburger Toggle -->
             <button type="button" @click="mobileMenu = !mobileMenu" class="md:hidden w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100">
                 <i data-lucide="menu" class="w-5 h-5"></i>

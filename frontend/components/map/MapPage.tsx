@@ -21,10 +21,10 @@ import { useSearchContext } from '@/components/search/SearchProvider';
 import { GoAroundLoader } from '@/components/loading/GoAroundLoader';
 import type L from 'leaflet';
 
-// Dynamic import for Leaflet MapView (client-only, SSR false)
-const MapView = dynamic(() => import('./MapView'), {
+// Dynamic import for Mapbox 3D View (client-only, SSR false)
+const Mapbox3DView = dynamic(() => import('./Mapbox3DView'), {
   ssr: false,
-  loading: () => <GoAroundLoader mode="map" label="Memuat peta Bogor…" />,
+  loading: () => <GoAroundLoader mode="map" label="Memuat peta 3D Bogor…" />,
 });
 
 // Centered on Baranangsiang / IPB University district
@@ -78,7 +78,8 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
   const [panelView, setPanelView] = useState<'results' | 'criteria'>('results');
   const [showLegend, setShowLegend] = useState(false);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
-  const [tileLayer, setTileLayer] = useState<TileLayerType>('osm');
+  const [tileLayer, setTileLayer] = useState<TileLayerType>('mapbox');
+  const [is3D, setIs3D] = useState(true);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [submittedRequest, setSubmittedRequest] = useState<RecommendationRequest>({
     ...DEFAULT_RECOMMENDATION_REQUEST,
@@ -369,14 +370,13 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
   return (
     <>
       {/* Full-Canvas Map in background */}
-      <MapView
+      <Mapbox3DView
         features={mapFeatures}
         selectedSlug={selectedSlug}
         onMarkerClick={(slug) => setSelectedSlug(slug)}
-        onBoundsChange={(b) => setBbox(b)}
-        tileLayer={tileLayer}
+        tileLayer={tileLayer as 'mapbox' | 'osm' | 'satellite'}
+        is3D={is3D}
         userLocation={userLocation}
-        onMapReady={setMapInstance}
       />
 
       {/* Floating Filter Bar (Below topbar) */}

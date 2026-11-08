@@ -4,21 +4,24 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@tanstack/react-query": "^5.102.8",
     "@types/leaflet": "^1.9.22",
-    "frontend": "file:",
+    "@types/mapbox-gl": "^3.4.1",
+    "enhanced-resolve": "^5.26.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.46.0",
+    "mapbox-gl": "^3.2.0",
     "next": "16.3.5",
     "postcss": "^8.5.28",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "react-leaflet": "^5.0.0",
     "tailwindcss": "^4.3.3"
   },

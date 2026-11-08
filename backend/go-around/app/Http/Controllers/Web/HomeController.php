@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Amenity;
 use App\Models\Category;
 use App\Models\Place;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -82,7 +83,9 @@ class HomeController extends Controller
                 'image_url' => $p->image_url ?: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&auto=format&fit=crop&q=80',
                 'description' => $p->description,
                 'vibe_tags' => $p->vibe_tags ? array_map('trim', explode(',', $p->vibe_tags)) : [],
-                'google_maps_url' => $p->google_maps_url ?: "https://www.google.com/maps/search/?api=1&query={$p->latitude},{$p->longitude}",
+                'google_maps_url' => (!empty($p->google_maps_url) && !str_contains($p->google_maps_url, 'maps.app.goo.gl'))
+                    ? $p->google_maps_url
+                    : 'https://www.google.com/maps/dir/?api=1&destination=' . urlencode($p->name . ', Kota Bogor'),
                 'instagram_handle' => $p->instagram_handle,
                 'category' => $p->category ? [
                     'name' => $p->category->name,
@@ -103,7 +106,9 @@ class HomeController extends Controller
             ];
         });
 
-        return view('home', compact('categories', 'amenities', 'subdistricts', 'places', 'placesJson'));
+        $mapboxToken = Setting::get('mapbox_token', '');
+
+        return view('home', compact('categories', 'amenities', 'subdistricts', 'places', 'placesJson', 'mapboxToken'));
     }
 
     /**
