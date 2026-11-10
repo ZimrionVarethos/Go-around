@@ -1,5 +1,3 @@
-import { TrendingUp } from 'lucide-react';
-
 interface AnalyticsKPIProps {
   kpi: {
     totalQueries: number;
@@ -14,66 +12,64 @@ interface AnalyticsKPIProps {
 
 export function AnalyticsKPIGrid({ kpi }: AnalyticsKPIProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div className="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs">
-        <span className="text-xs font-semibold text-gray-500">Total Kueri Spasial</span>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-            {kpi.totalQueries.toLocaleString()}
+    <div className="bg-white rounded-xl border border-[#E2E5DF] shadow-card-subtle grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E5DF] overflow-hidden">
+      <div className="p-4 sm:p-5">
+        <span className="text-xs font-semibold text-text-600">Total Kueri Spasial</span>
+        <div className="mt-2.5 flex items-baseline gap-2">
+          <span className="text-2xl sm:text-[26px] font-extrabold text-text-950 tracking-tight tabular-nums">
+            {kpi.totalQueries.toLocaleString('id-ID')}
           </span>
-          <span className="text-xs font-bold text-emerald-600 flex items-center">
-            <TrendingUp className="w-3 h-3 mr-0.5" />
+          <span className="text-[11px] font-mono font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md tabular-nums">
             {kpi.queriesGrowth}
           </span>
         </div>
-        <p className="text-[11px] text-gray-400 mt-2">
-          Pencarian tempat nugas via WebGIS
+        <p className="text-[11px] text-text-500 mt-1.5">
+          Pencarian radius &amp; fasilitas di WebGIS
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs">
-        <span className="text-xs font-semibold text-gray-500">Mahasiswa Aktif</span>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-            {kpi.activeStudents.toLocaleString()}
+      <div className="p-4 sm:p-5">
+        <span className="text-xs font-semibold text-text-600">Pengguna Mahasiswa Aktif</span>
+        <div className="mt-2.5 flex items-baseline gap-2">
+          <span className="text-2xl sm:text-[26px] font-extrabold text-text-950 tracking-tight tabular-nums">
+            {kpi.activeStudents.toLocaleString('id-ID')}
           </span>
-          <span className="text-xs font-bold text-emerald-600 flex items-center">
-            <TrendingUp className="w-3 h-3 mr-0.5" />
+          <span className="text-[11px] font-mono font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md tabular-nums">
             {kpi.studentsGrowth}
           </span>
         </div>
-        <p className="text-[11px] text-gray-400 mt-2">
-          Pengguna aktif bulanan di Bogor
+        <p className="text-[11px] text-text-500 mt-1.5">
+          Sesi unik kawasan kampus Kota Bogor
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs">
-        <span className="text-xs font-semibold text-gray-500">Rata-rata Durasi Nugas</span>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+      <div className="p-4 sm:p-5">
+        <span className="text-xs font-semibold text-text-600">Rata-rata Durasi Belajar</span>
+        <div className="mt-2.5 flex items-baseline gap-2">
+          <span className="text-2xl sm:text-[26px] font-extrabold text-text-950 tracking-tight tabular-nums">
             {kpi.avgSessionHours} Jam
           </span>
-          <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md">
-            Produktif
+          <span className="text-[11px] font-mono font-semibold text-text-600 bg-[#F5F6F3] border border-[#E2E5DF] px-2 py-0.5 rounded-md">
+            per kunjungan
           </span>
         </div>
-        <p className="text-[11px] text-gray-400 mt-2">
-          Berdasarkan waktu kunjungan & survei
+        <p className="text-[11px] text-text-500 mt-1.5">
+          Estimasi survei kontribusi lapangan
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs">
-        <span className="text-xs font-semibold text-gray-500">Konversi Navigasi Rute</span>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-            {kpi.routeConversions.toLocaleString()}
+      <div className="p-4 sm:p-5">
+        <span className="text-xs font-semibold text-text-600">Konversi Navigasi Rute</span>
+        <div className="mt-2.5 flex items-baseline gap-2">
+          <span className="text-2xl sm:text-[26px] font-extrabold text-text-950 tracking-tight tabular-nums">
+            {kpi.routeConversions.toLocaleString('id-ID')}
           </span>
-          <span className="text-xs font-bold text-emerald-600">
+          <span className="text-[11px] font-mono font-semibold text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md tabular-nums">
             {kpi.conversionRate}
           </span>
         </div>
-        <p className="text-[11px] text-gray-400 mt-2">
-          Klik &quot;Buka Rute Maps&quot; ke lokasi kafe
+        <p className="text-[11px] text-text-500 mt-1.5">
+          Transisi dari titik peta ke navigasi rute
         </p>
       </div>
     </div>

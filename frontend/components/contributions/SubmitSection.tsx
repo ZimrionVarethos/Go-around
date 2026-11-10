@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Check, Send, X } from 'lucide-react';
+import { CheckIcon, PaperPlaneRightIcon, XIcon } from '@phosphor-icons/react';
 
 export interface SubmitSectionProps {
   submitterEmail: string;
@@ -32,9 +32,9 @@ export function SubmitSection({
       </div>
 
       {/* Green Anon Callout */}
-      <div className="bg-[#F0FAF7] border border-[#A7F3D0] rounded-xl p-4.5 flex items-start gap-3.5">
+      <div className="bg-[#F0FAF7] border border-[#005B54] rounded-xl p-4.5 flex items-start gap-3.5">
         <div className="w-6 h-6 rounded-full bg-[#005B54] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-          <Check className="w-3.5 h-3.5 stroke-[3]" />
+          <CheckIcon size={14} weight="bold" />
         </div>
         <div>
           <p className="text-sm font-bold text-gray-900">
@@ -56,7 +56,7 @@ export function SubmitSection({
           value={submitterEmail}
           onChange={(e) => onSubmitterEmailChange(e.target.value)}
           placeholder="Contoh: mhs.ipb@apps.ipb.ac.id atau username Telegram"
-          className="w-full h-12 px-4 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] transition-all"
+          className="w-full h-12 px-4 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#005B54] transition-all"
         />
       </div>
 
@@ -67,7 +67,7 @@ export function SubmitSection({
           disabled={isSubmitting}
           className="w-full sm:w-auto h-12 px-8 bg-[#005B54] hover:bg-[#004741] text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
         >
-          <Send className="w-4 h-4" />
+          <PaperPlaneRightIcon size={16} weight="fill" />
           <span>{isSubmitting ? 'Mengirim Data ke Server...' : 'Kirim Usulan Spot Nugas'}</span>
         </button>
 
@@ -75,7 +75,7 @@ export function SubmitSection({
           href="/"
           className="w-full sm:w-auto h-12 px-6 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
         >
-          <X className="w-4 h-4 text-gray-400" />
+          <XIcon size={16} weight="bold" className="text-gray-400" />
           <span>Batal &amp; Kembali ke Peta</span>
         </Link>
       </div>

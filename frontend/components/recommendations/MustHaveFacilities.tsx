@@ -1,20 +1,27 @@
 'use client';
 
-import { BadgePercent, CircleParking, Moon, PlugZap, Snowflake, Wifi } from 'lucide-react';
+import {
+  CarProfileIcon,
+  MoonStarsIcon,
+  PercentIcon,
+  PlugChargingIcon,
+  SnowflakeIcon,
+  WifiHighIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import type { RecommendationFacility } from '@/lib/recommendations';
 
 const FACILITIES: Array<{
   id: RecommendationFacility;
   label: string;
-  icon: typeof Wifi;
+  icon: typeof WifiHighIcon;
 }> = [
-  { id: 'plug', label: 'Colokan', icon: PlugZap },
-  { id: 'wifi', label: 'Wi-Fi', icon: Wifi },
-  { id: 'musholla', label: 'Musholla', icon: Moon },
-  { id: 'student_discount', label: 'Diskon mahasiswa', icon: BadgePercent },
-  { id: 'parking', label: 'Parkir', icon: CircleParking },
-  { id: 'air_conditioning', label: 'Ruangan AC', icon: Snowflake },
+  { id: 'plug', label: 'Colokan', icon: PlugChargingIcon },
+  { id: 'wifi', label: 'Wi-Fi', icon: WifiHighIcon },
+  { id: 'musholla', label: 'Musholla', icon: MoonStarsIcon },
+  { id: 'student_discount', label: 'Diskon mahasiswa', icon: PercentIcon },
+  { id: 'parking', label: 'Parkir', icon: CarProfileIcon },
+  { id: 'air_conditioning', label: 'Ruangan AC', icon: SnowflakeIcon },
 ];
 
 export interface MustHaveFacilitiesProps {
@@ -55,7 +62,7 @@ export function MustHaveFacilities({ value, onChange }: MustHaveFacilitiesProps)
                   : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50',
               )}
             >
-              <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+              <Icon size={15} weight={isSelected ? 'fill' : 'duotone'} aria-hidden="true" />
               {facility.label}
             </button>
           );

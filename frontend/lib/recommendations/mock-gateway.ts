@@ -1,4 +1,4 @@
-import { MOCK_RECOMMENDATION_PLACES } from './mock-data';
+import { getSyncedPublicPlaces } from './mock-data';
 import {
   normalizeRecommendationRequest,
   normalizeRecommendationWeights,
@@ -240,9 +240,10 @@ export const mockRecommendationGateway: RecommendationGateway = {
     const request = inferNaturalLanguagePreferences(
       normalizeRecommendationRequest(input),
     );
+    const activePlaces = getSyncedPublicPlaces();
     const source = scenario === 'partial'
-      ? MOCK_RECOMMENDATION_PLACES.filter((place) => place.data_confidence !== null && place.data_confidence < 70)
-      : MOCK_RECOMMENDATION_PLACES;
+      ? activePlaces.filter((place) => place.data_confidence !== null && place.data_confidence < 70)
+      : activePlaces;
 
     const data = source
       .filter((place) => matchesKeyword(place, request.search_query))

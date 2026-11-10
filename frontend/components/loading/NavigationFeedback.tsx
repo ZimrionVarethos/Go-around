@@ -33,7 +33,13 @@ export function NavigationFeedback() {
       if (destination === currentLocationRef.current) return;
 
       clearTimers();
-      if (destination.split('?')[0] === '/') {
+      const destPath = destination.split('?')[0];
+      const currentPath = currentLocationRef.current.split('?')[0];
+      if (
+        destPath === '/' ||
+        destPath.startsWith('/admin') ||
+        currentPath.startsWith('/admin')
+      ) {
         destinationRef.current = null;
         setVisible(false);
         return;
@@ -105,7 +111,7 @@ export function NavigationFeedback() {
     }, remaining);
   }, [locationKey, visible]);
 
-  if (!visible) return null;
+  if (!visible || pathname.startsWith('/admin')) return null;
 
   return (
     <div className={styles.overlay} aria-busy="true">

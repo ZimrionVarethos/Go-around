@@ -12,14 +12,15 @@ import { ToastContainer } from '@/components/ui/ToastContainer';
 import type { PlaceFilters, BboxParams, PlaceGeoJsonFeature } from '@/lib/types';
 import {
   DEFAULT_RECOMMENDATION_REQUEST,
-  type RecommendationPlace,
   type RecommendationRequest,
   type RecommendationSort,
 } from '@/lib/recommendations';
+import { recommendationToGeoJsonFeature } from '@/lib/recommendations/mock-data';
 import { cn } from '@/lib/cn';
 import { useSearchContext } from '@/components/search/SearchProvider';
 import { GoAroundLoader } from '@/components/loading/GoAroundLoader';
-import type L from 'leaflet';
+import { trackPublicSpatialQuery } from '@/lib/admin-store';
+import type mapboxgl from 'mapbox-gl';
 
 // Dynamic import for Mapbox 3D View (client-only, SSR false)
 const Mapbox3DView = dynamic(() => import('./Mapbox3DView'), {
@@ -27,47 +28,10 @@ const Mapbox3DView = dynamic(() => import('./Mapbox3DView'), {
   loading: () => <GoAroundLoader mode="map" label="Memuat peta 3D Bogor…" />,
 });
 
-// Centered on Baranangsiang / IPB University district
+// Centered on Baranangsiang / IPB University district ([lat, lng] for spatial calc)
 const BOGOR_CENTER: [number, number] = [-6.601, 106.806];
-
-function recommendationToGeoJsonFeature(place: RecommendationPlace): PlaceGeoJsonFeature {
-  return {
-    type: 'Feature',
-    id: place.id,
-    geometry: {
-      type: 'Point',
-      coordinates: [place.longitude, place.latitude],
-    },
-    properties: {
-      id: place.id,
-      name: place.name,
-      slug: place.slug,
-      subdistrict: place.subdistrict,
-      address: place.address,
-      price_min_drink: place.price_min_drink,
-      price_max_drink: place.price_max_drink,
-      price_avg_food: null,
-      wifi_speed_mbps: place.wifi_speed_mbps,
-      wifi_quality: place.wifi_quality,
-      plug_availability: place.plug_availability,
-      noise_level: place.noise_level,
-      is_24_hours: null,
-      open_time: null,
-      close_time: null,
-      google_rating: place.google_rating,
-      nugas_score: place.recommendation_score,
-      budget_score: place.score_breakdown.price,
-      facility_score: null,
-      recommendation_score: place.recommendation_score,
-      data_confidence: place.data_confidence,
-      image_url: place.image_url,
-      vibe_tags: place.reasons,
-      google_maps_url: place.google_maps_url,
-      distance_km: place.distance_km,
-      amenities: [],
-    },
-  };
-}
+// [lng, lat] for Mapbox GL JS camera
+const BOGOR_MAPBOX_CENTER: [number, number] = [106.805, -6.598];
 
 export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean }) {
   const { searchIntent, openCriteriaTrigger } = useSearchContext();
@@ -77,7 +41,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [panelView, setPanelView] = useState<'results' | 'criteria'>('results');
   const [showLegend, setShowLegend] = useState(false);
-  const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
+  const [mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null);
   const [tileLayer, setTileLayer] = useState<TileLayerType>('mapbox');
   const [is3D, setIs3D] = useState(true);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
@@ -117,17 +81,22 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       () => {
         // Geolocation denied or unavailable: keep default center silently
       },
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 8000 },
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locationEnabled]);
 
   // Center map on user location when detected
   useEffect(() => {
     if (!mapInstance || !userLocation || hasAutoCentered.current) return;
     hasAutoCentered.current = true;
-    mapInstance.flyTo(userLocation, 15, { duration: 1.2 });
-  }, [mapInstance, userLocation]);
+    mapInstance.flyTo({
+      center: [userLocation[1], userLocation[0]],
+      zoom: 15,
+      pitch: is3D && tileLayer === 'mapbox' ? 52 : 0,
+      duration: 1200,
+    });
+  }, [mapInstance, userLocation, is3D, tileLayer]);
 
   useEffect(() => {
     if (openCriteriaTrigger === 0 || appliedCriteriaId.current === openCriteriaTrigger) return;
@@ -140,27 +109,34 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
     if (!searchIntent || appliedSearchId.current === searchIntent.id) return;
 
     appliedSearchId.current = searchIntent.id;
+    trackPublicSpatialQuery(
+      searchIntent.mode === 'keyword'
+        ? searchIntent.place?.subdistrict || searchIntent.query
+        : searchIntent.query,
+    );
     setSubmittedRequest((current) => ({
       ...current,
       search_query: searchIntent.mode === 'keyword' ? searchIntent.query : null,
       natural_language_query: searchIntent.mode === 'need' ? searchIntent.query : null,
     }));
-    setSelectedSlug(searchIntent.mode === 'keyword' && searchIntent.place
-      ? searchIntent.place.slug
-      : null);
+    setSelectedSlug(
+      searchIntent.mode === 'keyword' && searchIntent.place
+        ? searchIntent.place.slug
+        : null,
+    );
     setIsCollapsed(false);
   }, [searchIntent]);
 
   useEffect(() => {
     if (!mapInstance || searchIntent?.mode !== 'keyword' || !searchIntent.place) return;
 
-    mapInstance.flyTo(
-      [searchIntent.place.latitude, searchIntent.place.longitude],
-      16,
-      { duration: 0.8 },
-    );
-  }, [mapInstance, searchIntent]);
-
+    mapInstance.flyTo({
+      center: [searchIntent.place.longitude, searchIntent.place.latitude],
+      zoom: 16.2,
+      pitch: is3D && tileLayer === 'mapbox' ? 52 : 0,
+      duration: 900,
+    });
+  }, [mapInstance, searchIntent, is3D, tileLayer]);
 
   const handleToggleLegend = () => {
     setShowLegend((prev) => {
@@ -168,7 +144,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       showToast(
         next ? 'Menampilkan legenda skor kesesuaian spasial 🗺️' : 'Legenda peta disembunyikan',
         'info',
-        2500
+        2500,
       );
       return next;
     });
@@ -176,9 +152,10 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
 
   const handleSortChange = (newTab: 'score' | 'nearby' | 'budget') => {
     setSortTab(newTab);
-    const sortBy: RecommendationSort = newTab === 'nearby'
-      ? 'distance'
-      : newTab === 'budget'
+    const sortBy: RecommendationSort =
+      newTab === 'nearby'
+        ? 'distance'
+        : newTab === 'budget'
         ? 'price'
         : 'match';
     setSubmittedRequest((current) => ({ ...current, sort_by: sortBy }));
@@ -246,43 +223,67 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       return;
     }
 
-    const bounds = places.map(
-      (place) => [place.latitude, place.longitude] as [number, number],
+    const validCoords = places.filter(
+      (p) => Number.isFinite(p.longitude) && Number.isFinite(p.latitude),
     );
-    mapInstance.fitBounds(bounds, {
-      padding: [56, 56],
-      maxZoom: 15,
-      animate: true,
-      duration: 0.8,
-    });
-  }, [mapInstance, places]);
+    if (validCoords.length === 0) return;
+
+    if (validCoords.length === 1) {
+      const only = validCoords[0];
+      mapInstance.flyTo({
+        center: [only.longitude, only.latitude],
+        zoom: 15.5,
+        pitch: is3D && tileLayer === 'mapbox' ? 52 : 0,
+        duration: 800,
+      });
+      return;
+    }
+
+    let minLng = Number.POSITIVE_INFINITY;
+    let maxLng = Number.NEGATIVE_INFINITY;
+    let minLat = Number.POSITIVE_INFINITY;
+    let maxLat = Number.NEGATIVE_INFINITY;
+
+    for (const p of validCoords) {
+      if (p.longitude < minLng) minLng = p.longitude;
+      if (p.longitude > maxLng) maxLng = p.longitude;
+      if (p.latitude < minLat) minLat = p.latitude;
+      if (p.latitude > maxLat) maxLat = p.latitude;
+    }
+
+    mapInstance.fitBounds(
+      [
+        [minLng, minLat],
+        [maxLng, maxLat],
+      ],
+      {
+        padding: { top: 110, bottom: 70, left: 60, right: 60 },
+        maxZoom: 15,
+        duration: 800,
+      },
+    );
+  }, [mapInstance, places, is3D, tileLayer]);
 
   // Zoom In
   const handleZoomIn = () => {
-    if (mapInstance) {
-      mapInstance.zoomIn();
-    } else {
-      const el = document.querySelector('.leaflet-container');
-      const map = (el as unknown as { _leaflet_map?: { zoomIn: () => void } })?._leaflet_map;
-      map?.zoomIn();
-    }
+    mapInstance?.zoomIn({ duration: 300 });
   };
 
   // Zoom Out
   const handleZoomOut = () => {
-    if (mapInstance) {
-      mapInstance.zoomOut();
-    } else {
-      const el = document.querySelector('.leaflet-container');
-      const map = (el as unknown as { _leaflet_map?: { zoomOut: () => void } })?._leaflet_map;
-      map?.zoomOut();
-    }
+    mapInstance?.zoomOut({ duration: 300 });
   };
 
   // Reset Compass (Back to North & Bogor Center)
   const handleResetCompass = () => {
     if (mapInstance) {
-      mapInstance.flyTo(BOGOR_CENTER, 15, { duration: 1.2 });
+      mapInstance.flyTo({
+        center: BOGOR_MAPBOX_CENTER,
+        zoom: 14.3,
+        pitch: is3D && tileLayer === 'mapbox' ? 52 : 0,
+        bearing: is3D && tileLayer === 'mapbox' ? -15 : 0,
+        duration: 1200,
+      });
     }
     showToast('Peta di-reset ke pandangan utama Bogor (Utara ↑)', 'info', 2500);
   };
@@ -296,9 +297,13 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
 
     skipNextFitBoundsRef.current = true;
 
-    // Jika koordinat pengguna sudah pernah didapatkan, langsung pusatkan peta seketika
     if (userLocation && mapInstance) {
-      mapInstance.flyTo(userLocation, 16, { duration: 1.2 });
+      mapInstance.flyTo({
+        center: [userLocation[1], userLocation[0]],
+        zoom: 16,
+        pitch: is3D && tileLayer === 'mapbox' ? 52 : 0,
+        duration: 1200,
+      });
     }
 
     showToast('Mencari sinyal GPS Anda... 📡', 'info', 2500);
@@ -317,7 +322,12 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
           sort_by: 'distance',
         }));
         if (mapInstance) {
-          mapInstance.flyTo(coords, 16, { duration: 1.2 });
+          mapInstance.flyTo({
+            center: [coords[1], coords[0]],
+            zoom: 16,
+            pitch: is3D && tileLayer === 'mapbox' ? 52 : 0,
+            duration: 1200,
+          });
         }
         setSortTab('nearby');
         setSelectedSlug(null);
@@ -329,14 +339,15 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
         showToast(
           'Izin lokasi tidak diberikan atau GPS belum aktif di perangkat Anda',
           'warning',
-          4000
+          4000,
         );
       },
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 8000 },
     );
   };
 
   const handleRecommendationSubmit = (request: RecommendationRequest) => {
+    trackPublicSpatialQuery(request.search_query || request.natural_language_query || undefined);
     setSubmittedRequest({
       ...request,
       location: userLocation
@@ -347,8 +358,8 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       request.sort_by === 'distance'
         ? 'nearby'
         : request.sort_by === 'price'
-          ? 'budget'
-          : 'score',
+        ? 'budget'
+        : 'score',
     );
     setSelectedSlug(null);
   };
@@ -367,25 +378,45 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
     URL.revokeObjectURL(url);
   };
 
+  const selectedInitialPlace = useMemo(() => {
+    if (!selectedSlug) return undefined;
+    const fromRecs = places.find(
+      (p) => p.slug === selectedSlug || String(p.id) === selectedSlug,
+    );
+    if (fromRecs) return fromRecs;
+    const fromMap = mapFeatures.find(
+      (f) => f.properties.slug === selectedSlug || String(f.properties.id) === selectedSlug,
+    );
+    return fromMap?.properties;
+  }, [mapFeatures, places, selectedSlug]);
+
   return (
     <>
-      {/* Full-Canvas Map in background */}
+      {/* Full-Canvas Mapbox 3D Map in background */}
       <Mapbox3DView
         features={mapFeatures}
         selectedSlug={selectedSlug}
-        onMarkerClick={(slug) => setSelectedSlug(slug)}
-        tileLayer={tileLayer as 'mapbox' | 'osm' | 'satellite'}
+        onMarkerClick={(slug) => {
+          setSelectedSlug(slug);
+          if (typeof window !== 'undefined' && window.innerWidth < 768) {
+            setIsCollapsed(true);
+          }
+        }}
+        onBoundsChange={(b) => setBbox(b)}
+        tileLayer={tileLayer}
         is3D={is3D}
         userLocation={userLocation}
+        onMapReady={setMapInstance}
       />
 
       {/* Floating Filter Bar (Below topbar) */}
-      <div className="absolute top-[76px] sm:top-[88px] left-0 right-0 sm:left-6 sm:right-auto z-[400] pointer-events-auto px-3 sm:px-0">
+      <div className="absolute top-[76px] sm:top-[88px] left-0 right-0 sm:left-6 sm:right-6 md:right-auto z-[400] pointer-events-auto px-3 sm:px-0">
         <FilterBar
           filters={filters}
           onFilterChange={setFilters}
           recommendationRequest={submittedRequest}
           onRecommendationRequestChange={(nextRequest) => {
+            trackPublicSpatialQuery();
             setSubmittedRequest(nextRequest);
             setIsCollapsed(false);
           }}
@@ -394,11 +425,16 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       </div>
 
       {/* Floating Left Sidebar Panel ("Rekomendasi Nugas Bogor")
-          - Mobile: bottom sheet (bottom-0, left-0, right-0, max-h-[55vh])
-          - Desktop: left sidebar as usual */}
+          - Mobile: bottom sheet
+          - Desktop: left sidebar */}
       <RecommendationPanel
         isCollapsed={isCollapsed}
-        onToggleCollapse={setIsCollapsed}
+        onToggleCollapse={(collapsed) => {
+          setIsCollapsed(collapsed);
+          if (!collapsed && typeof window !== 'undefined' && window.innerWidth < 768) {
+            setSelectedSlug(null);
+          }
+        }}
         view={panelView}
         onViewChange={setPanelView}
         sortTab={sortTab}
@@ -408,7 +444,6 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
         selectedSlug={selectedSlug}
         onSelectPlace={(slug) => {
           setSelectedSlug(slug);
-          // On mobile, auto-collapse panel when selecting a place
           if (typeof window !== 'undefined' && window.innerWidth < 768) {
             setIsCollapsed(true);
           }
@@ -428,7 +463,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
       />
 
       {/* Floating Right Selected Place Detail Drawer
-          - Mobile: bottom sheet full-width above footer
+          - Mobile: bottom sheet full-width
           - Desktop: right side panel */}
       {selectedSlug && (
         <>
@@ -436,7 +471,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
           <div className="hidden md:block absolute top-[88px] right-6 z-[400] pointer-events-auto">
             <PlaceDetailDrawer
               slug={selectedSlug}
-              initialPlace={places.find((p) => p.slug === selectedSlug || String(p.id) === selectedSlug)}
+              initialPlace={selectedInitialPlace}
               onClose={() => setSelectedSlug(null)}
               onToast={showToast}
             />
@@ -445,7 +480,7 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
           <div className="md:hidden absolute bottom-0 left-0 right-0 z-[450] pointer-events-auto">
             <PlaceDetailDrawer
               slug={selectedSlug}
-              initialPlace={places.find((p) => p.slug === selectedSlug || String(p.id) === selectedSlug)}
+              initialPlace={selectedInitialPlace}
               onClose={() => setSelectedSlug(null)}
               isMobileSheet
               onToast={showToast}
@@ -456,30 +491,26 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
 
       {/* Mobile Floating Legend (shown conditionally) */}
       {showLegend && (
-        <div className="sm:hidden absolute top-[76px] right-3 z-[450] pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
+        <div className="sm:hidden absolute top-[124px] right-3 z-[450] pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
           <MapLegend onClose={() => setShowLegend(false)} />
         </div>
       )}
 
-      {/* Floating Bottom-Right Map Controls & Suitability Legend
-          - Legend appears on desktop/tablet when toggled; shift left on md when drawer open */}
+      {/* Floating Bottom-Right Map Controls & Suitability Legend */}
       <div
         className={cn(
-          'absolute bottom-3.5 z-[350] flex items-end gap-3 pointer-events-auto transition-all duration-300',
-          // Desktop: shift left when detail drawer is open
+          'absolute bottom-3.5 right-3 sm:right-6 z-[350] flex items-end gap-3 pointer-events-auto transition-all duration-300',
           selectedSlug
-            ? 'right-6 md:right-[456px]'
-            : 'right-6'
+            ? 'md:right-[396px] lg:right-[456px]'
+            : 'md:right-6',
         )}
       >
-        {/* Suitability Legend - desktop only (conditional) */}
         {showLegend && (
           <div className="hidden sm:block animate-in fade-in zoom-in-95 duration-200">
             <MapLegend onClose={() => setShowLegend(false)} />
           </div>
         )}
 
-        {/* 5-Button Map Controls Stack */}
         <MapControls
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
@@ -487,6 +518,14 @@ export function MapPage({ locationEnabled = true }: { locationEnabled?: boolean 
           onResetCompass={handleResetCompass}
           currentLayer={tileLayer}
           onChangeLayer={setTileLayer}
+          is3D={is3D}
+          onToggle3D={() => {
+            setIs3D((prev) => {
+              const next = !prev;
+              showToast(next ? 'Mode Peta 3D aktif' : 'Mode Peta 2D aktif', 'info', 2000);
+              return next;
+            });
+          }}
           onToast={showToast}
         />
       </div>

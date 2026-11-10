@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
-  FileText,
-  Coffee,
-  BarChart2,
-  Settings,
-  ExternalLink,
-  X,
-} from 'lucide-react';
+  ArrowSquareOutIcon,
+  ChartBarIcon,
+  CoffeeIcon,
+  FileTextIcon,
+  GearSixIcon,
+  SquaresFourIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 
 import { useAdminStore } from '@/lib/admin-store';
@@ -26,10 +26,10 @@ function NavBadge({ label, variant }: { label: string; variant?: BadgeVariant })
   return (
     <span
       className={cn(
-        'ml-auto text-[11px] font-bold px-2 py-0.5 rounded-full transition-all duration-200 animate-in fade-in',
+        'ml-auto h-5 min-w-5 inline-flex items-center justify-center font-mono tabular-nums text-[10px] font-semibold leading-none px-1.5 rounded-md transition-colors shrink-0',
         variant === 'danger'
-          ? 'bg-rose-50 text-rose-600 border border-rose-200 shadow-xs'
-          : 'bg-surface-header text-text-700 border border-border-subtle'
+          ? 'bg-rose-50 text-rose-700 border border-rose-200/80'
+          : 'bg-[#F5F6F3] text-text-700 border border-[#E2E5DF]'
       )}
     >
       {label}
@@ -42,22 +42,22 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
   const { unreadTicketsCount, newPlacesCount } = useAdminStore();
 
   const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+    { href: '/admin', label: 'Dashboard', icon: SquaresFourIcon, exact: true },
     {
       href: '/admin/reports',
-      label: 'Report / Tiket',
-      icon: FileText,
-      badge: unreadTicketsCount > 0 ? `${unreadTicketsCount} baru` : undefined,
+      label: 'Laporan & Tiket',
+      icon: FileTextIcon,
+      badge: unreadTicketsCount > 0 ? `${unreadTicketsCount}` : undefined,
       badgeVariant: 'danger' as const,
     },
     {
       href: '/admin/places',
       label: 'Kelola Kafe',
-      icon: Coffee,
-      badge: newPlacesCount > 0 ? `${newPlacesCount} baru` : undefined,
+      icon: CoffeeIcon,
+      badge: newPlacesCount > 0 ? `${newPlacesCount}` : undefined,
       badgeVariant: 'danger' as const,
     },
-    { href: '/admin/analytics', label: 'Analisis Pengguna', icon: BarChart2 },
+    { href: '/admin/analytics', label: 'Analisis Spasial', icon: ChartBarIcon },
   ];
 
   function isActive(href: string, exact?: boolean) {
@@ -66,9 +66,14 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
   }
 
   return (
-    <aside className={cn('w-[254px] h-screen bg-white border-r border-border-subtle flex flex-col shrink-0 select-none', className)}>
+    <aside
+      className={cn(
+        'w-[254px] h-[100dvh] bg-white border-r border-[#E2E5DF] flex flex-col shrink-0 select-none',
+        className
+      )}
+    >
       {/* Brand Wordmark matching exact Figma 254x66px & Onest 24px */}
-      <div className="h-[66px] flex items-center justify-between px-5 border-b border-border-subtle shrink-0">
+      <div className="h-[66px] flex items-center justify-between px-5 border-b border-[#E2E5DF] shrink-0">
         <Link
           href="/admin"
           className="select-none"
@@ -101,16 +106,16 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
           <button
             type="button"
             onClick={onCloseMobile}
-            className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-text-400 hover:text-text-700 hover:bg-surface-subtle transition-colors cursor-pointer shrink-0"
+            className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-text-400 hover:text-text-700 hover:bg-[#F5F6F3] transition-colors cursor-pointer shrink-0 tactile-press"
             title="Tutup Menu"
           >
-            <X className="w-4 h-4" />
+            <XIcon size={16} weight="bold" />
           </button>
         )}
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="flex-1 p-3.5 space-y-1">
         <p className="text-[11px] font-semibold text-text-400 uppercase tracking-wider px-3 py-2">
           Navigasi Utama
         </p>
@@ -121,14 +126,19 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors',
+                'flex items-center gap-2.5 px-3 h-9 rounded-xl text-xs transition-all tactile-press',
                 active
-                  ? 'bg-primary-100 text-primary-900 font-semibold border-l-[3px] border-primary-900'
-                  : 'text-text-700 hover:bg-surface-subtle hover:text-text-900'
+                  ? 'bg-[#005B54]/[0.08] text-[#005B54] font-bold border border-[#005B54]/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]'
+                  : 'text-text-700 font-medium hover:bg-[#F5F6F3] hover:text-text-950 border border-transparent'
               )}
             >
               <item.icon
-                className={cn('w-4 h-4 shrink-0', active ? 'text-primary-900' : 'text-text-400')}
+                size={16}
+                weight={active ? 'duotone' : 'regular'}
+                className={cn(
+                  'shrink-0 transition-colors',
+                  active ? 'text-[#005B54]' : 'text-text-400'
+                )}
               />
               <span className="flex-1 truncate">{item.label}</span>
               {item.badge && (
@@ -140,28 +150,33 @@ export function AdminSidebar({ onCloseMobile, className }: AdminSidebarProps = {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-border-subtle p-3 space-y-2">
+      <div className="border-t border-[#E2E5DF] p-3.5 space-y-2 bg-[#F5F6F3]/40">
         <Link
           href="/"
-          className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-text-700 hover:text-primary-900 hover:bg-surface-subtle rounded-lg transition-colors"
+          className="flex items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-text-700 hover:text-[#005B54] hover:bg-white rounded-xl border border-transparent hover:border-[#E2E5DF] transition-all tactile-press group"
         >
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span>Lihat WebGIS Publik</span>
+          <span className="flex items-center gap-2">
+            <ArrowSquareOutIcon size={14} weight="duotone" className="text-text-400 group-hover:text-[#005B54] transition-colors" />
+            <span>Lihat WebGIS Publik</span>
+          </span>
+          <span className="text-[10px] font-mono text-text-400 group-hover:text-[#005B54]">↗</span>
         </Link>
         {/* Settings Button linking to /admin/settings */}
         <Link
           href="/admin/settings"
           className={cn(
-            'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all',
+            'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all tactile-press',
             pathname.startsWith('/admin/settings')
-              ? 'bg-primary-100 text-primary-900 border-l-[3px] border-primary-900 shadow-2xs'
-              : 'text-text-700 hover:bg-surface-subtle hover:text-text-950 border border-border-subtle hover:border-border-strong'
+              ? 'bg-[#005B54]/[0.08] text-[#005B54] border border-[#005B54]/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]'
+              : 'bg-white text-text-700 hover:text-text-950 border border-[#E2E5DF] hover:border-[#CBD5E1] shadow-2xs'
           )}
         >
-          <Settings
+          <GearSixIcon
+            size={16}
+            weight={pathname.startsWith('/admin/settings') ? 'duotone' : 'regular'}
             className={cn(
-              'w-4 h-4 shrink-0 transition-transform',
-              pathname.startsWith('/admin/settings') ? 'text-primary-900' : 'text-text-500'
+              'shrink-0 transition-transform',
+              pathname.startsWith('/admin/settings') ? 'text-[#005B54]' : 'text-text-500'
             )}
           />
           <span className="flex-1 truncate">Pengaturan</span>

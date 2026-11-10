@@ -61,7 +61,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       }}
     >
       <header className={styles.topbar}>
-        <span className={styles.location}><span aria-hidden="true" />Bogor, Jawa Barat</span>
+        <span className={styles.location}><span aria-hidden="true" />Kota Bogor, Jawa Barat</span>
         <button ref={skipRef} className={styles.skip} type="button" onClick={onComplete}>
           Lewati
           <span className="sr-only"> animasi dan buka peta</span>
@@ -84,13 +84,21 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           </div>
           <div className={styles.road}><div className={styles.roadDashes} /></div>
           <div className={styles.destination}>
-            <span className={styles.pin} />
+            <Image
+              src="/images/auth/icon_3d_pin.webp"
+              width={44}
+              height={56}
+              alt=""
+              unoptimized
+              draggable={false}
+              className={styles.pin3d}
+            />
             <span className={styles.destinationLabel}>Spot nugasmu</span>
           </div>
           <div className={styles.bike}>
             <div className={styles.riders}>
               <Image
-                src="/images/splash/go-around-riders.webp"
+                src="/images/splash/go-around-3d-riders.webp"
                 width={768}
                 height={512}
                 alt=""

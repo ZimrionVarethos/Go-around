@@ -1,7 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { LocateFixed, Search, Sparkles } from 'lucide-react';
+import {
+  CrosshairIcon,
+  MagnifyingGlassIcon,
+  SparkleIcon,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
 import {
   RECOMMENDATION_PRESET_WEIGHTS,
@@ -64,7 +68,7 @@ export function RecommendationCriteria({
                 onClick={onRequestLocation}
                 className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-white px-3 text-xs font-bold text-[#005B54] ring-1 ring-teal-200 transition-colors hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54]"
               >
-                <LocateFixed className="h-3.5 w-3.5" aria-hidden="true" />
+                <CrosshairIcon size={14} weight="bold" aria-hidden="true" />
                 Lokasi saya
               </button>
             )}
@@ -154,7 +158,7 @@ export function RecommendationCriteria({
 
         <div className="rounded-xl bg-slate-50 px-3.5 py-3 ring-1 ring-slate-200">
           <div className="flex items-start gap-2.5">
-            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#005B54]" aria-hidden="true" />
+            <SparkleIcon size={16} weight="fill" className="mt-0.5 shrink-0 text-[#005B54]" aria-hidden="true" />
             <div>
               <p className="text-xs font-bold text-slate-800">Pencarian dari kolom atas</p>
               <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
@@ -178,7 +182,7 @@ export function RecommendationCriteria({
           disabled={isSubmitting}
           className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#005B54] px-4 text-xs font-bold text-white shadow-[0_6px_16px_-8px_rgba(0,91,84,0.8)] transition-colors hover:bg-[#004741] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005B54] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <Search className="h-4 w-4" aria-hidden="true" />
+          <MagnifyingGlassIcon size={16} weight="bold" aria-hidden="true" />
           {isSubmitting ? 'Mencari…' : 'Cari rekomendasi'}
         </button>
       </div>
