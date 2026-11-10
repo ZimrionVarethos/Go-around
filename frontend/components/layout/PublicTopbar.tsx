@@ -8,7 +8,6 @@ import {
   MapPinPlusIcon,
   SlidersHorizontalIcon,
   SparkleIcon,
-  WarningIcon,
   XIcon,
 } from '@phosphor-icons/react';
 import { cn } from '@/lib/cn';
@@ -254,16 +253,6 @@ export function PublicTopbar({
             <span className="inline xl:hidden">Tambah</span>
           </Link>
 
-          {/* Lapor Fasilitas CTA */}
-          <Link
-            href="/lapor-fasilitas"
-            className="hidden md:flex h-[40px] items-center gap-1.5 px-2.5 lg:px-3.5 text-xs font-semibold rounded-[12px] bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] hover:bg-[#fee2e2] transition-all cursor-pointer shrink-0"
-          >
-            <WarningIcon size={16} weight="duotone" className="text-[#DC2626] shrink-0" />
-            <span className="hidden xl:inline">Lapor Fasilitas</span>
-            <span className="inline xl:hidden">Lapor</span>
-          </Link>
-
           {/* Mobile Hamburger Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -307,14 +296,6 @@ export function PublicTopbar({
               >
                 <MapPinPlusIcon size={16} weight="bold" />
                 <span>Tambah Tempat Baru</span>
-              </Link>
-              <Link
-                href="/lapor-fasilitas"
-                onClick={() => setMobileMenuOpen(false)}
-                className="h-[40px] flex items-center justify-center gap-2 text-xs font-semibold rounded-[10px] bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] hover:bg-[#fee2e2] transition-all"
-              >
-                <WarningIcon size={16} weight="duotone" className="text-[#DC2626]" />
-                <span>Lapor & Koreksi Fasilitas</span>
               </Link>
             </div>
           </div>

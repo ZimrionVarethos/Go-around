@@ -23,16 +23,6 @@ export default function LaporFasilitasPage() {
               <ArrowLeftIcon size={16} weight="bold" />
               <span>Kembali ke Peta</span>
             </Link>
-            <div className="h-4 w-px bg-gray-200" />
-            <span className="text-sm font-bold text-gray-900 truncate">
-              Lapor &amp; Koreksi Fasilitas
-            </span>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs sm:text-sm text-[#005B54] font-bold bg-[#E0F3EE] px-3 py-1 rounded-full border border-[#005B54]">
-              Laporan Publik &amp; Anonim
-            </span>
           </div>
         </div>
       </header>

@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
+import Link from 'next/link';
 import { usePlaceDetail } from '@/hooks/usePlacesQuery';
 import {
   ArrowsClockwiseIcon,
@@ -288,24 +289,35 @@ export function PlaceDetailDrawer({
         </div>
       </div>
 
-      {/* 4. Single Clean Footer Action CTA */}
+      {/* 4. Footer Action CTA: Petunjuk Arah + Lapor Fasilitas */}
       <div className="border-t border-gray-100 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-white shrink-0">
-        {mapsUrl ? (
-          <a
-            href={mapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackPublicRouteClick(place.name, place.location.address)}
-            className="w-full bg-[#005B54] hover:bg-[#004741] active:scale-[0.99] text-white text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
+        <div className="flex items-center gap-2">
+          {mapsUrl ? (
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackPublicRouteClick(place.name, place.location.address)}
+              className="flex-1 min-w-0 h-10 bg-[#005B54] hover:bg-[#004741] active:scale-[0.99] text-white text-xs font-semibold px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
+            >
+              <NavigationArrowIcon size={15} weight="fill" className="shrink-0" />
+              <span className="truncate">Petunjuk Arah (Maps)</span>
+            </a>
+          ) : (
+            <div className="flex-1 min-w-0 h-10 rounded-xl bg-gray-100 px-3 flex items-center justify-center text-xs font-semibold text-gray-400">
+              <span className="truncate">Tautan arah belum tersedia</span>
+            </div>
+          )}
+
+          <Link
+            href={`/lapor-fasilitas?place=${encodeURIComponent(place.slug || String(place.id))}`}
+            title={`Lapor & koreksi fasilitas ${place.name}`}
+            aria-label={`Lapor & koreksi fasilitas ${place.name}`}
+            className="h-10 w-10 shrink-0 rounded-xl bg-[#FEF2F2] hover:bg-[#FEE2E2] border border-[#FECACA] text-[#DC2626] flex items-center justify-center transition-all active:scale-[0.98] cursor-pointer shadow-2xs"
           >
-            <NavigationArrowIcon size={15} weight="fill" />
-            <span>Petunjuk Arah (Maps)</span>
-          </a>
-        ) : (
-          <div className="w-full rounded-xl bg-gray-100 px-3 py-2.5 text-center text-xs font-semibold text-gray-400">
-            Tautan arah belum tersedia
-          </div>
-        )}
+            <WarningIcon size={18} weight="duotone" aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     </DrawerShell>
   );

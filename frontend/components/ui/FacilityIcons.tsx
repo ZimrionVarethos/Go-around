@@ -206,7 +206,7 @@ export function DynamicAcousticIcon({
     <SpeakerSimpleLowIcon
       size={size}
       weight={weight}
-      className={cn(colored && 'text-sky-600', className)}
+      className={cn(colored && 'text-emerald-600', className)}
       aria-hidden="true"
     />
   );

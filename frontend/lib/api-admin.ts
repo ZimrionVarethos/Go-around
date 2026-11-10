@@ -6,18 +6,44 @@
  *
  * FITUR UTAMA:
  * - Standarisasi DTO & endpoint Laravel (/api/v1/auth/* dan /api/v1/admin/*)
- * - Dukungan Bearer Token Sanctum / JWT otomatis
- * - Graceful Fallback: Jika backend Laravel belum online atau route belum dibuat (404),
- *   sistem secara otomatis dan transparan beralih ke local storage / mock data.
- *   Ketika Anda selesai membuat controller di Laravel, data langsung mengalir dari database!
+ * - Dukungan Bearer Token otomatis
+ * - Graceful Fallback: Aktif memanggil Laravel saat NEXT_PUBLIC_API_URL dikonfigurasi
+ *   atau saat dijalankan di localhost/127.0.0.1. Jika backend Laravel belum menyala,
+ *   sistem beralih ke local storage / mock data tanpa error di browser.
  */
 
-import { AdminProfile, DEFAULT_ADMIN_PROFILE } from './admin-auth';
-import { AdminTicketItem, PlaceItem } from './admin-store';
+import type { AdminProfile } from './admin-auth';
+import type { AdminTicketItem, PlaceItem } from './admin-store';
 import { ADMIN_STORAGE_KEY, MOCK_ANALYTICS, MOCK_KPI } from './admin-mock-data';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
+const EXPLICIT_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || '';
+const API_BASE = EXPLICIT_API_URL || 'http://127.0.0.1:8000/api/v1';
 const TOKEN_KEY = 'goaround_admin_token_v1';
+
+export const DEFAULT_ADMIN_PROFILE_DATA: AdminProfile = {
+  name: 'Admin',
+  email: 'admin@goaround.id',
+  role: 'Super Admin SIG Kota Bogor',
+  agency: 'Bappeda & Tim SIG IPB University',
+  avatarInitials: 'AD',
+  bio: 'Pengelola master data spasial dan verifikator fasilitas kafe ramah mahasiswa seputar Kota Bogor.',
+  phone: '+62 812-3456-7890',
+  isAuthenticated: true,
+  lastLogin: 'Hari ini, 08:30 WIB',
+};
+
+export function getAdminApiBase(): string {
+  return API_BASE;
+}
+
+export function shouldUseLaravelAdminApi(): boolean {
+  if (EXPLICIT_API_URL) return true;
+  if (typeof window === 'undefined') return false;
+  return (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  );
+}
 
 // ─── Token Management ─────────────────────────────────────────────────────────
 
@@ -35,16 +61,78 @@ export function setAdminToken(token: string | null): void {
   }
 }
 
+export function calculateAdminInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return (name.slice(0, 2) || 'AD').toUpperCase();
+}
+
+export function normalizeLaravelAdminProfile(
+  raw: Record<string, unknown> | null | undefined,
+  current?: AdminProfile,
+): AdminProfile {
+  const base = current ?? DEFAULT_ADMIN_PROFILE_DATA;
+  const name = typeof raw?.name === 'string' && raw.name.trim() ? raw.name.trim() : base.name;
+  const email = typeof raw?.email === 'string' && raw.email.trim() ? raw.email.trim() : base.email;
+  const role = typeof raw?.role === 'string' && raw.role.trim() ? raw.role.trim() : base.role;
+  const agency =
+    typeof raw?.agency === 'string' && raw.agency.trim()
+      ? raw.agency.trim()
+      : typeof raw?.institution === 'string' && raw.institution.trim()
+      ? raw.institution.trim()
+      : base.agency;
+  const phone = typeof raw?.phone === 'string' && raw.phone.trim() ? raw.phone.trim() : base.phone;
+  const bio = typeof raw?.bio === 'string' && raw.bio.trim() ? raw.bio.trim() : base.bio;
+
+  const now = new Date();
+  const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} WIB`;
+
+  return {
+    name,
+    email,
+    role,
+    agency,
+    avatarInitials:
+      typeof raw?.avatarInitials === 'string' && raw.avatarInitials.trim()
+        ? raw.avatarInitials.trim().toUpperCase()
+        : calculateAdminInitials(name),
+    bio,
+    phone,
+    isAuthenticated: true,
+    lastLogin:
+      typeof raw?.lastLogin === 'string' && raw.lastLogin.trim()
+        ? raw.lastLogin.trim()
+        : base.lastLogin || `Hari ini, ${timeString}`,
+  };
+}
+
 // ─── Base Admin Fetcher ───────────────────────────────────────────────────────
 
 interface AdminFetchOptions extends RequestInit {
   params?: Record<string, unknown>;
 }
 
+class AdminHttpError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly body: unknown,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'AdminHttpError';
+  }
+}
+
 async function adminFetch<T>(
   endpoint: string,
-  options: AdminFetchOptions = {}
+  options: AdminFetchOptions = {},
 ): Promise<T> {
+  if (!shouldUseLaravelAdminApi()) {
+    throw new Error('Laravel Admin API belum dikonfigurasi untuk environment ini.');
+  }
+
   const { params, headers, ...restOptions } = options;
 
   let urlString = `${API_BASE}${endpoint}`;
@@ -76,12 +164,12 @@ async function adminFetch<T>(
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => null);
-    const err = new Error(
-      errorBody?.message || `HTTP ${response.status}: Gagal memanggil endpoint ${endpoint}`
+    throw new AdminHttpError(
+      response.status,
+      errorBody,
+      (errorBody as { message?: string } | null)?.message ||
+        `HTTP ${response.status}: Gagal memanggil endpoint ${endpoint}`,
     );
-    (err as unknown as { status: number; body: unknown }).status = response.status;
-    (err as unknown as { status: number; body: unknown }).body = errorBody;
-    throw err;
   }
 
   return response.json() as Promise<T>;
@@ -107,21 +195,34 @@ export const adminAuthApi = {
    */
   login: async (payload: AdminLoginPayload): Promise<AdminLoginResponse> => {
     try {
-      const res = await adminFetch<AdminLoginResponse>('/auth/login', {
+      const res = await adminFetch<{
+        status: 'success' | 'error';
+        token: string;
+        user: Record<string, unknown>;
+        message?: string;
+      }>('/auth/login', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
       if (res.token) setAdminToken(res.token);
-      return res;
-    } catch {
-      // Fallback ke simulasi local auth jika Laravel belum aktif
+      return {
+        status: res.status,
+        token: res.token,
+        user: normalizeLaravelAdminProfile(res.user),
+        message: res.message,
+      };
+    } catch (err) {
+      if (err instanceof AdminHttpError) {
+        throw err;
+      }
+      // Fallback ke simulasi local auth hanya jika server Laravel offline/tidak aktif
       if (payload.email === 'admin@goaround.id' && payload.password === 'admin123') {
         const mockToken = 'mock-sanctum-token-' + Date.now();
         setAdminToken(mockToken);
         return {
           status: 'success',
           token: mockToken,
-          user: DEFAULT_ADMIN_PROFILE,
+          user: DEFAULT_ADMIN_PROFILE_DATA,
           message: 'Berhasil login (Mode Simulasi)',
         };
       }
@@ -144,14 +245,21 @@ export const adminAuthApi = {
   },
 
   /**
+   * Endpoint Laravel target: GET /api/v1/auth/me (throws if offline)
+   */
+  getMeStrict: async (): Promise<AdminProfile> => {
+    const res = await adminFetch<{ data: Record<string, unknown> }>('/auth/me');
+    return normalizeLaravelAdminProfile(res.data);
+  },
+
+  /**
    * Endpoint Laravel target: GET /api/v1/auth/me
    */
   getMe: async (): Promise<AdminProfile> => {
     try {
-      const res = await adminFetch<{ data: AdminProfile }>('/auth/me');
-      return res.data;
+      return await adminAuthApi.getMeStrict();
     } catch {
-      return DEFAULT_ADMIN_PROFILE;
+      return DEFAULT_ADMIN_PROFILE_DATA;
     }
   },
 
@@ -160,26 +268,38 @@ export const adminAuthApi = {
    */
   updateProfile: async (profile: Partial<AdminProfile>): Promise<AdminProfile> => {
     try {
-      const res = await adminFetch<{ data: AdminProfile }>('/admin/profile', {
+      const res = await adminFetch<{ data: Record<string, unknown> }>('/admin/profile', {
         method: 'PUT',
-        body: JSON.stringify(profile),
+        body: JSON.stringify({
+          ...profile,
+          institution: profile.agency,
+        }),
       });
-      return res.data;
+      return normalizeLaravelAdminProfile(res.data, {
+        ...DEFAULT_ADMIN_PROFILE_DATA,
+        ...profile,
+      });
     } catch {
-      return { ...DEFAULT_ADMIN_PROFILE, ...profile };
+      return { ...DEFAULT_ADMIN_PROFILE_DATA, ...profile };
     }
   },
 
   /**
    * Endpoint Laravel target: PUT /api/v1/admin/password
    */
-  changePassword: async (oldPass: string, newPass: string): Promise<{ success: boolean; message: string }> => {
+  changePassword: async (
+    oldPass: string,
+    newPass: string,
+  ): Promise<{ success: boolean; message: string }> => {
     try {
       return await adminFetch<{ success: boolean; message: string }>('/admin/password', {
         method: 'PUT',
         body: JSON.stringify({ current_password: oldPass, new_password: newPass }),
       });
-    } catch {
+    } catch (err) {
+      if (err instanceof AdminHttpError) {
+        throw err;
+      }
       return { success: true, message: 'Kata sandi berhasil diperbarui (Simulasi Lokal)' };
     }
   },
@@ -197,21 +317,27 @@ export interface PlaceFiltersParams {
 
 export const adminPlacesApi = {
   /**
+   * Endpoint Laravel target: GET /api/v1/admin/places (throws if offline)
+   */
+  getAllStrict: async (params?: PlaceFiltersParams): Promise<PlaceItem[]> => {
+    const res = await adminFetch<{ data: PlaceItem[] }>('/admin/places', {
+      params: params as Record<string, unknown>,
+    });
+    return Array.isArray(res.data) ? res.data : [];
+  },
+
+  /**
    * Endpoint Laravel target: GET /api/v1/admin/places
    */
   getAll: async (params?: PlaceFiltersParams): Promise<PlaceItem[]> => {
     try {
-      const res = await adminFetch<{ data: PlaceItem[] }>('/admin/places', {
-        params: params as Record<string, unknown>,
-      });
-      return res.data;
+      return await adminPlacesApi.getAllStrict(params);
     } catch {
-      // Fallback ke local store data jika Laravel belum siap
       if (typeof window !== 'undefined') {
         try {
           const stored = localStorage.getItem(ADMIN_STORAGE_KEY);
           if (stored) {
-            const parsed = JSON.parse(stored);
+            const parsed = JSON.parse(stored) as { places?: PlaceItem[] };
             if (Array.isArray(parsed.places)) return parsed.places;
           }
         } catch {
@@ -272,7 +398,7 @@ export const adminPlacesApi = {
     try {
       await adminFetch<{ success: boolean }>(`/admin/places/${id}`, { method: 'DELETE' });
     } catch {
-      // ignore
+      // ignore offline fallback
     }
     return { success: true, id };
   },
@@ -284,7 +410,7 @@ export const adminPlacesApi = {
     try {
       return await adminFetch<{ success: boolean; status: 'verified' }>(
         `/admin/places/${id}/verify`,
-        { method: 'PATCH' }
+        { method: 'PATCH' },
       );
     } catch {
       return { success: true, status: 'verified' };
@@ -298,7 +424,7 @@ export const adminPlacesApi = {
     try {
       return await adminFetch<{ success: boolean; status: 'rejected' }>(
         `/admin/places/${id}/reject`,
-        { method: 'PATCH' }
+        { method: 'PATCH' },
       );
     } catch {
       return { success: true, status: 'rejected' };
@@ -310,8 +436,18 @@ export const adminPlacesApi = {
    */
   uploadPhoto: async (
     id: number,
-    file: File
+    file: File,
   ): Promise<{ status: 'success'; imageUrl: string }> => {
+    if (!shouldUseLaravelAdminApi()) {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('Gagal membaca file gambar'));
+        reader.readAsDataURL(file);
+      });
+      return { status: 'success', imageUrl: dataUrl };
+    }
+
     const formData = new FormData();
     formData.append('image', file);
     const token = getAdminToken();
@@ -348,20 +484,27 @@ export interface TicketFilterParams {
 
 export const adminTicketsApi = {
   /**
+   * Endpoint Laravel target: GET /api/v1/admin/tickets (throws if offline)
+   */
+  getAllStrict: async (params?: TicketFilterParams): Promise<AdminTicketItem[]> => {
+    const res = await adminFetch<{ data: AdminTicketItem[] }>('/admin/tickets', {
+      params: params as Record<string, unknown>,
+    });
+    return Array.isArray(res.data) ? res.data : [];
+  },
+
+  /**
    * Endpoint Laravel target: GET /api/v1/admin/tickets
    */
   getAll: async (params?: TicketFilterParams): Promise<AdminTicketItem[]> => {
     try {
-      const res = await adminFetch<{ data: AdminTicketItem[] }>('/admin/tickets', {
-        params: params as Record<string, unknown>,
-      });
-      return res.data;
+      return await adminTicketsApi.getAllStrict(params);
     } catch {
       if (typeof window !== 'undefined') {
         try {
           const stored = localStorage.getItem(ADMIN_STORAGE_KEY);
           if (stored) {
-            const parsed = JSON.parse(stored);
+            const parsed = JSON.parse(stored) as { tickets?: AdminTicketItem[] };
             if (Array.isArray(parsed.tickets)) return parsed.tickets;
           }
         } catch {
@@ -377,10 +520,13 @@ export const adminTicketsApi = {
    */
   resolve: async (id: string, internalNote?: string): Promise<{ success: boolean }> => {
     try {
-      return await adminFetch<{ success: boolean }>(`/admin/tickets/${id}/resolve`, {
-        method: 'PATCH',
-        body: JSON.stringify({ internal_note: internalNote }),
-      });
+      return await adminFetch<{ success: boolean }>(
+        `/admin/tickets/${encodeURIComponent(id)}/resolve`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ internal_note: internalNote }),
+        },
+      );
     } catch {
       return { success: true };
     }
@@ -391,9 +537,10 @@ export const adminTicketsApi = {
    */
   dismiss: async (id: string): Promise<{ success: boolean }> => {
     try {
-      return await adminFetch<{ success: boolean }>(`/admin/tickets/${id}/dismiss`, {
-        method: 'PATCH',
-      });
+      return await adminFetch<{ success: boolean }>(
+        `/admin/tickets/${encodeURIComponent(id)}/dismiss`,
+        { method: 'PATCH' },
+      );
     } catch {
       return { success: true };
     }
@@ -404,17 +551,24 @@ export const adminTicketsApi = {
 
 export const adminAnalyticsApi = {
   /**
+   * Endpoint Laravel target: GET /api/v1/admin/analytics/overview (throws if offline)
+   */
+  getOverviewStrict: async (timeRange: string = '30d') => {
+    return adminFetch<{
+      status: string;
+      data: {
+        kpi: typeof MOCK_KPI;
+        analytics: typeof MOCK_ANALYTICS;
+      };
+    }>('/admin/analytics/overview', { params: { time_range: timeRange } });
+  },
+
+  /**
    * Endpoint Laravel target: GET /api/v1/admin/analytics/overview
    */
   getOverview: async (timeRange: string = '30d') => {
     try {
-      return await adminFetch<{
-        status: string;
-        data: {
-          kpi: typeof MOCK_KPI;
-          analytics: typeof MOCK_ANALYTICS;
-        };
-      }>('/admin/analytics/overview', { params: { time_range: timeRange } });
+      return await adminAnalyticsApi.getOverviewStrict(timeRange);
     } catch {
       return {
         status: 'fallback',

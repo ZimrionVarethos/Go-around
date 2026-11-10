@@ -44,16 +44,11 @@ export function ReportSidebar() {
     <aside className="w-full lg:w-[420px] shrink-0 space-y-5 lg:sticky lg:top-20">
       {/* Card 1: Alur Penanganan Laporan */}
       <div className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-5 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#005B54]" />
-            <h3 className="text-sm font-bold text-gray-900">
-              Alur Verifikasi Penanganan Laporan
-            </h3>
-          </div>
-          <span className="bg-[#E0F3EE] text-[#005B54] text-xs font-bold px-2.5 py-1 rounded-full border border-[#005B54]">
-            SOP Kurasi
-          </span>
+        <div className="flex items-center gap-2">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#005B54]" />
+          <h3 className="text-sm font-bold text-gray-900">
+            Alur Verifikasi Penanganan Laporan
+          </h3>
         </div>
 
         {/* SLA Target Box */}

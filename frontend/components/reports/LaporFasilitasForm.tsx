@@ -12,8 +12,8 @@ import { cn } from '@/lib/cn';
 import { reportsApi } from '@/lib/api';
 import { dispatchNewPublicTicket } from '@/lib/admin-store';
 import { FIGMA_PLACES } from '@/lib/figma-places';
-import { usePlaces } from '@/hooks/usePlacesQuery';
-import type { PlaceListItem } from '@/lib/types';
+import { usePlaceDetail, usePlaces } from '@/hooks/usePlacesQuery';
+import type { PlaceDetail, PlaceListItem } from '@/lib/types';
 import { PlaceSearchSection } from './sections/PlaceSearchSection';
 import {
   IssueSelectionSection,
@@ -34,15 +34,57 @@ function getServerPlaceSearchParam(): string | null {
   return null;
 }
 
+function detailToPlaceListItem(detail: PlaceDetail): PlaceListItem {
+  return {
+    id: detail.id,
+    category_id: detail.category?.id ?? null,
+    name: detail.name,
+    slug: detail.slug,
+    address: detail.location.address,
+    subdistrict: detail.location.subdistrict,
+    latitude: detail.location.latitude,
+    longitude: detail.location.longitude,
+    google_maps_url: detail.location.google_maps_url,
+    instagram_handle: detail.socials.instagram_handle,
+    price_min_drink: detail.economics.price_min_drink,
+    price_max_drink: detail.economics.price_max_drink,
+    price_avg_food: detail.economics.price_avg_food,
+    price_tier: detail.economics.price_tier,
+    parking_fee_motor: detail.economics.parking_fee_motor,
+    has_student_discount: detail.economics.has_student_discount,
+    wifi_speed_mbps: detail.nugas_metrics.wifi_speed_mbps,
+    wifi_quality: detail.nugas_metrics.wifi_quality,
+    plug_availability: detail.nugas_metrics.plug_availability,
+    noise_level: detail.nugas_metrics.noise_level,
+    is_24_hours: detail.operational.is_24_hours,
+    open_time: detail.operational.open_time,
+    close_time: detail.operational.close_time,
+    google_rating: detail.ratings.google_rating,
+    total_google_reviews: detail.ratings.total_google_reviews,
+    nugas_score: detail.nugas_metrics.nugas_score,
+    budget_score: detail.nugas_metrics.budget_score,
+    facility_score: detail.nugas_metrics.facility_score,
+    image_url: detail.media.image_url,
+    description: detail.description,
+    vibe_tags: detail.media.vibe_tags.join(', '),
+    status: 'active',
+    created_at: '',
+    updated_at: '',
+    category: detail.category,
+    amenities: detail.amenities,
+  };
+}
+
 export interface LaporFasilitasFormProps {
   onToast?: (msg: string, type?: 'success' | 'info' | 'error' | 'warning', durationMs?: number) => void;
 }
 
 export function LaporFasilitasForm({ onToast }: LaporFasilitasFormProps = {}) {
-  const { data: placesRes } = usePlaces({ per_page: 100 });
+  const { data: placesRes } = usePlaces({ per_page: 200 });
+  const placesList = placesRes?.data;
   const availablePlaces: PlaceListItem[] = useMemo(
-    () => (placesRes?.data && placesRes.data.length > 0 ? placesRes.data : FIGMA_PLACES),
-    [placesRes?.data],
+    () => (placesList && placesList.length > 0 ? placesList : FIGMA_PLACES),
+    [placesList],
   );
 
   const placeParam = useSyncExternalStore(
@@ -55,16 +97,31 @@ export function LaporFasilitasForm({ onToast }: LaporFasilitasFormProps = {}) {
   const [searchQuery, setSearchQuery] = useState('');
   const [hasEditedSearch, setHasEditedSearch] = useState(false);
 
-  const autoMatchedPlace = useMemo(() => {
+  const autoMatchedFromList = useMemo(() => {
     if (hasClearedAutoSelect || !placeParam) return null;
+    const normalizedParam = placeParam.trim().toLowerCase();
     return (
       availablePlaces.find(
         (p) =>
-          p.slug.toLowerCase() === placeParam.toLowerCase() ||
-          p.name.toLowerCase() === placeParam.toLowerCase(),
+          p.slug.toLowerCase() === normalizedParam ||
+          p.name.toLowerCase() === normalizedParam ||
+          String(p.id) === normalizedParam,
       ) ?? null
     );
   }, [availablePlaces, hasClearedAutoSelect, placeParam]);
+
+  const { data: placeDetailRes } = usePlaceDetail(
+    !hasClearedAutoSelect && placeParam && !autoMatchedFromList ? placeParam : null,
+  );
+  const placeDetailData = placeDetailRes?.data ?? null;
+
+  const autoMatchedPlace = useMemo(() => {
+    if (autoMatchedFromList) return autoMatchedFromList;
+    if (!hasClearedAutoSelect && placeDetailData) {
+      return detailToPlaceListItem(placeDetailData);
+    }
+    return null;
+  }, [autoMatchedFromList, hasClearedAutoSelect, placeDetailData]);
 
   const selectedPlace = manualPlace ?? autoMatchedPlace;
   const effectiveSearchQuery = hasEditedSearch

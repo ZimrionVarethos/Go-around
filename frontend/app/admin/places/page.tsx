@@ -9,6 +9,7 @@ import {
 import { AdminTopbar } from '@/components/layout/AdminTopbar';
 import { useAdminLayout } from '@/components/admin/AdminLayoutContext';
 import { useAdminStore, PlaceItem } from '@/lib/admin-store';
+import { adminAnalyticsApi, getAdminToken, shouldUseLaravelAdminApi } from '@/lib/api-admin';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
 import {
@@ -231,7 +232,32 @@ export default function AdminPlacesPage() {
     );
   };
 
-  const handleExportGIS = () => {
+  const handleExportGIS = async () => {
+    if (shouldUseLaravelAdminApi()) {
+      try {
+        const token = getAdminToken();
+        const res = await fetch(adminAnalyticsApi.exportGeoJSONUrl(), {
+          headers: {
+            Accept: 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `goaround_places_laravel_${new Date().toISOString().slice(0, 10)}.geojson`;
+          link.click();
+          URL.revokeObjectURL(url);
+          showToast('Dataset GeoJSON berhasil diekspor dari backend.', 'success', 3000);
+          return;
+        }
+      } catch {
+        // Fallback to local state GeoJSON export below
+      }
+    }
+
     const geojson = {
       type: 'FeatureCollection',
       name: 'GoAround_Bogor_Places',

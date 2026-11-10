@@ -58,7 +58,7 @@ export function AdminProfileDropdown({
 
   const handleLogout = () => {
     onClose();
-    logout();
+    void logout();
     router.push('/admin/login');
   };
 

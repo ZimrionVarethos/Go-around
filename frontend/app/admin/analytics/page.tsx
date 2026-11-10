@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { DownloadSimpleIcon } from '@phosphor-icons/react';
 import { AdminTopbar } from '@/components/layout/AdminTopbar';
 import { useAdminLayout } from '@/components/admin/AdminLayoutContext';
-import { useAdminStore } from '@/lib/admin-store';
+import { refreshAnalyticsFromApi, useAdminStore } from '@/lib/admin-store';
+import { adminAnalyticsApi, getAdminToken, shouldUseLaravelAdminApi } from '@/lib/api-admin';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
 import {
@@ -23,7 +24,36 @@ export default function AdminAnalyticsPage() {
 
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
 
-  const handleExport = () => {
+  const handleTimeRangeChange = (nextRange: TimeRange) => {
+    setTimeRange(nextRange);
+    void refreshAnalyticsFromApi(nextRange);
+  };
+
+  const handleExport = async () => {
+    if (shouldUseLaravelAdminApi()) {
+      try {
+        const token = getAdminToken();
+        const res = await fetch(adminAnalyticsApi.exportGeoJSONUrl(), {
+          headers: {
+            Accept: 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `goaround_analytics_${timeRange}_${new Date().toISOString().slice(0, 10)}.geojson`;
+          link.click();
+          URL.revokeObjectURL(url);
+          showToast('Laporan analisis & dataset GeoJSON diekspor dari backend.', 'success', 3000);
+          return;
+        }
+      } catch {
+        // Fallback below
+      }
+    }
     showToast('Laporan analisis spasial diekspor (CSV & GeoJSON).', 'success', 3000);
   };
 
@@ -49,7 +79,7 @@ export default function AdminAnalyticsPage() {
 
       <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
         {/* Time Filter Toolbar */}
-        <AnalyticsFilterToolbar timeRange={timeRange} setTimeRange={setTimeRange} />
+        <AnalyticsFilterToolbar timeRange={timeRange} setTimeRange={handleTimeRangeChange} />
 
         {/* 4 KPI Metrics */}
         <AnalyticsKPIGrid kpi={analytics.kpi} />

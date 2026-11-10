@@ -1,6 +1,13 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+import {
+  adminAuthApi,
+  calculateAdminInitials,
+  DEFAULT_ADMIN_PROFILE_DATA,
+  getAdminToken,
+  shouldUseLaravelAdminApi,
+} from './api-admin';
 
 export interface AdminProfile {
   name: string;
@@ -22,17 +29,7 @@ export interface AdminAuthState {
 const STORAGE_KEY = 'goaround_admin_auth_v2';
 const DEFAULT_ADMIN_PASSWORD = 'admin123';
 
-export const DEFAULT_ADMIN_PROFILE: AdminProfile = {
-  name: 'Admin',
-  email: 'admin@goaround.id',
-  role: 'Super Admin SIG Kota Bogor',
-  agency: 'Bappeda & Tim SIG IPB University',
-  avatarInitials: 'AD',
-  bio: 'Pengelola master data spasial dan verifikator fasilitas kafe ramah mahasiswa seputar Kota Bogor.',
-  phone: '+62 812-3456-7890',
-  isAuthenticated: true,
-  lastLogin: 'Hari ini, 08:30 WIB',
-};
+export const DEFAULT_ADMIN_PROFILE: AdminProfile = DEFAULT_ADMIN_PROFILE_DATA;
 
 const DEFAULT_AUTH_STATE: AdminAuthState = {
   profile: DEFAULT_ADMIN_PROFILE,
@@ -41,6 +38,7 @@ const DEFAULT_AUTH_STATE: AdminAuthState = {
 
 let memoryState: AdminAuthState = DEFAULT_AUTH_STATE;
 let isInitialized = false;
+let hasSyncedProfile = false;
 const listeners = new Set<() => void>();
 
 function getStoredState(): AdminAuthState {
@@ -50,7 +48,7 @@ function getStoredState(): AdminAuthState {
     try {
       const item = window.localStorage.getItem(STORAGE_KEY);
       if (item) {
-        memoryState = JSON.parse(item);
+        memoryState = JSON.parse(item) as AdminAuthState;
       } else {
         memoryState = DEFAULT_AUTH_STATE;
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_AUTH_STATE));
@@ -81,7 +79,7 @@ function subscribe(callback: () => void) {
   const handleStorageEvent = (e: StorageEvent) => {
     if (e.key === STORAGE_KEY && e.newValue) {
       try {
-        memoryState = JSON.parse(e.newValue);
+        memoryState = JSON.parse(e.newValue) as AdminAuthState;
         callback();
       } catch {
         // ignore
@@ -101,22 +99,44 @@ function subscribe(callback: () => void) {
   };
 }
 
+export async function syncAdminAuthFromBackend(): Promise<void> {
+  if (hasSyncedProfile || !shouldUseLaravelAdminApi()) return;
+
+  const token = getAdminToken();
+  if (!token || token.startsWith('mock-sanctum-token-')) {
+    return;
+  }
+
+  hasSyncedProfile = true;
+  try {
+    const serverProfile = await adminAuthApi.getMeStrict();
+    const current = getStoredState();
+    if (!current.profile.isAuthenticated) return;
+
+    saveAndNotify({
+      ...current,
+      profile: {
+        ...current.profile,
+        ...serverProfile,
+        isAuthenticated: true,
+      },
+    });
+  } catch {
+    hasSyncedProfile = false;
+  }
+}
+
 export function useAdminAuth() {
   const state = useSyncExternalStore(
     subscribe,
     getStoredState,
-    () => DEFAULT_AUTH_STATE
+    () => DEFAULT_AUTH_STATE,
   );
 
-  const calculateInitials = (name: string): string => {
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return (name.slice(0, 2) || 'AD').toUpperCase();
-  };
-
-  const login = (email: string, password: string): { success: boolean; error?: string } => {
+  const login = async (
+    email: string,
+    password: string,
+  ): Promise<{ success: boolean; error?: string }> => {
     const trimmedEmail = email.trim().toLowerCase();
     const trimmedPassword = password.trim();
 
@@ -124,8 +144,46 @@ export function useAdminAuth() {
       return { success: false, error: 'Email dan kata sandi wajib diisi.' };
     }
 
-    const activeEmail = (state.profile.email || DEFAULT_ADMIN_PROFILE.email).trim().toLowerCase();
-    const activePassword = state.password || DEFAULT_ADMIN_PASSWORD;
+    const current = getStoredState();
+
+    if (shouldUseLaravelAdminApi()) {
+      try {
+        const res = await adminAuthApi.login({
+          email: trimmedEmail,
+          password: trimmedPassword,
+        });
+
+        const now = new Date();
+        const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} WIB`;
+
+        saveAndNotify({
+          ...current,
+          password: trimmedPassword,
+          profile: {
+            ...current.profile,
+            ...res.user,
+            isAuthenticated: true,
+            lastLogin: `Hari ini, ${timeString}`,
+          },
+        });
+        hasSyncedProfile = true;
+        return { success: true };
+      } catch (err) {
+        if (err && typeof err === 'object' && 'status' in err) {
+          return {
+            success: false,
+            error:
+              err instanceof Error && err.message
+                ? err.message
+                : 'Email atau kata sandi yang Anda masukkan salah.',
+          };
+        }
+        // Network offline -> fall through to local validation below
+      }
+    }
+
+    const activeEmail = (current.profile.email || DEFAULT_ADMIN_PROFILE.email).trim().toLowerCase();
+    const activePassword = current.password || DEFAULT_ADMIN_PASSWORD;
 
     const isEmailValid =
       trimmedEmail === activeEmail || trimmedEmail === DEFAULT_ADMIN_PROFILE.email.toLowerCase();
@@ -138,56 +196,81 @@ export function useAdminAuth() {
       };
     }
 
-    // Login berhasil
     const now = new Date();
     const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} WIB`;
 
-    const updatedProfile: AdminProfile = {
-      ...state.profile,
-      isAuthenticated: true,
-      lastLogin: `Hari ini, ${timeString}`,
-    };
-
     saveAndNotify({
-      ...state,
-      profile: updatedProfile,
+      ...current,
+      profile: {
+        ...current.profile,
+        isAuthenticated: true,
+        lastLogin: `Hari ini, ${timeString}`,
+      },
     });
 
     return { success: true };
   };
 
-  const logout = () => {
+  const logout = async (): Promise<void> => {
+    const current = getStoredState();
+    hasSyncedProfile = false;
     saveAndNotify({
-      ...state,
+      ...current,
       profile: {
-        ...state.profile,
+        ...current.profile,
         isAuthenticated: false,
       },
     });
+    await adminAuthApi.logout();
   };
 
-  const updateProfile = (data: Partial<AdminProfile>) => {
-    const nextName = data.name !== undefined ? data.name : state.profile.name;
-    const nextInitials = data.avatarInitials || calculateInitials(nextName);
+  const updateProfile = async (data: Partial<AdminProfile>): Promise<void> => {
+    const current = getStoredState();
+    const nextName = data.name !== undefined ? data.name : current.profile.name;
+    const nextInitials = data.avatarInitials || calculateAdminInitials(nextName);
 
     const nextProfile: AdminProfile = {
-      ...state.profile,
+      ...current.profile,
       ...data,
       name: nextName,
       avatarInitials: nextInitials,
     };
 
     saveAndNotify({
-      ...state,
+      ...current,
       profile: nextProfile,
     });
+
+    if (shouldUseLaravelAdminApi()) {
+      try {
+        const synced = await adminAuthApi.updateProfile(nextProfile);
+        const latest = getStoredState();
+        saveAndNotify({
+          ...latest,
+          profile: {
+            ...latest.profile,
+            ...synced,
+            agency: data.agency ?? synced.agency,
+            bio: data.bio ?? synced.bio,
+            phone: data.phone ?? synced.phone,
+            role: data.role ?? synced.role,
+          },
+        });
+      } catch {
+        // Offline fallback already saved locally
+      }
+    }
   };
 
-  const updatePassword = (oldPassword: string, newPassword: string): { success: boolean; error?: string } => {
+  const updatePassword = async (
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; error?: string }> => {
     if (!oldPassword) {
       return { success: false, error: 'Kata sandi saat ini wajib diisi.' };
     }
-    const activePassword = state.password || DEFAULT_ADMIN_PASSWORD;
+    const current = getStoredState();
+    const activePassword = current.password || DEFAULT_ADMIN_PASSWORD;
     if (oldPassword !== activePassword) {
       return { success: false, error: 'Kata sandi saat ini tidak sesuai.' };
     }
@@ -195,8 +278,24 @@ export function useAdminAuth() {
       return { success: false, error: 'Kata sandi baru minimal 6 karakter.' };
     }
 
+    if (shouldUseLaravelAdminApi()) {
+      try {
+        await adminAuthApi.changePassword(oldPassword, newPassword);
+      } catch (err) {
+        if (err && typeof err === 'object' && 'status' in err) {
+          return {
+            success: false,
+            error:
+              err instanceof Error && err.message
+                ? err.message
+                : 'Gagal memperbarui kata sandi di server.',
+          };
+        }
+      }
+    }
+
     saveAndNotify({
-      ...state,
+      ...current,
       password: newPassword,
     });
 

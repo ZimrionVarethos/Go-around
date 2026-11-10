@@ -210,15 +210,7 @@ export default function TambahTempatPage() {
               <span>Kembali ke Peta</span>
             </Link>
             <div className="h-4 w-px bg-gray-200" />
-            <span className="text-sm font-bold text-gray-900 truncate">
-              Tambah Rekomendasi Spot Nugas
-            </span>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs sm:text-sm text-[#005B54] font-bold bg-[#E0F3EE] px-3 py-1 rounded-full border border-[#005B54]">
-              Formulir Kontribusi Komunitas
-            </span>
+        
           </div>
         </div>
       </header>

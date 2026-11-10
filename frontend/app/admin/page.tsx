@@ -2,7 +2,6 @@
 
 import { AdminTopbar } from '@/components/layout/AdminTopbar';
 import { useAdminLayout } from '@/components/admin/AdminLayoutContext';
-import { MOCK_KPI } from '@/lib/admin-mock-data';
 import { useAdminStore } from '@/lib/admin-store';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
@@ -17,7 +16,7 @@ export default function AdminDashboardPage() {
   const { openMobileMenu } = useAdminLayout();
   const { toasts, showToast, dismissToast } = useToast();
 
-  const { tickets, places, resolveTicket, dismissTicket } = useAdminStore();
+  const { tickets, places, kpi, resolveTicket, dismissTicket } = useAdminStore();
 
   const handleResolveTicket = (ticketId: string, cafeName: string) => {
     resolveTicket(ticketId);
@@ -51,7 +50,7 @@ export default function AdminDashboardPage() {
         <AdminKPICards
           totalPlaces={places.length}
           activeTicketsCount={activeTickets.length}
-          kpi={MOCK_KPI}
+          kpi={kpi}
         />
 
         {/* 2-Column Section: Recent Tickets & Top Cafes */}

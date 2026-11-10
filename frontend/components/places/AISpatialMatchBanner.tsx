@@ -39,7 +39,7 @@ function getAiInsight(request: RecommendationRequest, totalCount: number): strin
     return 'Memprioritaskan suasana tenang dan kondusif agar kamu bisa fokus tanpa distraksi bising.';
   }
   if (hasBudget) {
-    return 'Memfilter kafe ramah kantong mahasiswa (es kopi < Rp 25.000) dengan fasilitas nugas optimal.';
+    return 'Memfilter kafe ramah kantong mahasiswa (harga minuman < Rp 25.000) dengan fasilitas nugas optimal.';
   }
   if (isNearby) {
     return 'Mengurutkan spot nugas terdekat dari titik lokasimu di sekitar Kota Bogor.';

@@ -173,7 +173,7 @@ export function FilterBar({
         <PlugChargingIcon
           size={15}
           weight="fill"
-          className={cn(isPlugActive ? 'text-amber-300' : 'text-amber-500')}
+          className={cn(isPlugActive ? 'text-white' : 'text-[#005B54]')}
         />
         <span>Colokan Tiap Meja</span>
         {isPlugActive ? (
@@ -195,13 +195,13 @@ export function FilterBar({
         <HeadphonesIcon
           size={15}
           weight="duotone"
-          className={cn(isQuietActive ? 'text-white' : 'text-teal-700')}
+          className={cn(isQuietActive ? 'text-white' : 'text-[#005B54]')}
         />
         <span>Tenang &amp; Kondusif (&lt; 45dB)</span>
         {isQuietActive && <XIcon size={14} weight="bold" className="text-white/80" />}
       </button>
 
-      {/* 3. Es Kopi < Rp25.000 */}
+      {/* 3. Harga <25.000 */}
       <button
         type="button"
         onClick={toggleBudget}
@@ -217,7 +217,7 @@ export function FilterBar({
           weight="duotone"
           className={cn(isBudgetActive ? 'text-white' : 'text-emerald-600')}
         />
-        <span>Es Kopi &lt; Rp25.000</span>
+        <span>Harga &lt;25.000</span>
         {isBudgetActive && <XIcon size={14} weight="bold" className="text-white/80" />}
       </button>
 
@@ -235,7 +235,7 @@ export function FilterBar({
         <ClockIcon
           size={15}
           weight="duotone"
-          className={cn(is24HoursActive ? 'text-white' : 'text-amber-500')}
+          className={cn(is24HoursActive ? 'text-white' : 'text-[#005B54]')}
         />
         <span>Buka 24 Jam Nonstop</span>
         {is24HoursActive && <XIcon size={14} weight="bold" className="text-white/80" />}

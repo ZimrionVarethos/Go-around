@@ -41,7 +41,7 @@ function SettingsContent() {
     router.replace(`/admin/settings?tab=${tab}`);
   };
 
-  const handleSaveProfile = (data: Partial<AdminProfile>) => {
+  const handleSaveProfile = async (data: Partial<AdminProfile>) => {
     if (!data.name?.trim()) {
       showToast('Nama tampilan tidak boleh kosong.', 'error', 3000);
       return;
@@ -51,20 +51,20 @@ function SettingsContent() {
       return;
     }
 
-    updateProfile(data);
+    await updateProfile(data);
     showToast('Profil akun berhasil diperbarui.', 'success', 3000);
   };
 
-  const handleResetProfile = () => {
-    updateProfile(DEFAULT_ADMIN_PROFILE);
+  const handleResetProfile = async () => {
+    await updateProfile(DEFAULT_ADMIN_PROFILE);
     showToast('Profil dikembalikan ke pengaturan awal.', 'info', 2500);
   };
 
-  const handleUpdatePassword = (
+  const handleUpdatePassword = async (
     currentPassword: string,
     newPassword: string,
     confirmPassword: string
-  ): boolean => {
+  ): Promise<boolean> => {
     if (!currentPassword) {
       showToast('Masukkan kata sandi saat ini.', 'error', 3000);
       return false;
@@ -78,7 +78,7 @@ function SettingsContent() {
       return false;
     }
 
-    const res = updatePassword(currentPassword, newPassword);
+    const res = await updatePassword(currentPassword, newPassword);
     if (res.success) {
       showToast('Kata sandi berhasil diperbarui.', 'success', 3000);
       return true;
@@ -88,8 +88,8 @@ function SettingsContent() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push('/admin/login');
   };
 

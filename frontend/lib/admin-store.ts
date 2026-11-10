@@ -6,7 +6,14 @@ import {
   MOCK_ADMIN_TICKETS,
   MOCK_PLACES_TABLE,
   MOCK_ANALYTICS,
+  MOCK_KPI,
 } from './admin-mock-data';
+import {
+  adminAnalyticsApi,
+  adminPlacesApi,
+  adminTicketsApi,
+  shouldUseLaravelAdminApi,
+} from './api-admin';
 
 export interface AdminTicketItem {
   id: string;
@@ -44,37 +51,41 @@ export interface PlaceItem {
 }
 
 export type AdminAnalyticsState = typeof MOCK_ANALYTICS;
+export type AdminKpiState = typeof MOCK_KPI;
 
 interface AdminState {
   tickets: AdminTicketItem[];
   places: PlaceItem[];
   analytics?: AdminAnalyticsState;
+  kpi?: AdminKpiState;
+  dataSource?: 'laravel' | 'local';
 }
 
 const STORAGE_KEY = ADMIN_STORAGE_KEY;
 
-// Default initial state:
-// 1 ticket unread (TK-802) so there is an active issue to demonstrate "1 baru"
-// 1 cafe review unread (KF-003) so there is an active pending cafe to demonstrate "1 baru"
 const INITIAL_TICKETS: AdminTicketItem[] = MOCK_ADMIN_TICKETS.map((t, index) => ({
   ...t,
   status: 'open' as const,
-  isUnread: index === 0, // Only the first recent ticket is unread
+  isUnread: index === 0,
 }));
 
 const INITIAL_PLACES: PlaceItem[] = MOCK_PLACES_TABLE.map((p) => ({
   ...p,
-  isUnread: p.status === 'review', // If in review status, it is unread/pending
+  isUnread: p.status === 'review',
 }));
 
 const DEFAULT_STATE: AdminState = {
   tickets: INITIAL_TICKETS,
   places: INITIAL_PLACES,
   analytics: MOCK_ANALYTICS,
+  kpi: MOCK_KPI,
+  dataSource: 'local',
 };
 
 let memoryState: AdminState = DEFAULT_STATE;
 let isInitialized = false;
+let hasAttemptedHydration = false;
+let inFlightHydration: Promise<'laravel' | 'local'> | null = null;
 const listeners = new Set<() => void>();
 
 function getStoredState(): AdminState {
@@ -89,6 +100,8 @@ function getStoredState(): AdminState {
           ...DEFAULT_STATE,
           ...parsed,
           analytics: parsed.analytics || MOCK_ANALYTICS,
+          kpi: parsed.kpi || MOCK_KPI,
+          dataSource: parsed.dataSource || 'local',
         };
       } else {
         memoryState = DEFAULT_STATE;
@@ -114,6 +127,11 @@ function saveAndNotify(nextState: AdminState) {
   listeners.forEach((listener) => listener());
 }
 
+function updateStoredState(updater: (current: AdminState) => AdminState) {
+  const latest = getStoredState();
+  saveAndNotify(updater(latest));
+}
+
 function subscribe(callback: () => void) {
   listeners.add(callback);
 
@@ -125,6 +143,7 @@ function subscribe(callback: () => void) {
           ...DEFAULT_STATE,
           ...parsed,
           analytics: parsed.analytics || MOCK_ANALYTICS,
+          kpi: parsed.kpi || MOCK_KPI,
         };
         callback();
       } catch {
@@ -145,132 +164,298 @@ function subscribe(callback: () => void) {
   };
 }
 
+export async function hydrateAdminStoreFromApi(
+  timeRange: string = '30d',
+  force: boolean = false,
+): Promise<'laravel' | 'local'> {
+  if (!shouldUseLaravelAdminApi()) return 'local';
+  if (inFlightHydration) return inFlightHydration;
+  if (hasAttemptedHydration && !force) {
+    return getStoredState().dataSource || 'local';
+  }
+
+  hasAttemptedHydration = true;
+  inFlightHydration = (async () => {
+    const [placesResult, ticketsResult, overviewResult] = await Promise.allSettled([
+      adminPlacesApi.getAllStrict(),
+      adminTicketsApi.getAllStrict(),
+      adminAnalyticsApi.getOverviewStrict(timeRange),
+    ]);
+
+    const anySucceeded =
+      placesResult.status === 'fulfilled' ||
+      ticketsResult.status === 'fulfilled' ||
+      overviewResult.status === 'fulfilled';
+
+    if (!anySucceeded) {
+      return getStoredState().dataSource || 'local';
+    }
+
+    updateStoredState((current) => {
+      const readTicketIds = new Set(
+        current.tickets.filter((t) => !t.isUnread).map((t) => t.id),
+      );
+      const reviewedPlaceIds = new Set(
+        current.places.filter((p) => p.isUnread === false).map((p) => p.id),
+      );
+
+      const nextPlaces =
+        placesResult.status === 'fulfilled'
+          ? placesResult.value.map((p) => ({
+              ...p,
+              isUnread: reviewedPlaceIds.has(p.id) ? false : p.isUnread,
+            }))
+          : current.places;
+
+      const nextTickets =
+        ticketsResult.status === 'fulfilled'
+          ? ticketsResult.value.map((t) => ({
+              ...t,
+              isUnread: readTicketIds.has(t.id) ? false : t.isUnread,
+            }))
+          : current.tickets;
+
+      const nextOverview =
+        overviewResult.status === 'fulfilled' ? overviewResult.value.data : null;
+
+      return {
+        ...current,
+        places: nextPlaces,
+        tickets: nextTickets,
+        kpi: nextOverview?.kpi || current.kpi || MOCK_KPI,
+        analytics: nextOverview?.analytics || current.analytics || MOCK_ANALYTICS,
+        dataSource: 'laravel',
+      };
+    });
+
+    return 'laravel' as const;
+  })();
+
+  try {
+    return await inFlightHydration;
+  } finally {
+    inFlightHydration = null;
+  }
+}
+
+export async function refreshAnalyticsFromApi(timeRange: string = '30d'): Promise<void> {
+  if (!shouldUseLaravelAdminApi()) return;
+
+  try {
+    const res = await adminAnalyticsApi.getOverviewStrict(timeRange);
+    updateStoredState((current) => ({
+      ...current,
+      kpi: res.data.kpi || current.kpi || MOCK_KPI,
+      analytics: res.data.analytics || current.analytics || MOCK_ANALYTICS,
+      dataSource: 'laravel',
+    }));
+  } catch {
+    // Keep existing cached analytics when Laravel server is offline
+  }
+}
+
 export function useAdminStore() {
   const state = useSyncExternalStore(
     subscribe,
     getStoredState,
-    () => DEFAULT_STATE
+    () => DEFAULT_STATE,
   );
 
   const unreadTicketsCount = useMemo(
     () => state.tickets.filter((t) => t.status === 'open' && t.isUnread).length,
-    [state.tickets]
+    [state.tickets],
   );
 
   const newPlacesCount = useMemo(
     () => state.places.filter((p) => p.status === 'review' && p.isUnread !== false).length,
-    [state.places]
+    [state.places],
   );
 
   return {
     tickets: state.tickets,
     places: state.places,
     analytics: state.analytics || MOCK_ANALYTICS,
+    kpi: state.kpi || MOCK_KPI,
+    dataSource: state.dataSource || 'local',
     unreadTicketsCount,
     newPlacesCount,
 
     // Ticket Actions
     markTicketAsRead: (ticketId: string) => {
-      const nextTickets = state.tickets.map((t) =>
-        t.id === ticketId ? { ...t, isUnread: false } : t
-      );
-      saveAndNotify({ ...state, tickets: nextTickets });
+      updateStoredState((current) => ({
+        ...current,
+        tickets: current.tickets.map((t) =>
+          t.id === ticketId ? { ...t, isUnread: false } : t,
+        ),
+      }));
     },
 
     markAllTicketsAsRead: () => {
-      const nextTickets = state.tickets.map((t) => ({ ...t, isUnread: false }));
-      saveAndNotify({ ...state, tickets: nextTickets });
+      updateStoredState((current) => ({
+        ...current,
+        tickets: current.tickets.map((t) => ({ ...t, isUnread: false })),
+      }));
     },
 
     resolveTicket: (ticketId: string, internalNote?: string) => {
-      const nextTickets = state.tickets.map((t) =>
-        t.id === ticketId
-          ? { ...t, status: 'resolved' as const, isUnread: false, internalNote: internalNote || t.internalNote }
-          : t
-      );
-      saveAndNotify({ ...state, tickets: nextTickets });
+      updateStoredState((current) => ({
+        ...current,
+        tickets: current.tickets.map((t) =>
+          t.id === ticketId
+            ? {
+                ...t,
+                status: 'resolved' as const,
+                isUnread: false,
+                internalNote: internalNote || t.internalNote,
+              }
+            : t,
+        ),
+      }));
+      if (shouldUseLaravelAdminApi()) {
+        void adminTicketsApi.resolve(ticketId, internalNote);
+      }
     },
 
     dismissTicket: (ticketId: string) => {
-      const nextTickets = state.tickets.map((t) =>
-        t.id === ticketId ? { ...t, status: 'dismissed' as const, isUnread: false } : t
-      );
-      saveAndNotify({ ...state, tickets: nextTickets });
+      updateStoredState((current) => ({
+        ...current,
+        tickets: current.tickets.map((t) =>
+          t.id === ticketId ? { ...t, status: 'dismissed' as const, isUnread: false } : t,
+        ),
+      }));
+      if (shouldUseLaravelAdminApi()) {
+        void adminTicketsApi.dismiss(ticketId);
+      }
     },
 
     addTicket: (ticket: Partial<AdminTicketItem>) => {
-      const newTicket: AdminTicketItem = {
-        id: ticket.id || `TK-${Math.floor(800 + Math.random() * 100)}`,
-        priority: ticket.priority || 'high',
-        category: ticket.category || 'Colokan Rusak',
-        cafeName: ticket.cafeName || 'Spot Kafe Baru',
-        location: ticket.location || 'Kota Bogor',
-        timeAgo: 'Baru saja',
-        reportedBy: ticket.reportedBy || 'Anonim',
-        description: ticket.description || 'Laporan fasilitas baru masuk.',
-        status: 'open',
-        isUnread: true,
-        internalNote: ticket.internalNote,
-      };
-      saveAndNotify({ ...state, tickets: [newTicket, ...state.tickets] });
+      updateStoredState((current) => {
+        const newTicket: AdminTicketItem = {
+          id: ticket.id || `TK-${Math.floor(800 + Math.random() * 100)}`,
+          priority: ticket.priority || 'high',
+          category: ticket.category || 'Colokan Rusak',
+          cafeName: ticket.cafeName || 'Spot Kafe Baru',
+          location: ticket.location || 'Kota Bogor',
+          timeAgo: 'Baru saja',
+          reportedBy: ticket.reportedBy || 'Anonim',
+          description: ticket.description || 'Laporan fasilitas baru masuk.',
+          status: 'open',
+          isUnread: true,
+          internalNote: ticket.internalNote,
+        };
+        return { ...current, tickets: [newTicket, ...current.tickets] };
+      });
     },
 
     // Places Actions
     markPlaceAsReviewed: (placeId: number) => {
-      const nextPlaces = state.places.map((p) =>
-        p.id === placeId ? { ...p, isUnread: false } : p
-      );
-      saveAndNotify({ ...state, places: nextPlaces });
+      updateStoredState((current) => ({
+        ...current,
+        places: current.places.map((p) =>
+          p.id === placeId ? { ...p, isUnread: false } : p,
+        ),
+      }));
     },
 
     markAllPlacesAsReviewed: () => {
-      const nextPlaces = state.places.map((p) => ({ ...p, isUnread: false }));
-      saveAndNotify({ ...state, places: nextPlaces });
+      updateStoredState((current) => ({
+        ...current,
+        places: current.places.map((p) => ({ ...p, isUnread: false })),
+      }));
     },
 
     verifyPlace: (placeId: number) => {
-      const nextPlaces = state.places.map((p) =>
-        p.id === placeId ? { ...p, status: 'verified' as const, isUnread: false } : p
-      );
-      saveAndNotify({ ...state, places: nextPlaces });
+      updateStoredState((current) => ({
+        ...current,
+        places: current.places.map((p) =>
+          p.id === placeId ? { ...p, status: 'verified' as const, isUnread: false } : p,
+        ),
+      }));
+      if (shouldUseLaravelAdminApi()) {
+        void adminPlacesApi.verify(placeId);
+      }
     },
 
     rejectPlace: (placeId: number) => {
-      const nextPlaces = state.places.map((p) =>
-        p.id === placeId ? { ...p, status: 'rejected' as const, isUnread: false } : p
-      );
-      saveAndNotify({ ...state, places: nextPlaces });
+      updateStoredState((current) => ({
+        ...current,
+        places: current.places.map((p) =>
+          p.id === placeId ? { ...p, status: 'rejected' as const, isUnread: false } : p,
+        ),
+      }));
+      if (shouldUseLaravelAdminApi()) {
+        void adminPlacesApi.reject(placeId);
+      }
     },
 
     addPlace: (place: Partial<PlaceItem>) => {
-      const newPlace: PlaceItem = {
-        id: place.id || Date.now(),
-        code: place.code || `KF-00${state.places.length + 1}`,
-        name: place.name || 'Kafe Baru Usulan',
-        address: place.address || 'Jl. Pajajaran, Kota Bogor',
-        lat: place.lat ?? -6.598,
-        lng: place.lng ?? 106.805,
-        wifi: place.wifi ?? 50,
-        plug: place.plug ?? 80,
-        price: place.price || 'Rp 20.000+',
-        score: place.score ?? 9.0,
-        status: place.status || 'review',
-        isUnread: true,
-        imageUrl: place.imageUrl ?? null,
-      };
-      saveAndNotify({ ...state, places: [newPlace, ...state.places] });
+      const tempId = place.id || Date.now();
+      let createdPayload: PlaceItem | null = null;
+
+      updateStoredState((current) => {
+        const newPlace: PlaceItem = {
+          id: tempId,
+          code: place.code || `KF-00${current.places.length + 1}`,
+          name: place.name || 'Kafe Baru Usulan',
+          address: place.address || 'Jl. Pajajaran, Kota Bogor',
+          lat: place.lat ?? -6.598,
+          lng: place.lng ?? 106.805,
+          wifi: place.wifi ?? 50,
+          plug: place.plug ?? 80,
+          price: place.price || 'Rp 20.000+',
+          score: place.score ?? 9.0,
+          status: place.status || 'review',
+          isUnread: true,
+          imageUrl: place.imageUrl ?? null,
+          plugLabel: place.plugLabel,
+          priceCategory: place.priceCategory,
+          acoustic: place.acoustic,
+          district: place.district,
+          is24Hours: place.is24Hours,
+        };
+        createdPayload = newPlace;
+        return { ...current, places: [newPlace, ...current.places] };
+      });
+
+      if (shouldUseLaravelAdminApi() && createdPayload) {
+        void adminPlacesApi.create(createdPayload).then((serverPlace) => {
+          if (serverPlace && serverPlace.id && serverPlace.id !== tempId) {
+            updateStoredState((current) => ({
+              ...current,
+              places: current.places.map((p) => (p.id === tempId ? serverPlace : p)),
+            }));
+          }
+        });
+      }
     },
 
     updatePlace: (updated: PlaceItem) => {
-      const nextPlaces = state.places.map((p) =>
-        p.id === updated.id ? updated : p
-      );
-      saveAndNotify({ ...state, places: nextPlaces });
+      updateStoredState((current) => ({
+        ...current,
+        places: current.places.map((p) => (p.id === updated.id ? updated : p)),
+      }));
+      if (shouldUseLaravelAdminApi()) {
+        void adminPlacesApi.update(updated.id, updated).then((serverPlace) => {
+          if (serverPlace && serverPlace.id === updated.id) {
+            updateStoredState((current) => ({
+              ...current,
+              places: current.places.map((p) =>
+                p.id === updated.id ? { ...updated, ...serverPlace } : p,
+              ),
+            }));
+          }
+        });
+      }
     },
 
     deletePlace: (placeId: number) => {
-      const nextPlaces = state.places.filter((p) => p.id !== placeId);
-      saveAndNotify({ ...state, places: nextPlaces });
+      updateStoredState((current) => ({
+        ...current,
+        places: current.places.filter((p) => p.id !== placeId),
+      }));
+      if (shouldUseLaravelAdminApi()) {
+        void adminPlacesApi.delete(placeId);
+      }
     },
 
     resetToDefault: () => {
@@ -322,7 +507,6 @@ export function dispatchNewPublicPlace(place: Partial<PlaceItem>) {
 
 /**
  * Tracks a spatial query event from Public WebGIS (/) — Search or Filter submission.
- * When backend endpoint `POST /api/v1/analytics/track` is ready, call it here.
  */
 export function trackPublicSpatialQuery(queryHint?: string) {
   if (typeof window === 'undefined') return;
@@ -352,7 +536,7 @@ export function trackPublicSpatialQuery(queryHint?: string) {
 
   const targetIndex = matchedZoneIndex >= 0 ? matchedZoneIndex : 0;
   const nextSpatialDensity = currentAnalytics.spatialDensity.map((zone, idx) =>
-    idx === targetIndex ? { ...zone, queries: zone.queries + 1 } : zone
+    idx === targetIndex ? { ...zone, queries: zone.queries + 1 } : zone,
   );
 
   saveAndNotify({
@@ -371,7 +555,6 @@ export function trackPublicSpatialQuery(queryHint?: string) {
 
 /**
  * Tracks a route navigation click event ("Petunjuk Arah (Maps)") from Public WebGIS (/).
- * When backend endpoint `POST /api/v1/analytics/track` is ready, call it here.
  */
 export function trackPublicRouteClick(placeName?: string, address?: string) {
   if (typeof window === 'undefined') return;
@@ -387,7 +570,7 @@ export function trackPublicRouteClick(placeName?: string, address?: string) {
   let nextTopCafes = [...currentAnalytics.topCafes];
   if (placeName) {
     const existingIdx = nextTopCafes.findIndex(
-      (c) => c.name.toLowerCase() === placeName.toLowerCase()
+      (c) => c.name.toLowerCase() === placeName.toLowerCase(),
     );
     if (existingIdx >= 0) {
       nextTopCafes[existingIdx] = {
@@ -395,7 +578,7 @@ export function trackPublicRouteClick(placeName?: string, address?: string) {
         clicks: nextTopCafes[existingIdx].clicks + 1,
       };
     } else if (address) {
-      // Optional: keep top 5 sorted if aexisting cafe is clicked
+      // Optional future expansion
     }
     nextTopCafes = nextTopCafes
       .sort((a, b) => b.clicks - a.clicks)

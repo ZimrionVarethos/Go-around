@@ -4,7 +4,8 @@ import { useState, useEffect, useSyncExternalStore } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { AdminLayoutContext } from '@/components/admin/AdminLayoutContext';
-import { useAdminAuth } from '@/lib/admin-auth';
+import { syncAdminAuthFromBackend, useAdminAuth } from '@/lib/admin-auth';
+import { hydrateAdminStoreFromApi } from '@/lib/admin-store';
 
 const emptySubscribe = () => () => {};
 
@@ -30,10 +31,15 @@ export default function AdminLayout({
   const isLoginPage = pathname === '/admin/login';
   const isSettingsPage = pathname.startsWith('/admin/settings');
 
-  // Auth guard: if not authenticated and trying to access admin pages, redirect to login
+  // Auth guard & background hydration from Laravel Admin API
   useEffect(() => {
     if (hasMounted && !isAuthenticated && !isLoginPage) {
       router.push('/admin/login');
+      return;
+    }
+    if (hasMounted && isAuthenticated && !isLoginPage) {
+      void hydrateAdminStoreFromApi();
+      void syncAdminAuthFromBackend();
     }
   }, [hasMounted, isAuthenticated, isLoginPage, router]);
 

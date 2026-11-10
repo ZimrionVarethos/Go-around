@@ -42,7 +42,7 @@ export default function AdminLoginPage() {
 
     await new Promise((resolve) => setTimeout(resolve, 250));
 
-    const result = login(email, password);
+    const result = await login(email, password);
 
     if (result.success) {
       router.push('/admin');

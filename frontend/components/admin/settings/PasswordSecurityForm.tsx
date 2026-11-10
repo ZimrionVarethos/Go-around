@@ -5,7 +5,7 @@ import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/Button';
 
 interface PasswordSecurityFormProps {
-  onUpdatePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => boolean;
+  onUpdatePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => boolean | Promise<boolean>;
 }
 
 export function PasswordSecurityForm({ onUpdatePassword }: PasswordSecurityFormProps) {
@@ -15,9 +15,9 @@ export function PasswordSecurityForm({ onUpdatePassword }: PasswordSecurityFormP
   const [showCurrentPw, setShowCurrentPw] = useState(false);
   const [showNewPw, setShowNewPw] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const ok = onUpdatePassword(currentPassword, newPassword, confirmPassword);
+    const ok = await onUpdatePassword(currentPassword, newPassword, confirmPassword);
     if (ok) {
       setCurrentPassword('');
       setNewPassword('');
