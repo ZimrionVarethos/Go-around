@@ -25,17 +25,17 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        'bg-primary-900 text-white hover:bg-primary-800 active:bg-primary-950 focus-visible:ring-primary-700 shadow-sm rounded-full',
+        'bg-primary-900 text-white hover:bg-primary-800 active:bg-primary-950 focus-visible:ring-primary-700 shadow-xs rounded-lg',
       secondary:
-        'bg-primary-100 text-primary-900 hover:bg-primary-200 border border-primary-200 active:bg-primary-300 focus-visible:ring-primary-500 rounded-full',
+        'bg-primary-100 text-primary-900 hover:bg-primary-200 border border-primary-200 active:bg-primary-300 focus-visible:ring-primary-500 rounded-lg',
       danger:
-        'bg-danger-base text-white hover:bg-red-700 active:bg-red-800 focus-visible:ring-danger-base shadow-sm rounded-full',
+        'bg-danger-base text-white hover:bg-red-700 active:bg-red-800 focus-visible:ring-danger-base shadow-xs rounded-lg',
       ghost:
-        'text-text-700 hover:bg-surface-subtle hover:text-text-900 active:bg-surface-header focus-visible:ring-text-400 rounded-md',
+        'text-text-700 hover:bg-surface-subtle hover:text-text-900 active:bg-surface-header focus-visible:ring-text-400 rounded-lg',
       outline:
-        'border border-border-strong bg-white text-text-700 hover:bg-surface-subtle hover:border-text-500 active:bg-surface-header focus-visible:ring-primary-700 rounded-full',
+        'border border-border-strong bg-white text-text-700 hover:bg-surface-subtle hover:border-text-500 active:bg-surface-header focus-visible:ring-primary-700 rounded-lg',
       coffee:
-        'bg-coffee-cta text-text-900 hover:bg-yellow-400 active:bg-yellow-500 border border-yellow-500/30 font-semibold shadow-sm rounded-full',
+        'bg-coffee-cta text-text-900 hover:bg-yellow-400 active:bg-yellow-500 border border-yellow-500/30 font-semibold shadow-xs rounded-lg',
     };
 
     const sizes = {

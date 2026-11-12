@@ -38,6 +38,7 @@ export interface RecommendationRequest {
   must_have: RecommendationFacility[];
   weights: RecommendationWeights;
   open_now: boolean;
+  is_24_hours?: boolean;
   sort_by?: RecommendationSort;
   search_query?: string | null;
   natural_language_query?: string | null;

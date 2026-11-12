@@ -49,7 +49,7 @@ export function BudgetSection({
               value={priceMinDrink}
               onChange={(e) => onPriceMinDrinkChange(e.target.value)}
               placeholder="Cth: 18.000"
-              className="w-full h-12 pl-12 pr-4 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] transition-all"
+              className="w-full h-12 pl-12 pr-4 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-[#005B54] transition-all"
             />
           </div>
           <p className="text-xs text-gray-400">Contoh: Es Kopi Susu Aren / Teh Manis</p>
@@ -63,7 +63,7 @@ export function BudgetSection({
           <select
             value={priceAvgTier}
             onChange={(e) => onPriceAvgTierChange(e.target.value)}
-            className="w-full h-12 px-3.5 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] cursor-pointer"
+            className="w-full h-12 px-3.5 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-[#005B54] cursor-pointer"
           >
             <option value="< Rp 25.000">&lt; Rp 25.000 (Hemat Pelajar)</option>
             <option value="Rp 25.000 - Rp 35.000">Rp 25.000 - Rp 35.000 (Standar Kafe)</option>
@@ -86,7 +86,7 @@ export function BudgetSection({
               value={parkingFeeMotor}
               onChange={(e) => onParkingFeeMotorChange(e.target.value)}
               placeholder="Cth: 2.000"
-              className="w-full h-12 pl-12 pr-4 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 focus:border-[#005B54] transition-all"
+              className="w-full h-12 pl-12 pr-4 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-[#005B54] transition-all"
             />
           </div>
           <p className="text-xs text-gray-400">Tarif standar resmi Kota Bogor (Isi 0 jika gratis)</p>

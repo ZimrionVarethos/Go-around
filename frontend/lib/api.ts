@@ -16,6 +16,11 @@ import type {
   PlaceFilters,
 } from '@/lib/types';
 import { ApiError as ApiErrorClass } from '@/lib/types';
+import {
+  buildMockPlaceDetail,
+  getSyncedPublicPlaces,
+  recommendationToGeoJsonFeature,
+} from '@/lib/recommendations/mock-data';
 import { supabaseApi } from './supabase-api';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
@@ -38,7 +43,11 @@ function buildUrl(path: string, params?: Record<string, unknown>): string {
   return url.toString();
 }
 
-async function apiFetch<T>(path: string, options?: RequestInit, params?: Record<string, unknown>): Promise<T> {
+async function apiFetch<T>(
+  path: string,
+  options?: RequestInit,
+  params?: Record<string, unknown>,
+): Promise<T> {
   const url = buildUrl(path, params);
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -47,7 +56,11 @@ async function apiFetch<T>(path: string, options?: RequestInit, params?: Record<
 
   if (!res.ok) {
     let body: unknown;
-    try { body = await res.json(); } catch { body = null; }
+    try {
+      body = await res.json();
+    } catch {
+      body = null;
+    }
     throw new ApiErrorClass(res.status, body);
   }
 
@@ -65,30 +78,63 @@ export const placesApi = {
         data: places,
         pagination: {
           total: places.length,
-          per_page: 50,
+          per_page: Math.max(50, places.length),
           current_page: 1,
           last_page: 1,
         },
       };
     }
-    return apiFetch<ApiListResponse<PlaceListItem>>('/places', undefined, filters as unknown as Record<string, unknown>);
+    return apiFetch<ApiListResponse<PlaceListItem>>(
+      '/places',
+      undefined,
+      filters as unknown as Record<string, unknown>,
+    );
   },
 
   bbox: async (params: BboxParams = {}): Promise<GeoJsonFeatureCollection> => {
     if (USE_SUPABASE) {
-      return supabaseApi.getBboxPlaces();
+      const geo = await supabaseApi.getBboxPlaces();
+      if (geo.features.length > 0) {
+        return geo;
+      }
+    } else {
+      try {
+        return await apiFetch<GeoJsonFeatureCollection>(
+          '/places/bbox',
+          undefined,
+          params as unknown as Record<string, unknown>,
+        );
+      } catch {
+        // Fallback below
+      }
     }
-    return apiFetch<GeoJsonFeatureCollection>('/places/bbox', undefined, params as unknown as Record<string, unknown>);
+
+    const synced = getSyncedPublicPlaces();
+    return {
+      type: 'FeatureCollection',
+      metadata: {
+        count: synced.length,
+        city: 'Kota Bogor',
+        generated_at: new Date().toISOString(),
+      },
+      features: synced.map(recommendationToGeoJsonFeature),
+    };
   },
 
   nearby: async (params: NearbyParams): Promise<GeoJsonFeatureCollection> => {
     if (USE_SUPABASE) {
       return supabaseApi.getBboxPlaces();
     }
-    return apiFetch<GeoJsonFeatureCollection>('/places/nearby', undefined, params as unknown as Record<string, unknown>);
+    return apiFetch<GeoJsonFeatureCollection>(
+      '/places/nearby',
+      undefined,
+      params as unknown as Record<string, unknown>,
+    );
   },
 
-  recommend: async (params: RecommendParams = {}): Promise<{ status: string; message: string; data: PlaceGeoJsonFeature[] }> => {
+  recommend: async (
+    params: RecommendParams = {},
+  ): Promise<{ status: string; message: string; data: PlaceGeoJsonFeature[] }> => {
     if (USE_SUPABASE) {
       const geo = await supabaseApi.getBboxPlaces();
       return { status: 'success', message: 'OK', data: geo.features };
@@ -96,23 +142,44 @@ export const placesApi = {
     return apiFetch<{ status: string; message: string; data: PlaceGeoJsonFeature[] }>(
       '/places/recommend',
       undefined,
-      params as unknown as Record<string, unknown>
+      params as unknown as Record<string, unknown>,
     );
   },
 
   detail: async (idOrSlug: string): Promise<ApiSingleResponse<PlaceDetail>> => {
     if (USE_SUPABASE) {
       const place = await supabaseApi.getPlaceDetail(idOrSlug);
-      if (!place) throw new ApiErrorClass(404, 'Place not found');
-      return { status: 'success', data: place };
+      if (place) {
+        return { status: 'success', data: place };
+      }
+    } else {
+      try {
+        return await apiFetch<ApiSingleResponse<PlaceDetail>>(`/places/${idOrSlug}`);
+      } catch {
+        // Fallback below
+      }
     }
-    return apiFetch<ApiSingleResponse<PlaceDetail>>(`/places/${idOrSlug}`);
+
+    const allPlaces = getSyncedPublicPlaces(true);
+    const found = allPlaces.find(
+      (p) => p.slug === idOrSlug || String(p.id) === String(idOrSlug),
+    );
+    if (!found) {
+      throw new ApiErrorClass(404, null, 'Tempat nugas tidak ditemukan');
+    }
+    return {
+      status: 'success',
+      data: buildMockPlaceDetail(found),
+    };
   },
 
   subdistricts: async (): Promise<ApiSingleResponse<SubdistrictItem[]>> => {
     if (USE_SUPABASE) {
       const list = await supabaseApi.getSubdistricts();
-      return { status: 'success', data: list.map((s) => ({ subdistrict: s, count: 0 })) };
+      return {
+        status: 'success',
+        data: list.map((s) => ({ subdistrict: s, count: 0 })),
+      };
     }
     return apiFetch<ApiSingleResponse<SubdistrictItem[]>>('/places/subdistricts');
   },
@@ -133,8 +200,13 @@ export const categoriesApi = {
 // ─── Amenities ─────────────────────────────────────────────────────────────────
 
 export const amenitiesApi = {
-  list: (): Promise<ApiSingleResponse<Amenity[]>> =>
-    apiFetch<ApiSingleResponse<Amenity[]>>('/amenities'),
+  list: async (): Promise<ApiSingleResponse<Amenity[]>> => {
+    if (USE_SUPABASE) {
+      const amenities = await supabaseApi.getAmenities();
+      return { status: 'success', data: amenities };
+    }
+    return apiFetch<ApiSingleResponse<Amenity[]>>('/amenities');
+  },
 };
 
 // ─── Contributions ─────────────────────────────────────────────────────────────
@@ -142,8 +214,14 @@ export const amenitiesApi = {
 export const contributionsApi = {
   submit: async (payload: ContributionPayload): Promise<ContributionResponse> => {
     if (USE_SUPABASE) {
-      const data = await supabaseApi.createContribution(payload);
-      return { status: 'success', message: 'Kontribusi berhasil disimpan', data } as unknown as ContributionResponse;
+      const data = await supabaseApi.createContribution(
+        payload as unknown as Record<string, unknown>,
+      );
+      return {
+        status: 'success',
+        message: 'Kontribusi berhasil disimpan',
+        data,
+      } as unknown as ContributionResponse;
     }
     return apiFetch<ContributionResponse>('/contributions', {
       method: 'POST',
@@ -153,8 +231,11 @@ export const contributionsApi = {
 };
 
 // ─── Facility Reports (Lapor & Koreksi Fasilitas) ──────────────────────────────
+
 export const reportsApi = {
-  submit: async (payload: Record<string, unknown>): Promise<{ status: string; message: string; data: unknown }> => {
+  submit: async (
+    payload: Record<string, unknown>,
+  ): Promise<{ status: string; message: string; data: unknown }> => {
     if (USE_SUPABASE) {
       const data = await supabaseApi.createReport(payload);
       return { status: 'success', message: 'Laporan berhasil disimpan', data };

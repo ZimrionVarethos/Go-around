@@ -1,8 +1,7 @@
 'use client';
 
 import { AdminTopbar } from '@/components/layout/AdminTopbar';
-import { useAdminLayout } from './layout';
-import { MOCK_KPI } from '@/lib/admin-mock-data';
+import { useAdminLayout } from '@/components/admin/AdminLayoutContext';
 import { useAdminStore } from '@/lib/admin-store';
 import { useToast } from '@/hooks/useToast';
 import { ToastContainer } from '@/components/ui/ToastContainer';
@@ -17,16 +16,16 @@ export default function AdminDashboardPage() {
   const { openMobileMenu } = useAdminLayout();
   const { toasts, showToast, dismissToast } = useToast();
 
-  const { tickets, places, resolveTicket, dismissTicket } = useAdminStore();
+  const { tickets, places, kpi, resolveTicket, dismissTicket } = useAdminStore();
 
   const handleResolveTicket = (ticketId: string, cafeName: string) => {
     resolveTicket(ticketId);
-    showToast(`Tiket ${ticketId} (${cafeName}) ditandai selesai! ✅`, 'success', 3000);
+    showToast(`Tiket ${ticketId} (${cafeName}) ditandai selesai.`, 'success', 3000);
   };
 
   const handleDismissTicket = (ticketId: string) => {
     dismissTicket(ticketId);
-    showToast(`Tiket ${ticketId} diabaikan`, 'info', 2500);
+    showToast(`Tiket ${ticketId} diabaikan.`, 'info', 2500);
   };
 
   const activeTickets = tickets.filter((t) => t.status === 'open');
@@ -35,8 +34,8 @@ export default function AdminDashboardPage() {
     <div className="flex flex-col min-h-full pb-12">
       {/* Admin Header */}
       <AdminTopbar
-        title="Dashboard Overview"
-        subtitle="Pemantauan master data spasial, tiket laporan, dan aktivitas nugas mahasiswa"
+        title="Dashboard"
+        subtitle="Ringkasan operasional titik spasial kafe dan antrean laporan fasilitas"
         onOpenMobileMenu={openMobileMenu}
         showSearch={false}
         hideDefaultExport={true}
@@ -51,7 +50,7 @@ export default function AdminDashboardPage() {
         <AdminKPICards
           totalPlaces={places.length}
           activeTicketsCount={activeTickets.length}
-          kpi={MOCK_KPI}
+          kpi={kpi}
         />
 
         {/* 2-Column Section: Recent Tickets & Top Cafes */}

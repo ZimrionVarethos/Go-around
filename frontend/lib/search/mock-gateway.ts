@@ -1,4 +1,4 @@
-import { MOCK_RECOMMENDATION_PLACES } from '@/lib/recommendations/mock-data';
+import { getSyncedPublicPlaces } from '@/lib/recommendations/mock-data';
 import type {
   NeedSearchSuggestion,
   SearchGateway,
@@ -67,7 +67,7 @@ export const mockSearchGateway: SearchGateway = {
   async getPlaceSuggestions(query, limit = 6) {
     await wait();
     const normalizedQuery = normalize(query);
-    const data = MOCK_RECOMMENDATION_PLACES
+    const data = getSyncedPublicPlaces()
       .map((place) => ({
         place,
         score: Math.max(

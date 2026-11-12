@@ -1,7 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Image as ImageIcon, Wifi, Coffee, X, Upload } from 'lucide-react';
+import {
+  ImageIcon,
+  WifiHighIcon,
+  CoffeeIcon,
+  XIcon,
+  UploadSimpleIcon,
+} from '@phosphor-icons/react';
 
 export interface PhotoUploadSectionProps {
   photoMain: string | null;
@@ -40,7 +46,7 @@ export function PhotoUploadSection({
               Lampirkan Bukti Lapangan <span className="text-red-500">*</span>
             </h2>
             {hasEvidence ? (
-              <span className="text-xs font-bold text-[#005B54] bg-[#E0F3EE] px-2.5 py-0.5 rounded-full border border-teal-200/60">
+              <span className="text-xs font-bold text-[#005B54] bg-[#E0F3EE] px-2.5 py-0.5 rounded-full border border-[#005B54]">
                 ✓ Minimal 1 Bukti Terlampir
               </span>
             ) : (
@@ -61,7 +67,7 @@ export function PhotoUploadSection({
         <div className="border border-gray-200 rounded-xl p-4 flex flex-col justify-between space-y-3 bg-gray-50/40 hover:bg-white transition-colors">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <ImageIcon className="w-4.5 h-4.5 text-[#005B54]" />
+              <ImageIcon size={18} weight="duotone" className="text-[#005B54]" />
               <span className="text-xs font-bold bg-[#E0F3EE] text-[#005B54] px-2 py-0.5 rounded-md">
                 Spot Utama
               </span>
@@ -82,12 +88,12 @@ export function PhotoUploadSection({
                 onClick={() => onPhotoMainChange(null)}
                 className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <XIcon size={16} weight="bold" />
               </button>
             </div>
           ) : (
             <label className="border border-dashed border-gray-300 hover:border-[#005B54] hover:bg-teal-50/30 rounded-xl p-4 text-center cursor-pointer transition-all bg-white flex flex-col items-center justify-center gap-2 active:scale-[0.98]">
-              <Upload className="w-5 h-5 text-gray-400" />
+              <UploadSimpleIcon size={20} weight="bold" className="text-gray-400" />
               <span className="text-xs font-bold bg-[#005B54] text-white px-3 py-1.5 rounded-lg shadow-2xs">
                 Pilih File Foto
               </span>
@@ -106,7 +112,7 @@ export function PhotoUploadSection({
         <div className="border border-gray-200 rounded-xl p-4 flex flex-col justify-between space-y-3 bg-gray-50/40 hover:bg-white transition-colors">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <Wifi className="w-4.5 h-4.5 text-[#005B54]" />
+              <WifiHighIcon size={18} weight="bold" className="text-[#005B54]" />
               <span className="text-xs font-bold bg-[#E0F3EE] text-[#005B54] px-2 py-0.5 rounded-md">
                 Min. 25 Mbps
               </span>
@@ -127,12 +133,12 @@ export function PhotoUploadSection({
                 onClick={() => onPhotoSpeedtestChange(null)}
                 className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <XIcon size={16} weight="bold" />
               </button>
             </div>
           ) : (
             <label className="border border-dashed border-gray-300 hover:border-[#005B54] hover:bg-teal-50/30 rounded-xl p-4 text-center cursor-pointer transition-all bg-white flex flex-col items-center justify-center gap-2 active:scale-[0.98]">
-              <Upload className="w-5 h-5 text-gray-400" />
+              <UploadSimpleIcon size={20} weight="bold" className="text-gray-400" />
               <span className="text-xs font-bold bg-[#005B54] text-white px-3 py-1.5 rounded-lg shadow-2xs">
                 Upload Bukti Uji
               </span>
@@ -151,7 +157,7 @@ export function PhotoUploadSection({
         <div className="border border-gray-200 rounded-xl p-4 flex flex-col justify-between space-y-3 bg-gray-50/40 hover:bg-white transition-colors">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <Coffee className="w-4.5 h-4.5 text-[#005B54]" />
+              <CoffeeIcon size={18} weight="duotone" className="text-[#005B54]" />
               <span className="text-xs font-bold bg-[#E0F3EE] text-[#005B54] px-2 py-0.5 rounded-md">
                 Menu &amp; Harga
               </span>
@@ -172,12 +178,12 @@ export function PhotoUploadSection({
                 onClick={() => onPhotoMenuChange(null)}
                 className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <XIcon size={16} weight="bold" />
               </button>
             </div>
           ) : (
             <label className="border border-dashed border-gray-300 hover:border-[#005B54] hover:bg-teal-50/30 rounded-xl p-4 text-center cursor-pointer transition-all bg-white flex flex-col items-center justify-center gap-2 active:scale-[0.98]">
-              <Upload className="w-5 h-5 text-gray-400" />
+              <UploadSimpleIcon size={20} weight="bold" className="text-gray-400" />
               <span className="text-xs font-bold bg-[#005B54] text-white px-3 py-1.5 rounded-lg shadow-2xs">
                 Pilih Foto Menu
               </span>

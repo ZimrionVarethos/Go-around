@@ -2,7 +2,16 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { MapPin, Lightbulb, Info, Plug, Wifi, Coffee, Navigation, Loader2 } from 'lucide-react';
+import {
+  MapPinIcon,
+  LightbulbIcon,
+  InfoIcon,
+  PlugChargingIcon,
+  WifiHighIcon,
+  CoffeeIcon,
+  NavigationArrowIcon,
+  SpinnerGapIcon,
+} from '@phosphor-icons/react';
 
 const LocationPickerMap = dynamic(() => import('./LocationPickerMap'), {
   ssr: false,
@@ -95,12 +104,12 @@ export function GisGuideSidebar({
       <div className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-5 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-[#005B54]" />
+            <MapPinIcon size={20} weight="duotone" className="text-[#005B54]" />
             <h3 className="text-sm font-bold text-gray-900">
               Pin Georeferensi Lokasi <span className="text-red-500">*</span>
             </h3>
           </div>
-          <span className="bg-[#E0F3EE] text-[#005B54] text-xs font-bold px-2.5 py-1 rounded-full border border-teal-200/60">
+          <span className="bg-[#E0F3EE] text-[#005B54] text-xs font-bold px-2.5 py-1 rounded-full border border-[#005B54]">
             {isLocationSet ? 'Tersimpan' : 'Belum Dipin'}
           </span>
         </div>
@@ -110,23 +119,23 @@ export function GisGuideSidebar({
           type="button"
           onClick={handleGetCurrentLocation}
           disabled={isDetectingLocation}
-          className="w-full h-11 bg-teal-50 hover:bg-teal-100/80 text-[#005B54] border border-teal-200/80 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98] disabled:opacity-60 shadow-2xs"
+          className="w-full h-11 bg-teal-50 hover:bg-teal-100/80 text-[#005B54] border border-[#005B54] rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98] disabled:opacity-60 shadow-2xs"
         >
           {isDetectingLocation ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin text-[#005B54]" />
+              <SpinnerGapIcon size={16} weight="bold" className="animate-spin text-[#005B54]" />
               <span>Mencari Koordinat GPS...</span>
             </>
           ) : (
             <>
-              <Navigation className="w-4 h-4 text-[#005B54]" />
+              <NavigationArrowIcon size={16} weight="fill" className="text-[#005B54]" />
               <span>Gunakan Lokasi GPS Saya Saat Ini</span>
             </>
           )}
         </button>
 
         {locationFeedback && (
-          <div className="text-xs text-[#005B54] bg-[#E0F3EE] border border-teal-200/60 px-3.5 py-2.5 rounded-xl font-medium flex items-center gap-2 animate-in fade-in">
+          <div className="text-xs text-[#005B54] bg-[#E0F3EE] border border-[#005B54] px-3.5 py-2.5 rounded-xl font-medium flex items-center gap-2 animate-in fade-in">
             <span className="w-2 h-2 rounded-full bg-[#005B54] shrink-0" />
             <span>{locationFeedback}</span>
           </div>
@@ -165,9 +174,9 @@ export function GisGuideSidebar({
                   const val = parseFloat(e.target.value);
                   if (!isNaN(val)) onLocationChange(val, lng);
                 }}
-                className={`w-full h-11 px-3 text-sm font-mono font-bold border rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 transition-all ${
+                className={`w-full h-11 px-3 text-sm font-mono font-bold border rounded-xl text-gray-900 focus:outline-none transition-all ${
                   isAutoFilled
-                    ? 'bg-teal-50 border-[#005B54] text-[#005B54] ring-2 ring-[#005B54]/20'
+                    ? 'bg-teal-50 border-[#005B54] text-[#005B54]'
                     : isLocationSet
                     ? 'bg-[#F8FAFC] border-gray-200 focus:border-[#005B54]'
                     : 'bg-white border-dashed border-gray-300 text-gray-400 placeholder:text-gray-400'
@@ -187,9 +196,9 @@ export function GisGuideSidebar({
                   const val = parseFloat(e.target.value);
                   if (!isNaN(val)) onLocationChange(lat, val);
                 }}
-                className={`w-full h-11 px-3 text-sm font-mono font-bold border rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005B54]/20 transition-all ${
+                className={`w-full h-11 px-3 text-sm font-mono font-bold border rounded-xl text-gray-900 focus:outline-none transition-all ${
                   isAutoFilled
-                    ? 'bg-teal-50 border-[#005B54] text-[#005B54] ring-2 ring-[#005B54]/20'
+                    ? 'bg-teal-50 border-[#005B54] text-[#005B54]'
                     : isLocationSet
                     ? 'bg-[#F8FAFC] border-gray-200 focus:border-[#005B54]'
                     : 'bg-white border-dashed border-gray-300 text-gray-400 placeholder:text-gray-400'
@@ -200,7 +209,7 @@ export function GisGuideSidebar({
         </div>
 
         <p className="text-xs text-gray-500 flex items-start gap-2 leading-relaxed">
-          <Info className="w-4 h-4 text-[#005B54] shrink-0 mt-0.5" />
+          <InfoIcon size={16} weight="fill" className="text-[#005B54] shrink-0 mt-0.5" />
           <span>{isLocationSet ? 'Titik koordinat berhasil disematkan. Anda bisa menggeser pin di peta untuk menyempurnakan.' : 'Silakan klik tombol GPS atau klik langsung titik kafe di peta untuk menyematkan koordinat.'}</span>
         </p>
       </div>
@@ -262,7 +271,7 @@ export function GisGuideSidebar({
       {/* Card 3: Standar Spot Nugas Berkualitas */}
       <div className="bg-white rounded-2xl border border-gray-200/90 shadow-xs p-5 sm:p-6 space-y-3.5">
         <div className="flex items-center gap-2">
-          <Lightbulb className="w-4.5 h-4.5 text-amber-500" />
+          <LightbulbIcon size={18} weight="duotone" className="text-amber-500" />
           <h3 className="text-sm font-bold text-gray-900">
             Standar Spot Nugas Berkualitas
           </h3>
@@ -271,7 +280,7 @@ export function GisGuideSidebar({
         <div className="space-y-3 text-xs sm:text-sm text-gray-600">
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-lg bg-teal-50 flex items-center justify-center text-[#005B54] shrink-0 mt-0.5">
-              <Plug className="w-3.5 h-3.5" />
+              <PlugChargingIcon size={14} weight="duotone" />
             </div>
             <p className="leading-snug">
               <strong className="text-gray-900 font-semibold">Colokan Kokoh:</strong> Stopkontak tidak longgar saat dicolok charger laptop.
@@ -279,7 +288,7 @@ export function GisGuideSidebar({
           </div>
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-lg bg-teal-50 flex items-center justify-center text-[#005B54] shrink-0 mt-0.5">
-              <Wifi className="w-3.5 h-3.5" />
+              <WifiHighIcon size={14} weight="bold" />
             </div>
             <p className="leading-snug">
               <strong className="text-gray-900 font-semibold">Wi-Fi Stabil &gt; 25 Mbps:</strong> Tidak putus-nyambung saat jam padat sore hari.
@@ -287,7 +296,7 @@ export function GisGuideSidebar({
           </div>
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-lg bg-teal-50 flex items-center justify-center text-[#005B54] shrink-0 mt-0.5">
-              <Coffee className="w-3.5 h-3.5" />
+              <CoffeeIcon size={14} weight="duotone" />
             </div>
             <p className="leading-snug">
               <strong className="text-gray-900 font-semibold">Ramah Mahasiswa:</strong> Boleh nugas &gt; 3 jam dengan pemesanan minuman yang wajar.
