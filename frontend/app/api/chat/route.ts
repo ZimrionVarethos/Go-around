@@ -130,8 +130,12 @@ Panduan Berbicara:
       parts: [{ text: message }],
     });
 
-    // 6. Call Google Gemini API (gemini-3.8-flash)
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
+    // 6. Call Google Gemini API with fallback models for high availability
+    const candidateModels = [
+      'gemini-3.5-flash-lite',
+      'gemini-3.5-flash',
+      'gemini-3.1-flash-lite',
+    ];
 
     const geminiPayload = {
       systemInstruction: {
@@ -144,30 +148,55 @@ Panduan Berbicara:
       },
     };
 
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(geminiPayload),
-    });
+    let replyText: string | null = null;
+    let lastError = '';
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Gemini API Error:', response.status, errorText);
+    for (const model of candidateModels) {
+      try {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const response = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(geminiPayload),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const candidateText =
+            data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+          if (candidateText) {
+            replyText = candidateText;
+            break; // Succeeded!
+          }
+        } else {
+          const errText = await response.text();
+          console.warn(
+            `Model ${model} failed with status ${response.status}:`,
+            errText,
+          );
+          lastError = `Status ${response.status}: ${errText}`;
+        }
+      } catch (err: any) {
+        console.warn(`Exception calling model ${model}:`, err.message);
+        lastError = err.message;
+      }
+    }
+
+    if (!replyText) {
+      console.error(
+        'All Gemini candidate models failed. Last error:',
+        lastError,
+      );
       return NextResponse.json(
         {
           error:
-            'Maaf, layanan asisten AI sedang sibuk. Silakan coba lagi beberapa saat.',
+            'Maaf, layanan asisten AI sedang mengalami kendala jaringan. Silakan coba lagi beberapa saat.',
         },
         { status: 502 },
       );
     }
-
-    const data = await response.json();
-    const replyText =
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      'Maaf, saya belum dapat merespons saat ini.';
 
     return NextResponse.json({
       reply: replyText,
