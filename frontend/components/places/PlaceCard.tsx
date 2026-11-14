@@ -197,7 +197,15 @@ export function PlaceCard({
         <div className={`${isSelected ? 'h-16 w-16' : 'h-14 w-14'} relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 text-slate-400`}>
           {place.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={place.image_url} alt="" className="h-full w-full object-cover" />
+            <img
+              src={place.image_url}
+              alt=""
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src =
+                  'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80';
+              }}
+            />
           ) : (
             <ImageIcon size={20} weight="duotone" aria-hidden="true" />
           )}

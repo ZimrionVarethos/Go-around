@@ -148,6 +148,10 @@ export function PlaceDetailDrawer({
             src={place.media.image_url}
             alt={place.name}
             className="h-full w-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src =
+                'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80';
+            }}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#005B54] to-[#0b766d] text-white/75">

@@ -15,6 +15,9 @@ import type {
   WifiQuality,
 } from './types';
 
+export const DEFAULT_CAFE_IMAGE =
+  'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80';
+
 type RawRecord = Record<string, unknown>;
 
 function toNumberOrNull(value: unknown): number | null {
@@ -217,7 +220,7 @@ export function formatPlaceDetail(input: unknown): PlaceDetail {
   const gMapsUrl =
     (p.google_maps_url ? String(p.google_maps_url) : null) ||
     `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-  const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${placeName}, Kota Bogor`)}`;
+  const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 
   const vibeTags = p.vibe_tags
     ? parseVibeTags(p.vibe_tags as string | string[])
